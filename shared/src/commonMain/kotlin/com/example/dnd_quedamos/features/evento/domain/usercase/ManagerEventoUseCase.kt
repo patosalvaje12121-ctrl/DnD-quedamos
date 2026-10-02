@@ -8,15 +8,15 @@ class ManagerEventoUseCase(
     private val repositoryEvento: IRepositoryEvento
 ) {
 
-    suspend fun MostrarEvento(): List<DataEvento>{
+    suspend fun MostrarEvento(): Result<List<DataEvento>>{
 
         val de:List<DataEvento> = repositoryEvento.bbddEvento()
 
-        /*if(de == null){
-            return Result.failure (IllegalStateException("QUESO"))
-        }*/
+        if(de.isEmpty()){
+            return Result.failure(NoSuchElementException())
+        }
 
-        return de
+        return Result.success(de)
     }
 
 

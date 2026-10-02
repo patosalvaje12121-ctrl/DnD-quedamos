@@ -7,9 +7,11 @@ class RepositoryEvento(
     //private val httpClient: HttpClient
 ): IRepositoryEvento {
     override suspend fun  bbddEvento(): List<DataEvento>{
-        return listOf(
-            DataEvento(1, nombre = "PrimerEvento", descripcion = "estoesunaprueba1"),
-            DataEvento(2, nombre = "SegundoEvento", descripcion = "estoesunaprueba2")
-        )
+
+        val eventosDeEjemplo = (1..30).map { i ->
+            DataEvento(id = i, nombre = "Objeto $i", descripcion = "Descripción de ejemplo $i")
+        }
+
+        return eventosDeEjemplo;
     }
 }
