@@ -12,9 +12,9 @@ class ManagerEventoUseCase(
 
         val de:List<DataEvento> = repositoryEvento.bbddEvento()
 
-        /*if(de == null){
-            return Result.failure (IllegalStateException("QUESO"))
-        }*/
+        if(de.isEmpty()){
+            throw Exception()
+        }
 
         return de
     }
