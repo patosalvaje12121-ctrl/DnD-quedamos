@@ -25,7 +25,7 @@ class EventoViewModel(
     fun inicializar(){
         _uiState.update { currentState ->
             currentState.copy(
-                id = managerEventoUseCase,
+                id = managerEventoUseCase.mostrarEvento(),
                 nombre = _nombre,
                 descripcion = _descripcion,
             )
