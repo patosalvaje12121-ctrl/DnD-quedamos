@@ -1,5 +1,6 @@
 package com.example.dnd_quedamos.features.evento.presentation
 
+import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.domain.usercase.ManagerEventoUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,9 +10,7 @@ import kotlin.collections.copy
 import kotlin.random.Random
 
 data class EventoUiState(
-    val id: Int = 0,
-    val nombre : String? = null,
-    val descripcion: String? = null,
+    val dataEventos: List<DataEvento>?,
 )
 
 class EventoViewModel(
@@ -19,15 +18,13 @@ class EventoViewModel(
 ) {
 
     // Expose screen UI state
-    private val _uiState = MutableStateFlow(EventoUiState())
+    private val _uiState = MutableStateFlow(EventoUiState(listOf<DataEvento> ()))
     val uiState: StateFlow<EventoUiState> = _uiState.asStateFlow()
 
     fun inicializar(){
         _uiState.update { currentState ->
             currentState.copy(
-                id = managerEventoUseCase.mostrarEvento(),
-                nombre = _nombre,
-                descripcion = _descripcion,
+                dataEventos = managerEventoUseCase.MostrarEvento(),
             )
         }
     }
