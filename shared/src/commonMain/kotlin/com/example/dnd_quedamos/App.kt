@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
+import com.example.dnd_quedamos.features.evento.domain.usercase.ManagerEventoUseCase
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
 
 data class Objeto(
@@ -89,7 +90,7 @@ fun App() {
 @Composable
 fun EventoScreen(
     modifier: Modifier = Modifier,
-    viewModel: EventoViewModel = viewModel()
+    viewModel: EventoViewModel = EventoViewModel(ManagerEventoUseCase())
 ) {
     // 1. Inicializa el ViewModel de forma segura una sola vez
     LaunchedEffect(Unit) {
@@ -97,7 +98,7 @@ fun EventoScreen(
     }
 
     // 2. Observa el estado de la UI de manera reactiva
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // 3. Pintamos la lista directamente aquí dentro de la función Composable
     LazyColumn(

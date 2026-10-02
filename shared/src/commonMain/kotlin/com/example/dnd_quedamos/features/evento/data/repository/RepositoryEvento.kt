@@ -9,7 +9,7 @@ class RepositoryEvento(
     override suspend fun  bbddEvento(): List<DataEvento>{
 
         val eventosDeEjemplo = (1..30).map { i ->
-            DataEvento(id = i, nombre = "Objeto $i", descripcion = "Descripción de ejemplo $i")
+            DataEvento(id = i, nombre = "Evento $i", descripcion = "Descripción de evento $i")
         }
 
         return eventosDeEjemplo;
