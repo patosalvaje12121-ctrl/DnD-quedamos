@@ -1,5 +1,4 @@
 package com.example.dnd_quedamos.features.usuario.domain.repository
 
-interface IProveedorUsuario {
-
+interface IRepositoryUsuario {
 }
