@@ -1,4 +1,7 @@
 package com.example.dnd_quedamos.features.evento.domain.repository
 
-class IRepositoryEvento {
+import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
+
+interface IRepositoryEvento {
+    suspend fun bbddEvento(): List<DataEvento>
 }
