@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.dnd_quedamos.di.AppContainer
 import com.example.dnd_quedamos.di.DefaultAppContainer
 import com.example.dnd_quedamos.features.evento.domain.usecase.ManagerEventoUseCase
@@ -25,6 +26,7 @@ import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
 import com.example.dnd_quedamos.features.evento.ui.HomeEventViewRoot
 import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
 import com.example.dnd_quedamos.features.mapa.ui.VistaDePruebaMapa
+import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
 import kotlinx.coroutines.selects.select
 
 data class Objeto(
@@ -101,7 +103,13 @@ fun App( appContainer: AppContainer = DefaultAppContainer() ) {
                             restoreState = true
                         }
                     }
-                    BottomNavButton(emoji = "⚙️", label = "Ajustes", selected = false) { }
+                    BottomNavButton(emoji = "⚙️", label = "Ajustes", selected = false) {
+                        navController.navigate(Route.UserProfile(-1)) {
+                            popUpTo(Route.Home) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 }
             }
 
@@ -116,6 +124,10 @@ fun App( appContainer: AppContainer = DefaultAppContainer() ) {
                 }
                 composable<Route.MainMap> {
                     VistaDePruebaMapa()
+                }
+                composable<Route.UserProfile> { it ->
+                    val route: Route.UserProfile = it.toRoute()
+                    ViewUserRoot(route.userID)
                 }
             }
 
