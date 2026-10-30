@@ -12,12 +12,6 @@ kotlin {
         binaries.executable()
     }
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-        binaries.executable()
-    }
-
     sourceSets {
         commonMain.dependencies {
             implementation(project(":shared"))
