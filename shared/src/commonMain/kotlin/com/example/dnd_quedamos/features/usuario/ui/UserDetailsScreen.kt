@@ -13,10 +13,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.example.dnd_quedamos.features.evento.domain.usecase.ManagerEventoUseCase
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
 import com.example.dnd_quedamos.features.usuario.domain.usecase.ManagerUsuarioUseCase
@@ -26,7 +28,19 @@ import com.example.dnd_quedamos.features.usuario.presentation.UsuarioViewModel
 @Composable
 fun UserDetailsScreen(
     viewModel: UsuarioUiState,
-    onAction: () -> Unit
+    onAction: () -> Unit,
+    modifier: Modifier
 ) {
-   Box {  viewModel.dataUsuario  }
+   Box (
+
+       modifier = modifier.fillMaxSize(),
+       contentAlignment = Alignment.Center
+   ){
+       Text(viewModel.dataUsuario.name)
+
+//       AsyncImage(
+//           model = "https://toppng.com/uploads/preview/green-tree-11546971717mpgesbi97i.png",
+//           contentDescription = null,
+//       )
+   }
 }

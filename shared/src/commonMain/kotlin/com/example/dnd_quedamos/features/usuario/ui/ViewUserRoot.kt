@@ -20,7 +20,11 @@ fun ViewUserRoot(
     }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    // TODO: Comprobar si el ID == -1 para cargar el usuario local
+
     UserDetailsScreen(
-        uiState
-    ) { }
+        uiState,
+        {},
+        modifier
+    )
 }
