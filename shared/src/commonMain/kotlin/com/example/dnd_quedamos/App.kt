@@ -18,6 +18,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import coil3.ImageLoader
+import coil3.compose.setSingletonImageLoaderFactory
+import coil3.request.crossfade
 import com.example.dnd_quedamos.di.AppContainer
 import com.example.dnd_quedamos.di.DefaultAppContainer
 import com.example.dnd_quedamos.features.evento.domain.usecase.ManagerEventoUseCase
@@ -60,6 +63,12 @@ fun BottomNavButton(
 @Composable
 fun App( appContainer: AppContainer = DefaultAppContainer() ) {
     val navController = rememberNavController();
+
+    setSingletonImageLoaderFactory { context ->
+        ImageLoader.Builder(context)
+            .crossfade(true)
+            .build()
+    }
 
     MaterialTheme(
         colorScheme = darkColorScheme() // DnD = dark fantasy vibe
