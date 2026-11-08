@@ -1,5 +1,6 @@
 package com.example.dnd_quedamos.di
 
+import com.example.dnd_quedamos.core.network.createFakeApiEngine
 import com.example.dnd_quedamos.core.network.createHttpClient
 import com.example.dnd_quedamos.features.evento.data.remote.EventoApi
 import com.example.dnd_quedamos.features.evento.data.repository.RepositoryEvento
@@ -13,9 +14,18 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
+/**
+ * true  -> las peticiones las contesta el servidor falso (core/network/FakeApiEngine.kt)
+ * false -> las peticiones van a la API real (BASE_URL en core/network/HttpClientFactory.kt)
+ */
+const val USE_FAKE_API = true
+
 // Red: un único HttpClient compartido por todas las Api de la app
 val networkModule = module {
-    single<HttpClient> { createHttpClient() }
+    single<HttpClient> {
+        if (USE_FAKE_API) createHttpClient(createFakeApiEngine())
+        else createHttpClient()
+    }
 }
 
 val eventoModule = module {
