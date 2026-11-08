@@ -17,8 +17,13 @@ import kotlinx.serialization.json.Json
 /**
  * URL base de la API. Debe terminar en "/" para que las rutas relativas
  * ("eventos", "usuarios/3"...) se añadan detrás en lugar de reemplazar el último segmento.
+ *
+ * TODO: sustituir por la URL real de la API cuando exista.
+ * Mientras tanto es un marcador: el dominio ".invalid" está reservado y NUNCA existe,
+ * así que cualquier petición falla con un error claro ("no se puede resolver la dirección")
+ * en vez de acabar en una web real de otra persona.
  */
-const val BASE_URL = "https://tu-api.com/api/"
+const val BASE_URL = "https://aqui-iria-el-link-a-la-api.invalid/api/"
 
 /**
  * Configuración de JSON compartida por toda la app.
