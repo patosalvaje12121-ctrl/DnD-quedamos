@@ -18,12 +18,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.dnd_quedamos.features.evento.domain.usecase.ManagerEventoUseCase
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeEventViewRoot(modifier: Modifier = Modifier,
-                      viewModel: EventoViewModel = EventoViewModel(ManagerEventoUseCase())
+                      viewModel: EventoViewModel = koinViewModel()
 ) {
     // 1. Inicializa el ViewModel de forma segura una sola vez
     LaunchedEffect(Unit) {

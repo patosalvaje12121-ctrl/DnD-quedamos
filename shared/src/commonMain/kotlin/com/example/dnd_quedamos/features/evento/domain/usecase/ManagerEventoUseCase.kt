@@ -1,12 +1,11 @@
 package com.example.dnd_quedamos.features.evento.domain.usecase
 
 
-import com.example.dnd_quedamos.features.evento.data.repository.RepositoryEvento
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.domain.repository.IRepositoryEvento
 
 class ManagerEventoUseCase(
-    private val repositoryEvento: IRepositoryEvento = RepositoryEvento()
+    private val repositoryEvento: IRepositoryEvento
 ) {
 
     suspend fun MostrarEvento(): Result<List<DataEvento>>{
