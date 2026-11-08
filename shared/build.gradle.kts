@@ -44,6 +44,9 @@ kotlin {
             implementation(libs.compose.uiTooling)
             implementation("org.osmdroid:osmdroid-android:6.1.20")
             implementation("androidx.compose.ui:ui-viewbinding:1.8.3")
+
+            // Ktor: motor HTTP para Android
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -64,12 +67,27 @@ kotlin {
 
             implementation("io.coil-kt.coil3:coil-compose:3.6.3")
             implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.3")
+
+            // Ktor: cliente común + JSON + logs
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.contentNegotiation)
+            implementation(libs.ktor.serialization.kotlinxJson)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.kotlinx.serialization.json)
+            // MockEngine: respuestas falsas mientras no haya backend
+            implementation(libs.ktor.client.mock)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+        jvmMain.dependencies {
+            // Ktor: motor HTTP para escritorio
+            implementation(libs.ktor.client.okhttp)
+        }
         jsMain.dependencies {
             implementation(libs.wrappers.browser)
+            // Ktor: motor HTTP para web (usa fetch del navegador)
+            implementation(libs.ktor.client.js)
         }
     }
 }
