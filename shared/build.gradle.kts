@@ -66,7 +66,8 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
 
             implementation("io.coil-kt.coil3:coil-compose:3.6.3")
-            implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.3")
+            // Coil descarga imágenes usando Ktor (funciona en Android, escritorio y web)
+            implementation("io.coil-kt.coil3:coil-network-ktor3:3.6.3")
 
             // Ktor: cliente común + JSON + logs
             implementation(libs.ktor.client.core)
