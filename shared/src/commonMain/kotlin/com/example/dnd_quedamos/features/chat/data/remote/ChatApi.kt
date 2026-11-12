@@ -1,6 +1,7 @@
 package com.example.dnd_quedamos.features.chat.data.remote
 
 import com.example.dnd_quedamos.features.chat.data.remote.dto.ChatDto
+import com.example.dnd_quedamos.features.chat.data.remote.dto.ContactoDto
 import com.example.dnd_quedamos.features.chat.data.remote.dto.CrearChatDirectoDto
 import com.example.dnd_quedamos.features.chat.data.remote.dto.EnviarMensajeDto
 import com.example.dnd_quedamos.features.chat.data.remote.dto.MensajeDto
@@ -47,6 +48,10 @@ class ChatApi(
             contentType(ContentType.Application.Json)
             setBody(body)
         }.body()
+
+    /** GET usuarios -> usuarios con los que se puede empezar un chat */
+    suspend fun getUsuarios(): List<ContactoDto> =
+        client.get("usuarios").body()
 
     /** GET eventos/{id}/chat?userId= -> chat de grupo del evento (lo crea si no existe) */
     suspend fun getChatDeEvento(eventoId: Int, userId: Int): ChatDto =

@@ -1,6 +1,8 @@
 package com.example.dnd_quedamos.features.chat.data.remote.mapper
 
 import com.example.dnd_quedamos.features.chat.data.remote.dto.ChatDto
+import com.example.dnd_quedamos.features.chat.data.remote.dto.ContactoDto
+import com.example.dnd_quedamos.features.chat.domain.model.DataContacto
 import com.example.dnd_quedamos.features.chat.data.remote.dto.MensajeDto
 import com.example.dnd_quedamos.features.chat.domain.model.DataChat
 import com.example.dnd_quedamos.features.chat.domain.model.DataMensaje
@@ -25,6 +27,11 @@ fun ChatDto.toDomain(): DataChat = DataChat(
     eventoId = eventoId,
     ultimoMensaje = ultimoMensaje?.toDomain(),
 )
+
+fun ContactoDto.toDomain(): DataContacto = DataContacto(id = id, nombre = nombre)
+
+@JvmName("contactosToDomain")
+fun List<ContactoDto>.toDomain(): List<DataContacto> = map { it.toDomain() }
 
 @JvmName("chatsToDomain")
 fun List<ChatDto>.toDomain(): List<DataChat> = map { it.toDomain() }

@@ -1,6 +1,7 @@
 package com.example.dnd_quedamos.core.network
 
 import com.example.dnd_quedamos.features.chat.data.remote.dto.ChatDto
+import com.example.dnd_quedamos.features.chat.data.remote.dto.ContactoDto
 import com.example.dnd_quedamos.features.chat.data.remote.dto.CrearChatDirectoDto
 import com.example.dnd_quedamos.features.chat.data.remote.dto.EnviarMensajeDto
 import com.example.dnd_quedamos.features.chat.data.remote.dto.MensajeDto
@@ -27,6 +28,7 @@ import kotlin.time.ExperimentalTime
  *   POST /api/chats/{id}/mensajes        -> enviar mensaje
  *   POST /api/chats/directo              -> chat privado (se crea si no existe)
  *   GET  /api/eventos/{id}/chat?userId=  -> chat del evento (se crea si no existe)
+ *   GET  /api/usuarios                   -> lista de usuarios (para empezar un chat nuevo)
  *
  * Extra para probar el polling: en los chats directos, el otro usuario "contesta" unos
  * segundos después de que le escribas.
@@ -98,6 +100,12 @@ internal object FakeChatServer {
                             .filter { uid in it.participantes }
                             .map { it.toDto(uid) }
                             .sortedByDescending { it.ultimoMensaje?.timestamp ?: 0L }
+                        respondJson(AppJson.encodeToString(lista))
+                    }
+
+                    // GET usuarios -> todos los usuarios (para elegir con quién empezar un chat)
+                    method == HttpMethod.Get && seg == listOf("usuarios") -> {
+                        val lista = usuarios.map { (id, nombre) -> ContactoDto(id, nombre) }
                         respondJson(AppJson.encodeToString(lista))
                     }
 

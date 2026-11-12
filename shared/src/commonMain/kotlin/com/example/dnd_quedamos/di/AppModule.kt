@@ -15,6 +15,7 @@ import com.example.dnd_quedamos.features.chat.domain.repository.IRepositoryChat
 import com.example.dnd_quedamos.features.chat.domain.usecase.ManagerChatUseCase
 import com.example.dnd_quedamos.features.chat.presentation.ChatListViewModel
 import com.example.dnd_quedamos.features.chat.presentation.ChatViewModel
+import com.example.dnd_quedamos.features.chat.presentation.NuevoChatViewModel
 import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -54,6 +55,7 @@ val chatModule = module {
     singleOf(::RepositoryChat) bind IRepositoryChat::class
     factoryOf(::ManagerChatUseCase)
     viewModelOf(::ChatListViewModel)
+    viewModelOf(::NuevoChatViewModel)
     // ChatViewModel necesita el chatId: se pasa con koinViewModel { parametersOf(chatId) }
     viewModel { (chatId: Int) -> ChatViewModel(chatId, get(), get()) }
 }
