@@ -29,4 +29,12 @@ sealed interface Route {
     @Serializable
     data class ChatWith(val userID: Int) : Route
 
+    // Abre un chat ya existente por su id (desde la lista de chats)
+    @Serializable
+    data class Chat(val chatId: Int) : Route
+
+    // Abre (o crea) el chat de grupo de un evento
+    @Serializable
+    data class ChatEvento(val eventoId: Int) : Route
+
 }
