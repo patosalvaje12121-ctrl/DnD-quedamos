@@ -6,6 +6,7 @@ import com.example.dnd_quedamos.features.chat.data.remote.dto.CrearChatDirectoDt
 import com.example.dnd_quedamos.features.chat.data.remote.dto.EnviarMensajeDto
 import com.example.dnd_quedamos.features.chat.data.remote.mapper.toDomain
 import com.example.dnd_quedamos.features.chat.domain.model.DataChat
+import com.example.dnd_quedamos.features.chat.domain.model.DataContacto
 import com.example.dnd_quedamos.features.chat.domain.model.DataMensaje
 import com.example.dnd_quedamos.features.chat.domain.repository.IRepositoryChat
 
@@ -37,6 +38,9 @@ class RepositoryChat(
 
     override suspend fun getChatDeEvento(eventoId: Int): DataChat =
         api.getChatDeEvento(eventoId, yo()).toDomain()
+
+    override suspend fun getContactos(): List<DataContacto> =
+        api.getUsuarios().toDomain()
 
     private suspend fun yo(): Int =
         currentUser.currentUser()?.id ?: error("No hay usuario con sesión iniciada")

@@ -1,6 +1,7 @@
 package com.example.dnd_quedamos.features.chat.domain.usecase
 
 import com.example.dnd_quedamos.features.chat.domain.model.DataChat
+import com.example.dnd_quedamos.features.chat.domain.model.DataContacto
 import com.example.dnd_quedamos.features.chat.domain.model.DataMensaje
 import com.example.dnd_quedamos.features.chat.domain.repository.IRepositoryChat
 import kotlinx.coroutines.CancellationException
@@ -29,6 +30,10 @@ class ManagerChatUseCase(
 
     suspend fun getChatDeEvento(eventoId: Int): Result<DataChat> =
         runSafe { repositoryChat.getChatDeEvento(eventoId) }
+
+    /** Usuarios con los que [yo] puede empezar un chat (todos menos yo), ordenados por nombre. */
+    suspend fun getContactos(yo: Int): Result<List<DataContacto>> =
+        runSafe { repositoryChat.getContactos().filter { it.id != yo }.sortedBy { it.nombre } }
 
     // Igual que en ManagerEventoUseCase: errores -> Result.failure, la cancelación se deja pasar
     private inline fun <T> runSafe(block: () -> T): Result<T> = try {

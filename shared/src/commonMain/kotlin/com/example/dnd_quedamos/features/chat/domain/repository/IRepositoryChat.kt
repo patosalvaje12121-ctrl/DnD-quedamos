@@ -1,6 +1,7 @@
 package com.example.dnd_quedamos.features.chat.domain.repository
 
 import com.example.dnd_quedamos.features.chat.domain.model.DataChat
+import com.example.dnd_quedamos.features.chat.domain.model.DataContacto
 import com.example.dnd_quedamos.features.chat.domain.model.DataMensaje
 
 interface IRepositoryChat {
@@ -19,4 +20,7 @@ interface IRepositoryChat {
 
     /** Devuelve el chat de grupo de un evento, creándolo si no existe. */
     suspend fun getChatDeEvento(eventoId: Int): DataChat
+
+    /** Usuarios con los que se puede empezar un chat directo. */
+    suspend fun getContactos(): List<DataContacto>
 }
