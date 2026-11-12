@@ -25,6 +25,7 @@ import androidx.navigation.toRoute
 import com.example.dnd_quedamos.features.chat.ui.ChatDirectoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatEventoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatListScreen
+import com.example.dnd_quedamos.features.chat.ui.NuevoChatScreen
 import com.example.dnd_quedamos.features.chat.ui.ChatScreen
 import com.example.dnd_quedamos.features.evento.ui.HomeEventViewRoot
 import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
@@ -109,7 +110,7 @@ fun App() {
                     BottomNavButton(
                         emoji = "📜",
                         label = "Partidas",
-                        selected = estaEn(Route.Chats::class, Route.Chat::class, Route.ChatEvento::class, Route.ChatWith::class),
+                        selected = estaEn(Route.Chats::class, Route.Chat::class, Route.ChatEvento::class, Route.ChatWith::class, Route.NuevoChat::class),
                     ) {
                         navController.navigate(Route.Chats) {
                             popUpTo(Route.Home) { saveState = true }
@@ -145,7 +146,21 @@ fun App() {
 
                 // ---------- Chat ----------
                 composable<Route.Chats> {
-                    ChatListScreen(onAbrirChat = { chatId -> navController.navigate(Route.Chat(chatId)) })
+                    ChatListScreen(
+                        onAbrirChat = { chatId -> navController.navigate(Route.Chat(chatId)) },
+                        onNuevoChat = { navController.navigate(Route.NuevoChat) },
+                    )
+                }
+                composable<Route.NuevoChat> {
+                    NuevoChatScreen(
+                        onElegir = { userId ->
+                            // Se quita el selector de la pila: "atrás" desde el chat vuelve a la lista
+                            navController.navigate(Route.ChatWith(userId)) {
+                                popUpTo<Route.NuevoChat> { inclusive = true }
+                            }
+                        },
+                        onBack = { navController.popBackStack() },
+                    )
                 }
                 composable<Route.Chat> { entry ->
                     val ruta = entry.toRoute<Route.Chat>()

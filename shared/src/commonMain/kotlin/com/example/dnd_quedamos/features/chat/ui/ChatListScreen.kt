@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +39,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun ChatListScreen(
     onAbrirChat: (chatId: Int) -> Unit,
+    onNuevoChat: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ChatListViewModel = koinViewModel(),
 ) {
@@ -63,12 +65,13 @@ fun ChatListScreen(
             is ChatListUiState.Listo ->
                 if (s.chats.isEmpty()) {
                     Text(
-                        "No tienes chats todavía.\nAbre el chat de un evento desde Inicio.",
+                        "No tienes chats todavía.\nPulsa ✏️ para empezar una conversación.",
                         Modifier.align(Alignment.Center).padding(24.dp),
                     )
                 } else {
                     LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
+                        // abajo deja sitio para que el botón ✏️ no tape el último chat
+                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 88.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         items(s.chats, key = { it.id }) { chat ->
@@ -77,6 +80,12 @@ fun ChatListScreen(
                     }
                 }
         }
+
+        // Botón flotante para empezar un chat directo con alguien nuevo
+        ExtendedFloatingActionButton(
+            onClick = onNuevoChat,
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+        ) { Text("✏️ Nuevo chat") }
     }
 }
 

@@ -37,4 +37,8 @@ sealed interface Route {
     @Serializable
     data class ChatEvento(val eventoId: Int) : Route
 
+    // Elegir un usuario para empezar un chat directo
+    @Serializable
+    data object NuevoChat : Route
+
 }
