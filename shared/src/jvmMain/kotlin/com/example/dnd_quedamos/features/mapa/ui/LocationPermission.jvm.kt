@@ -9,6 +9,7 @@ actual fun rememberLocationPermissionState(): LocationPermissionState {
         object : LocationPermissionState {
             override val isGranted: Boolean = true
             override fun requestPermission() {}
+            override fun openAppSettings() {}//Sin esta funcion no compila
         }
     }
 }
