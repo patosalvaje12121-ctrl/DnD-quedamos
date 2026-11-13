@@ -23,6 +23,10 @@ class ManagerEventoUseCase(
         de
     }
 
+    /** Un evento concreto, con sus participantes (para la pantalla de detalle). */
+    suspend fun ObtenerEvento(eventoId: Int): Result<DataEvento> =
+        runSafe { repositoryEvento.obtenerEvento(eventoId) }
+
     /** Crea un evento nuevo. El id lo pone el servidor, así que el que traiga [evento] se ignora. */
     suspend fun CrearEvento(evento: DataEvento): Result<DataEvento> {
         val limpio = evento.limpio()

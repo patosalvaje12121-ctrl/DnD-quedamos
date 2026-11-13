@@ -5,6 +5,9 @@ import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 interface IRepositoryEvento {
     suspend fun bbddEvento(): List<DataEvento>
 
+    /** Un evento concreto (con sus participantes). */
+    suspend fun obtenerEvento(eventoId: Int): DataEvento
+
     /** Crea el evento y devuelve el guardado (con el id que le asigne el servidor). */
     suspend fun crearEvento(evento: DataEvento): DataEvento
 

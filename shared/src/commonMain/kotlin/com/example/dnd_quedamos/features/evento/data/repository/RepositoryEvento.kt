@@ -22,6 +22,9 @@ class RepositoryEvento(
     override suspend fun bbddEvento(): List<DataEvento> =
         api.getEventos().toDomain()
 
+    override suspend fun obtenerEvento(eventoId: Int): DataEvento =
+        api.getEvento(eventoId).toDomain()
+
     override suspend fun crearEvento(evento: DataEvento): DataEvento =
         api.crearEvento(evento.toDto()).toDomain()
 
