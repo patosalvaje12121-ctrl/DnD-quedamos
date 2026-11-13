@@ -35,6 +35,35 @@ class ManagerEventoUseCase(
         runSafe { repositoryEvento.obtenerEvento(eventoId) }
 
     /**
+     * "Ver quedadas propias": eventos que organiza el usuario actual, del más próximo al más lejano.
+     * Lista vacía = success (no organiza ninguno), igual que MostrarEvento.
+     */
+    suspend fun MisEventos(): Result<List<DataEvento>> = runSafe {
+        val yo = usuarioActual()
+        repositoryEvento.bbddEvento()
+            .filter { it.organizadorId == yo }
+            .sortedBy { it.fecha }
+    }
+
+    /**
+     * "Ver quedadas a las que pertenezco": eventos a los que el usuario actual está apuntado,
+     * del más próximo al más lejano.
+     * No incluye los que organiza él (aunque el servidor también lo apunta a esos), para que no se
+     * repitan con MisEventos. Si se prefiere que salgan en las dos listas, basta con quitar ese filtro.
+     */
+    suspend fun EventosApuntado(): Result<List<DataEvento>> = runSafe {
+        val yo = usuarioActual()
+        repositoryEvento.bbddEvento()
+            .filter { yo in it.participantes && it.organizadorId != yo }
+            .sortedBy { it.fecha }
+    }
+    // TODO: MisEventos y EventosApuntado descargan TODOS los eventos y filtran en la app. Vale con
+    //  pocos eventos, pero con un servidor real conviene pedir solo los necesarios, p. ej.
+    //  GET /eventos?organizadorId={id} y GET /eventos?participanteId={id} (o /usuarios/{id}/eventos).
+    //  Habría que añadir esas rutas a EventoApi, IRepositoryEvento, RepositoryEvento y al
+    //  FakeEventoServer; estos dos use cases solo cambiarían la llamada al repositorio.
+
+    /**
      * Crea un evento nuevo.
      * - El id lo pone el servidor, así que el que traiga [evento] se ignora.
      * - El organizador es SIEMPRE el usuario actual: se sobrescribe lo que venga de la UI para que
