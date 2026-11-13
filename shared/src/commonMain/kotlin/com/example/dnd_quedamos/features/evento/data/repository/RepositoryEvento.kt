@@ -2,6 +2,7 @@ package com.example.dnd_quedamos.features.evento.data.repository
 
 import com.example.dnd_quedamos.features.evento.data.remote.EventoApi
 import com.example.dnd_quedamos.features.evento.data.remote.mapper.toDomain
+import com.example.dnd_quedamos.features.evento.data.remote.mapper.toDto
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.domain.repository.IRepositoryEvento
 
@@ -20,4 +21,23 @@ class RepositoryEvento(
 
     override suspend fun bbddEvento(): List<DataEvento> =
         api.getEventos().toDomain()
+
+    override suspend fun crearEvento(evento: DataEvento): DataEvento =
+        api.crearEvento(evento.toDto()).toDomain()
+
+    override suspend fun editarEvento(evento: DataEvento): DataEvento =
+        api.actualizarEvento(evento.toDto()).toDomain()
+
+    // Sin campo "estado" en el modelo, cancelar = borrar en el servidor
+    override suspend fun cancelarEvento(eventoId: Int) =
+        api.borrarEvento(eventoId)
+
+    override suspend fun participantesEvento(eventoId: Int): List<Int> =
+        api.getParticipantes(eventoId)
+
+    override suspend fun unirseEvento(eventoId: Int, usuarioId: Int) =
+        api.unirseEvento(eventoId, usuarioId)
+
+    override suspend fun abandonarEvento(eventoId: Int, usuarioId: Int) =
+        api.abandonarEvento(eventoId, usuarioId)
 }

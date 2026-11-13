@@ -1,6 +1,7 @@
 package com.example.dnd_quedamos.features.evento.data.remote
 
 import com.example.dnd_quedamos.features.evento.data.remote.dto.EventoDto
+import com.example.dnd_quedamos.features.evento.data.remote.dto.ParticipanteDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -50,5 +51,22 @@ class EventoApi(
     /** DELETE /eventos/{id} -> borra un evento (sin cuerpo de respuesta) */
     suspend fun borrarEvento(id: Int) {
         client.delete("eventos/$id")
+    }
+
+    /** GET /eventos/{id}/participantes -> ids de los usuarios apuntados */
+    suspend fun getParticipantes(eventoId: Int): List<Int> =
+        client.get("eventos/$eventoId/participantes").body()
+
+    /** POST /eventos/{id}/participantes -> apunta a un usuario al evento */
+    suspend fun unirseEvento(eventoId: Int, usuarioId: Int) {
+        client.post("eventos/$eventoId/participantes") {
+            contentType(ContentType.Application.Json)
+            setBody(ParticipanteDto(usuarioId))
+        }
+    }
+
+    /** DELETE /eventos/{id}/participantes/{usuarioId} -> desapunta a un usuario del evento */
+    suspend fun abandonarEvento(eventoId: Int, usuarioId: Int) {
+        client.delete("eventos/$eventoId/participantes/$usuarioId")
     }
 }
