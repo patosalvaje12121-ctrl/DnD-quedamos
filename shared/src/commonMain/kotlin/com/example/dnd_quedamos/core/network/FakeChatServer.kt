@@ -154,7 +154,9 @@ internal object FakeChatServer {
                     // GET eventos/{id}/chat
                     method == HttpMethod.Get && seg.size == 3 && seg[0] == "eventos" && seg[2] == "chat" -> {
                         val eventoId = seg[1].toIntOrNull()
-                        val evento = eventosFalsos.find { it.id == eventoId }
+                        // Se busca en el servidor de eventos (no en los datos de ejemplo) para que
+                        // los eventos creados desde la app también tengan chat
+                        val evento = eventoId?.let { FakeEventoServer.buscarEvento(it) }
                             ?: return@withLock respondError(HttpStatusCode.NotFound)
                         val chat = chats.find { it.tipo == "EVENTO" && it.eventoId == evento.id }
                             ?: nuevoChat("EVENTO", usuarios.keys.toList(), evento.id, evento.nombre)

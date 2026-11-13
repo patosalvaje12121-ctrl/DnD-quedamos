@@ -1,33 +1,192 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.example.dnd_quedamos.features.evento.domain.usecase
 
 
+import com.example.dnd_quedamos.core.session.CurrentUserProvider
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.domain.repository.IRepositoryEvento
 import kotlinx.coroutines.CancellationException
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class ManagerEventoUseCase(
-    private val repositoryEvento: IRepositoryEvento
+    private val repositoryEvento: IRepositoryEvento,
+    private val currentUserProvider: CurrentUserProvider,
 ) {
 
-    suspend fun MostrarEvento(): Result<List<DataEvento>>{
+    /**
+     * Lista de todos los eventos.
+     * Que no haya eventos NO es un error: se devuelve success con la lista vacía. Así el ViewModel
+     * distingue "no hay quedadas" (success vacío) de un fallo real como "sin conexión" (failure).
+     *
+     * TODO: EventoViewModel y HomeEventViewRoot todavía no aprovechan esta diferencia:
+     *  - success con lista vacía -> mostrar un mensaje tipo "No hay quedadas" (ahora sale la
+     *    pantalla en blanco).
+     *  - failure -> mostrar un mensaje de error con botón de reintentar (ahora el onFailure del
+     *    ViewModel está vacío y el error se ignora).
+     *  Para eso EventoUiState necesita campos como cargando y error.
+     */
+    suspend fun MostrarEvento(): Result<List<DataEvento>> =
+        runSafe { repositoryEvento.bbddEvento() }
 
-        // La llamada ahora va por red y puede lanzar excepciones (sin conexión, 404, 500, timeout...).
-        // Las convertimos en Result.failure para que el ViewModel las gestione sin que la app se cierre.
-        val de: List<DataEvento> = try {
-            repositoryEvento.bbddEvento()
-        } catch (e: CancellationException) {
-            throw e // la cancelación de corrutinas NO es un error: hay que dejarla pasar
-        } catch (e: Exception) {
-            return Result.failure(e)
-        }
+    /** Un evento concreto, con sus participantes (para la pantalla de detalle). */
+    suspend fun ObtenerEvento(eventoId: Int): Result<DataEvento> =
+        runSafe { repositoryEvento.obtenerEvento(eventoId) }
 
-        if(de.isEmpty()){
-            return Result.failure(NoSuchElementException())
-        }
-
-        return Result.success(de)
+    /**
+     * "Ver quedadas propias": eventos que organiza el usuario actual, del más próximo al más lejano.
+     * Lista vacía = success (no organiza ninguno), igual que MostrarEvento.
+     */
+    suspend fun MisEventos(): Result<List<DataEvento>> = runSafe {
+        val yo = usuarioActual()
+        repositoryEvento.bbddEvento()
+            .filter { it.organizadorId == yo }
+            .sortedBy { it.fecha }
     }
 
+    /**
+     * "Ver quedadas a las que pertenezco": eventos a los que el usuario actual está apuntado,
+     * del más próximo al más lejano.
+     * No incluye los que organiza él (aunque el servidor también lo apunta a esos), para que no se
+     * repitan con MisEventos. Si se prefiere que salgan en las dos listas, basta con quitar ese filtro.
+     */
+    suspend fun EventosApuntado(): Result<List<DataEvento>> = runSafe {
+        val yo = usuarioActual()
+        repositoryEvento.bbddEvento()
+            .filter { yo in it.participantes && it.organizadorId != yo }
+            .sortedBy { it.fecha }
+    }
+    // TODO: MisEventos y EventosApuntado descargan TODOS los eventos y filtran en la app. Vale con
+    //  pocos eventos, pero con un servidor real conviene pedir solo los necesarios, p. ej.
+    //  GET /eventos?organizadorId={id} y GET /eventos?participanteId={id} (o /usuarios/{id}/eventos).
+    //  Habría que añadir esas rutas a EventoApi, IRepositoryEvento, RepositoryEvento y al
+    //  FakeEventoServer; estos dos use cases solo cambiarían la llamada al repositorio.
 
+    /**
+     * Crea un evento nuevo.
+     * - El id lo pone el servidor, así que el que traiga [evento] se ignora.
+     * - El organizador es SIEMPRE el usuario actual: se sobrescribe lo que venga de la UI para que
+     *   nadie pueda crear eventos en nombre de otro.
+     * - Los participantes los gestiona el servidor (apunta al organizador al crearlo).
+     */
+    suspend fun CrearEvento(evento: DataEvento): Result<DataEvento> {
+        val limpio = evento.limpio()
+        validar(limpio)?.let { return Result.failure(it) }
+        return runSafe {
+            val nuevo = limpio.copy(organizadorId = usuarioActual(), participantes = emptyList())
+            repositoryEvento.crearEvento(nuevo)
+        }
+    }
 
+    /**
+     * Guarda los cambios de un evento existente. Solo puede hacerlo su organizador.
+     * Pasa la misma validación que al crear, así que un evento que ya ha pasado no se puede editar
+     * (su fecha está en el pasado) y no se le puede poner una fecha pasada a uno futuro.
+     */
+    suspend fun EditarEvento(evento: DataEvento): Result<DataEvento> {
+        val limpio = evento.limpio()
+        validar(limpio)?.let { return Result.failure(it) }
+        return runSafe {
+            comprobarOrganizador(limpio.id)
+            repositoryEvento.editarEvento(limpio)
+        }
+    }
+
+    /** Cancela (elimina) un evento. Solo puede hacerlo su organizador. */
+    suspend fun CancelarEvento(eventoId: Int): Result<Unit> = runSafe {
+        comprobarOrganizador(eventoId)
+        repositoryEvento.cancelarEvento(eventoId)
+    }
+
+    /** Ids de los usuarios apuntados al evento. */
+    suspend fun ListarParticipantes(eventoId: Int): Result<List<Int>> =
+        runSafe { repositoryEvento.participantesEvento(eventoId) }
+
+    /**
+     * Apunta al usuario actual al evento.
+     * TODO: comprobar plazas libres cuando DataEvento tenga el máximo de participantes.
+     */
+    suspend fun UnirseEvento(eventoId: Int): Result<Unit> = runSafe {
+        val yo = usuarioActual()
+        if (yo in repositoryEvento.participantesEvento(eventoId)) {
+            throw IllegalStateException("Ya estás apuntado a este evento")
+        }
+        repositoryEvento.unirseEvento(eventoId, yo)
+    }
+
+    /** Desapunta al usuario actual del evento. */
+    suspend fun AbandonarEvento(eventoId: Int): Result<Unit> = runSafe {
+        val yo = usuarioActual()
+        if (yo !in repositoryEvento.participantesEvento(eventoId)) {
+            throw IllegalStateException("No estás apuntado a este evento")
+        }
+        repositoryEvento.abandonarEvento(eventoId, yo)
+    }
+
+    // ---------- Ayudantes ----------
+
+    private suspend fun usuarioActual(): Int =
+        currentUserProvider.currentUser()?.id
+            ?: throw IllegalStateException("No hay ningún usuario con la sesión iniciada")
+
+    /**
+     * Lanza una excepción si el usuario actual no es el organizador del evento.
+     *
+     * El organizador se pide al servidor en vez de leerlo del DataEvento que llega a EditarEvento:
+     * ese objeto viene de la UI y podría estar desactualizado o tener otro organizadorId puesto.
+     *
+     * Esto solo sirve para que la app no deje intentarlo y muestre un error claro. La protección
+     * de verdad tiene que estar en el servidor real (con login sabrá quién hace la petición),
+     * porque cualquiera podría llamar a la API sin pasar por la app.
+     *
+     * TODO: un usuario con rol MODERADOR (el "Administrador" del documento de diseño) debería poder
+     *  editar y cancelar cualquier evento, igual que su organizador. Habría que cambiar:
+     *   - DataUsuario: añadir el rol (p. ej. enum RolUsuario { USUARIO, MODERADOR }), y lo mismo en
+     *     su DTO y mapper (un rol desconocido -> USUARIO, nunca dar más permisos por error).
+     *   - CurrentUserProvider: devolver el usuario con su rol (ahora solo tiene id y nombre).
+     *   - Esta función: dejar pasar si yo == organizadorId O si soy MODERADOR; y renombrarla a algo
+     *     como comprobarPuedeGestionar, porque ya no comprobará solo al organizador.
+     *   - Cuando un moderador edita, el organizadorId NO debe cambiar a él (el PUT del servidor
+     *     falso ya conserva el organizador original).
+     *   - Servidor (falso y real): aplicar la misma regla, y quizá avisar al organizador de que un
+     *     moderador ha modificado o cancelado su evento.
+     *   - UI: mostrar los botones de editar/cancelar también a los moderadores.
+     *   - Datos falsos: algún usuario de ejemplo con rol MODERADOR para poder probarlo.
+     */
+    private suspend fun comprobarOrganizador(eventoId: Int) {
+        val yo = usuarioActual()
+        if (repositoryEvento.obtenerEvento(eventoId).organizadorId != yo) {
+            throw IllegalStateException("Solo el organizador puede modificar o cancelar este evento")
+        }
+    }
+
+    private fun DataEvento.limpio(): DataEvento =
+        copy(nombre = nombre.trim(), descripcion = descripcion.trim())
+
+    /**
+     * Devuelve el error de validación, o null si el evento es válido.
+     * Solo comprueba los datos en sí (no hace falta red), por eso va antes de runSafe.
+     * Los mensajes están pensados para enseñarlos tal cual en el formulario.
+     */
+    private fun validar(evento: DataEvento): Exception? {
+        val u = evento.ubicacion
+        val error = when {
+            evento.nombre.isEmpty() -> "El evento necesita un nombre"
+            evento.fecha <= Clock.System.now() -> "La fecha del evento tiene que ser futura"
+            evento.maxParticipantes <= 0 -> "Tiene que haber al menos una plaza"
+            u.latitud !in -90.0..90.0 || u.longitud !in -180.0..180.0 -> "La ubicación no es válida"
+            else -> return null
+        }
+        return IllegalArgumentException(error)
+    }
+
+    // Igual que en ManagerChatUseCase: errores -> Result.failure, la cancelación se deja pasar
+    private inline fun <T> runSafe(block: () -> T): Result<T> = try {
+        Result.success(block())
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
 }
