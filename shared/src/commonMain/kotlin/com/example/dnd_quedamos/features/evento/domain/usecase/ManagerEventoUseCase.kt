@@ -17,15 +17,18 @@ class ManagerEventoUseCase(
 
     /**
      * Lista de todos los eventos.
-     * TODO: devolver la lista vacía como éxito en vez de NoSuchElementException. Ahora el ViewModel
-     *  recibe un error cuando simplemente no hay eventos y no puede distinguir "no hay quedadas" de
-     *  "sin conexión". Al cambiarlo, la UI debe mostrar un mensaje tipo "No hay quedadas".
+     * Que no haya eventos NO es un error: se devuelve success con la lista vacía. Así el ViewModel
+     * distingue "no hay quedadas" (success vacío) de un fallo real como "sin conexión" (failure).
+     *
+     * TODO: EventoViewModel y HomeEventViewRoot todavía no aprovechan esta diferencia:
+     *  - success con lista vacía -> mostrar un mensaje tipo "No hay quedadas" (ahora sale la
+     *    pantalla en blanco).
+     *  - failure -> mostrar un mensaje de error con botón de reintentar (ahora el onFailure del
+     *    ViewModel está vacío y el error se ignora).
+     *  Para eso EventoUiState necesita campos como cargando y error.
      */
-    suspend fun MostrarEvento(): Result<List<DataEvento>> = runSafe {
-        val de = repositoryEvento.bbddEvento()
-        if (de.isEmpty()) throw NoSuchElementException()
-        de
-    }
+    suspend fun MostrarEvento(): Result<List<DataEvento>> =
+        runSafe { repositoryEvento.bbddEvento() }
 
     /** Un evento concreto, con sus participantes (para la pantalla de detalle). */
     suspend fun ObtenerEvento(eventoId: Int): Result<DataEvento> =
