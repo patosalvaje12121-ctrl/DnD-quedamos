@@ -21,6 +21,12 @@ import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
+import androidx.navigation.toRoute
+import com.example.dnd_quedamos.features.chat.ui.ChatDirectoResolver
+import com.example.dnd_quedamos.features.chat.ui.ChatEventoResolver
+import com.example.dnd_quedamos.features.chat.ui.ChatListScreen
+import com.example.dnd_quedamos.features.chat.ui.NuevoChatScreen
+import com.example.dnd_quedamos.features.chat.ui.ChatScreen
 import com.example.dnd_quedamos.features.evento.ui.HomeEventViewRoot
 import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
 import com.example.dnd_quedamos.features.mapa.ui.VistaDePruebaMapa
@@ -59,6 +65,9 @@ fun BottomNavButton(
 @Composable
 fun App() {
     val navController = rememberNavController();
+    val destinoActual = navController.currentBackStackEntryAsState().value?.destination
+    fun estaEn(vararg rutas: kotlin.reflect.KClass<out Route>) =
+        rutas.any { destinoActual?.hasRoute(it) == true }
 
     setSingletonImageLoaderFactory { context ->
         ImageLoader.Builder(context)
@@ -91,15 +100,25 @@ fun App() {
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    BottomNavButton(emoji = "🏠", label = "Inicio", selected = true) {
+                    BottomNavButton(emoji = "🏠", label = "Inicio", selected = estaEn(Route.Home::class)) {
                         navController.navigate(Route.Home) {
                             popUpTo(Route.Home) { inclusive = true }
                             launchSingleTop = true
                         }
                     }
                     BottomNavButton(emoji = "🧙", label = "Personajes", selected = false) { }
-                    BottomNavButton(emoji = "📜", label = "Partidas", selected = false) { }
-                    BottomNavButton(emoji = "\uD83C\uDF0E", label = "Mapa", selected = false) {
+                    BottomNavButton(
+                        emoji = "📜",
+                        label = "Partidas",
+                        selected = estaEn(Route.Chats::class, Route.Chat::class, Route.ChatEvento::class, Route.ChatWith::class, Route.NuevoChat::class),
+                    ) {
+                        navController.navigate(Route.Chats) {
+                            popUpTo(Route.Home) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                    BottomNavButton(emoji = "\uD83C\uDF0E", label = "Mapa", selected = estaEn(Route.MainMap::class)) {
                         navController.navigate(Route.MainMap) {
                             popUpTo(Route.Home) { saveState = true }
                             launchSingleTop = true
@@ -117,10 +136,61 @@ fun App() {
                 startDestination = Route.Home,
                 modifier = Modifier.padding(innerPadding)) {
                 composable<Route.Home> {
-                    HomeEventViewRoot()
+                    HomeEventViewRoot(
+                        onAbrirChat = { eventoId -> navController.navigate(Route.ChatEvento(eventoId)) }
+                    )
                 }
                 composable<Route.MainMap> {
                     VistaDePruebaMapa()
+                }
+
+                // ---------- Chat ----------
+                composable<Route.Chats> {
+                    ChatListScreen(
+                        onAbrirChat = { chatId -> navController.navigate(Route.Chat(chatId)) },
+                        onNuevoChat = { navController.navigate(Route.NuevoChat) },
+                    )
+                }
+                composable<Route.NuevoChat> {
+                    NuevoChatScreen(
+                        onElegir = { userId ->
+                            // Se quita el selector de la pila: "atrás" desde el chat vuelve a la lista
+                            navController.navigate(Route.ChatWith(userId)) {
+                                popUpTo<Route.NuevoChat> { inclusive = true }
+                            }
+                        },
+                        onBack = { navController.popBackStack() },
+                    )
+                }
+                composable<Route.Chat> { entry ->
+                    val ruta = entry.toRoute<Route.Chat>()
+                    ChatScreen(chatId = ruta.chatId, onBack = { navController.popBackStack() })
+                }
+                // Pantallas puente: resuelven el id del chat y se sustituyen por Route.Chat,
+                // así "atrás" vuelve a donde estabas (Inicio, perfil...) y no a la pantalla de carga.
+                composable<Route.ChatEvento> { entry ->
+                    val ruta = entry.toRoute<Route.ChatEvento>()
+                    ChatEventoResolver(
+                        eventoId = ruta.eventoId,
+                        onResuelto = { chatId ->
+                            navController.navigate(Route.Chat(chatId)) {
+                                popUpTo<Route.ChatEvento> { inclusive = true }
+                            }
+                        },
+                        onBack = { navController.popBackStack() },
+                    )
+                }
+                composable<Route.ChatWith> { entry ->
+                    val ruta = entry.toRoute<Route.ChatWith>()
+                    ChatDirectoResolver(
+                        userId = ruta.userID,
+                        onResuelto = { chatId ->
+                            navController.navigate(Route.Chat(chatId)) {
+                                popUpTo<Route.ChatWith> { inclusive = true }
+                            }
+                        },
+                        onBack = { navController.popBackStack() },
+                    )
                 }
             }
 

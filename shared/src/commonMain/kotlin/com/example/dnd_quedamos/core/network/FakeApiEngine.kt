@@ -25,7 +25,7 @@ import kotlinx.coroutines.delay
  */
 
 /** Datos de ejemplo que "devuelve el servidor". */
-private val eventosFalsos = listOf(
+internal val eventosFalsos = listOf(
     EventoDto(1, "Partida en la biblioteca", "Sesión 0 de la nueva campaña. Traed fichas de personaje."),
     EventoDto(2, "One-shot de terror", "Aventura corta nivel 3. Plazas limitadas a 5 jugadores."),
     EventoDto(3, "Taller de pintura de minis", "Trae tus miniaturas, ponemos pinturas y pinceles."),
@@ -38,13 +38,16 @@ private val eventosFalsos = listOf(
 private const val RETARDO_MS = 600L
 
 /** Prefijo de todas las rutas: es la parte de ruta de BASE_URL ("/api/"). */
-private const val API = "/api"
+internal const val API = "/api"
 
 fun createFakeApiEngine(): HttpClientEngine = MockEngine { request ->
     delay(RETARDO_MS)
 
     val path = request.url.encodedPath   // p. ej. "/api/eventos/3"
     val method = request.method
+
+    // Rutas de chat (devuelve null si la petición no es de chat)
+    FakeChatServer.manejar(this, request)?.let { return@MockEngine it }
 
     when {
         // GET /api/eventos -> lista completa
@@ -73,7 +76,7 @@ fun createFakeApiEngine(): HttpClientEngine = MockEngine { request ->
 }
 
 /** Respuesta 200 con cabecera JSON (sin ella, Ktor no sabría convertir el cuerpo en DTOs). */
-private fun MockRequestHandleScope.respondJson(
+internal fun MockRequestHandleScope.respondJson(
     json: String,
     status: HttpStatusCode = HttpStatusCode.OK,
 ): HttpResponseData = respond(

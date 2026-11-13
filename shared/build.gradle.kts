@@ -75,6 +75,8 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinxJson)
             implementation(libs.ktor.client.logging)
             implementation(libs.kotlinx.serialization.json)
+            // Fechas/horas (hora de los mensajes del chat)
+            implementation(libs.kotlinx.datetime)
             // MockEngine: respuestas falsas mientras no haya backend
             implementation(libs.ktor.client.mock)
         }
