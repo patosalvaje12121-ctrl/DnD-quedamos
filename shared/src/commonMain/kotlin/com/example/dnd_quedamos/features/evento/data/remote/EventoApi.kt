@@ -57,7 +57,10 @@ class EventoApi(
     suspend fun getParticipantes(eventoId: Int): List<Int> =
         client.get("eventos/$eventoId/participantes").body()
 
-    /** POST /eventos/{id}/participantes -> apunta a un usuario al evento */
+    /**
+     * POST /eventos/{id}/participantes -> apunta a un usuario al evento.
+     * Ruta propia en vez de PUT del evento entero: ver el porqué en ParticipanteDto.
+     */
     suspend fun unirseEvento(eventoId: Int, usuarioId: Int) {
         client.post("eventos/$eventoId/participantes") {
             contentType(ContentType.Application.Json)
