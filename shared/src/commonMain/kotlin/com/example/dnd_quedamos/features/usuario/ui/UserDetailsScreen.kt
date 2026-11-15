@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,16 +32,32 @@ fun UserDetailsScreen(
     onAction: () -> Unit,
     modifier: Modifier
 ) {
-   Box (
 
-       modifier = modifier.fillMaxSize(),
-       contentAlignment = Alignment.Center
-   ){
-       Text(viewModel.dataUsuario.name)
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        when {
+            viewModel.loading -> {
+                CircularProgressIndicator()
+            }
 
-//       AsyncImage(
-//           model = "https://toppng.com/uploads/preview/green-tree-11546971717mpgesbi97i.png",
-//           contentDescription = null,
-//       )
-   }
+            viewModel.error != null -> {
+                Text(
+                    text = viewModel.error
+                )
+            }
+
+            viewModel.dataUsuario != null -> {
+                Text(
+                    text = viewModel.dataUsuario.name
+                )
+            }
+
+            else -> {
+                Text("No hay información del usuario")
+            }
+        }
+    }
+
 }
