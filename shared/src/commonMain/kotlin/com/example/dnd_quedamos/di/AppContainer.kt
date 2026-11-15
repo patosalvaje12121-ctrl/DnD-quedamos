@@ -4,7 +4,8 @@ import com.example.dnd_quedamos.features.chat.domain.usecase.ManagerChatUseCase
 import com.example.dnd_quedamos.features.evento.domain.usecase.ManagerEventoUseCase
 import com.example.dnd_quedamos.features.mapa.domain.usecase.ManagerMapaUseCase
 import com.example.dnd_quedamos.features.usuario.domain.usecase.ManagerUsuarioUseCase
-
+import com.example.dnd_quedamos.core.session.FakeCurrentUserProvider
+import com.example.dnd_quedamos.features.usuario.data.repository.RepositoryUsuario
 interface AppContainer {
     val useManagerChatUseCase : ManagerChatUseCase;
     val useManagerEventoUseCase : ManagerEventoUseCase;
@@ -29,7 +30,10 @@ class DefaultAppContainer : AppContainer {
     }
 
     override val useManagerUsuarioUseCase: ManagerUsuarioUseCase by lazy {
-        ManagerUsuarioUseCase()
+        ManagerUsuarioUseCase(
+            repositoryUsuario = RepositoryUsuario(),
+            currentUserProvider = FakeCurrentUserProvider()
+        )
     }
 
 }

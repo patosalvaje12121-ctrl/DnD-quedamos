@@ -7,24 +7,25 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.dnd_quedamos.features.usuario.domain.usecase.ManagerUsuarioUseCase
 import com.example.dnd_quedamos.features.usuario.presentation.UsuarioViewModel
+import com.example.dnd_quedamos.di.DefaultAppContainer
+import androidx.compose.runtime.remember
+
 
 @Composable
 fun ViewUserRoot(
     iD: Int,
     modifier: Modifier = Modifier,
-    viewModel: UsuarioViewModel = UsuarioViewModel(iD, ManagerUsuarioUseCase())
-)
-{
-    LaunchedEffect(Unit) {
+    viewModel: UsuarioViewModel
+) {
+    LaunchedEffect(viewModel) {
         viewModel.inicializar()
     }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // TODO: Comprobar si el ID == -1 para cargar el usuario local
-
     UserDetailsScreen(
-        uiState,
-        {},
-        modifier
+        viewModel = uiState,
+        onAction = {},
+        modifier = modifier
     )
 }

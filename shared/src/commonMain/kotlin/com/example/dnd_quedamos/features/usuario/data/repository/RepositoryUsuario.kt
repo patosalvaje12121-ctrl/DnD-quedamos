@@ -5,17 +5,38 @@ import com.example.dnd_quedamos.features.usuario.domain.repository.IRepositoryUs
 
 class RepositoryUsuario : IRepositoryUsuario {
 
-    val map: HashMap<Int, DataUsuario> = hashMapOf(
+    // Usuarios simulados mientras no exista BBDD
+    private val usuarios = hashMapOf(
+        1 to DataUsuario(
+            id = 1,
+            name = "Admin",
+            imageID = 0,
+            descBio = "Admin User",
+            assistedEvents = emptyList()
+        ),
 
-        1 to DataUsuario(1, "Admin", 0, "Admin User", listOf()),
-        2 to DataUsuario(2, "Default", 0, "Default User", listOf(2, 3)),
-        3 to DataUsuario(3, "Default2", 0, "Default User 2", listOf(1, 2, 3)),
+        2 to DataUsuario(
+            id = 2,
+            name = "Default",
+            imageID = 0,
+            descBio = "Default User",
+            assistedEvents = listOf(2, 3)
+        ),
 
-    );
+        3 to DataUsuario(
+            id = 3,
+            name = "Default2",
+            imageID = 0,
+            descBio = "Default User 2",
+            assistedEvents = listOf(1, 2, 3)
+        )
+    )
 
     override suspend fun bbddUsuario(ID: Int): DataUsuario? {
+        return usuarios[ID]
+    }
 
-        return map[ID];
-
+    override suspend fun obtenerUsuario(id: Int): DataUsuario? {
+        return bbddUsuario(id)
     }
 }

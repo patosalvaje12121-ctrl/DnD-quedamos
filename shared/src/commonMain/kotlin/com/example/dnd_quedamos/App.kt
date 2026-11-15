@@ -28,6 +28,7 @@ import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
 import com.example.dnd_quedamos.features.mapa.ui.VistaDePruebaMapa
 import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
 import kotlinx.coroutines.selects.select
+import com.example.dnd_quedamos.features.usuario.presentation.UsuarioViewModel
 
 data class Objeto(
     val id: Int,
@@ -125,10 +126,20 @@ fun App( appContainer: AppContainer = DefaultAppContainer() ) {
                 composable<Route.MainMap> {
                     VistaDePruebaMapa()
                 }
-                composable<Route.UserProfile> { it ->
-                    val route: Route.UserProfile = it.toRoute()
-                    ViewUserRoot(route.userID)
+                composable<Route.UserProfile> { backStackEntry ->
+                    val route: Route.UserProfile = backStackEntry.toRoute()
+                    val viewModel = remember(route.userID, appContainer) {
+                        UsuarioViewModel(
+                            userID = route.userID,
+                            managerUsuarioUseCase = appContainer.useManagerUsuarioUseCase
+                        )
+                    }
+                    ViewUserRoot(
+                        iD = route.userID,
+                        viewModel = viewModel
+                    )
                 }
+
             }
 
         }
