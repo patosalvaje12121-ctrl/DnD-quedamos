@@ -39,4 +39,37 @@ class RepositoryUsuario : IRepositoryUsuario {
     override suspend fun obtenerUsuario(id: Int): DataUsuario? {
         return bbddUsuario(id)
     }
+
+
+    override suspend fun crearUsuario(usuario: DataUsuario): DataUsuario {
+
+        val nuevoId = (usuarios.keys.maxOrNull() ?: 0) + 1
+
+        val nuevoUsuario = usuario.copy(
+            id = nuevoId
+        )
+
+        usuarios[nuevoId] = nuevoUsuario
+
+        return nuevoUsuario
+    }
+
+
+    override suspend fun editarUsuario(usuario: DataUsuario): DataUsuario {
+
+        if (!usuarios.containsKey(usuario.id)) {
+            throw NoSuchElementException(
+                "No existe el usuario con ID ${usuario.id}"
+            )
+        }
+
+        usuarios[usuario.id] = usuario
+
+        return usuario
+    }
+
+    override suspend fun eliminarUsuario(id: Int): Boolean {
+        return usuarios.remove(id) != null
+    }
+
 }
