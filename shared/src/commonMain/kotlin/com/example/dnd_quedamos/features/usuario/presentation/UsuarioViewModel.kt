@@ -15,7 +15,8 @@ import kotlinx.coroutines.launch
 data class UsuarioUiState(
     val dataUsuario: DataUsuario? = null,
     val loading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val mensaje: String? = null
 )
 
 class UsuarioViewModel(
@@ -27,38 +28,45 @@ class UsuarioViewModel(
     val uiState: StateFlow<UsuarioUiState> = _uiState.asStateFlow()
 
     fun inicializar() {
+        cargarUsuario(userID)
+    }
 
+    fun onAction(action: UsuarioAction) {
+        when (action) {
+            is UsuarioAction.Mostrar -> cargarUsuario(action.id)
+            is UsuarioAction.Crear -> crearUsuario(action.usuario)
+            is UsuarioAction.Editar -> editarUsuario(action.usuario)
+            is UsuarioAction.Eliminar -> eliminarUsuario(action.id)
+        }
+    }
+
+    private fun cargarUsuario(id: Int) {
         viewModelScope.launch {
 
-            // Comenzamos a cargar el usuario
             _uiState.update {
                 it.copy(
                     loading = true,
                     error = null,
+                    mensaje = null,
                     dataUsuario = null
                 )
             }
 
             try {
-                val resultado = managerUsuarioUseCase.MostrarUsuario(userID)
-
-                resultado
+                managerUsuarioUseCase.MostrarUsuario(id)
                     .onSuccess { usuario ->
                         _uiState.update {
                             it.copy(
                                 dataUsuario = usuario,
-                                loading = false,
-                                error = null
+                                loading = false
                             )
                         }
                     }
                     .onFailure { exception ->
                         _uiState.update {
                             it.copy(
-                                dataUsuario = null,
                                 loading = false,
                                 error = exception.message
-                                    ?: "Error al obtener el usuario"
                             )
                         }
                     }
@@ -68,10 +76,140 @@ class UsuarioViewModel(
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
-                        dataUsuario = null,
                         loading = false,
                         error = e.message
-                            ?: "Error inesperado"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun crearUsuario(usuario: DataUsuario) {
+        viewModelScope.launch {
+
+            _uiState.update {
+                it.copy(
+                    loading = true,
+                    error = null,
+                    mensaje = null
+                )
+            }
+
+            try {
+                managerUsuarioUseCase.CrearUsuario(usuario)
+                    .onSuccess { usuarioCreado ->
+                        _uiState.update {
+                            it.copy(
+                                dataUsuario = usuarioCreado,
+                                loading = false,
+                                mensaje = "Usuario creado correctamente"
+                            )
+                        }
+                    }
+                    .onFailure { exception ->
+                        _uiState.update {
+                            it.copy(
+                                loading = false,
+                                error = exception.message
+                            )
+                        }
+                    }
+
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        loading = false,
+                        error = e.message
+                    )
+                }
+            }
+        }
+    }
+
+    private fun editarUsuario(usuario: DataUsuario) {
+        viewModelScope.launch {
+
+            _uiState.update {
+                it.copy(
+                    loading = true,
+                    error = null,
+                    mensaje = null
+                )
+            }
+
+            try {
+                managerUsuarioUseCase.EditarUsuario(usuario)
+                    .onSuccess { usuarioEditado ->
+                        _uiState.update {
+                            it.copy(
+                                dataUsuario = usuarioEditado,
+                                loading = false,
+                                mensaje = "Usuario editado correctamente"
+                            )
+                        }
+                    }
+                    .onFailure { exception ->
+                        _uiState.update {
+                            it.copy(
+                                loading = false,
+                                error = exception.message
+                            )
+                        }
+                    }
+
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        loading = false,
+                        error = e.message
+                    )
+                }
+            }
+        }
+    }
+
+    private fun eliminarUsuario(id: Int) {
+        viewModelScope.launch {
+
+            _uiState.update {
+                it.copy(
+                    loading = true,
+                    error = null,
+                    mensaje = null
+                )
+            }
+
+            try {
+                managerUsuarioUseCase.EliminarUsuario(id)
+                    .onSuccess {
+                        _uiState.update {
+                            it.copy(
+                                dataUsuario = null,
+                                loading = false,
+                                mensaje = "Usuario eliminado correctamente"
+                            )
+                        }
+                    }
+                    .onFailure { exception ->
+                        _uiState.update {
+                            it.copy(
+                                loading = false,
+                                error = exception.message
+                            )
+                        }
+                    }
+
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        loading = false,
+                        error = e.message
                     )
                 }
             }
