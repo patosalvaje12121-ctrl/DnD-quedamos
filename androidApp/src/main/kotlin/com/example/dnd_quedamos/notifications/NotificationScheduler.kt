@@ -2,6 +2,7 @@ package com.example.dnd_quedamos.notifications
 
 import android.content.Context
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
@@ -12,8 +13,14 @@ import java.util.concurrent.TimeUnit
  */
 object NotificationScheduler {
 
+    /**
+     * Programa una notificación identificada por [uniqueName].
+     * Si ya había una pendiente con ese nombre, se sustituye (REPLACE): así nunca se acumulan
+     * varias iguales aunque se llame muchas veces seguidas.
+     */
     fun scheduleNotification(
         context: Context,
+        uniqueName: String,
         title: String,
         message: String,
         delaySeconds: Long,
@@ -28,6 +35,12 @@ object NotificationScheduler {
             .setInputData(data)
             .build()
 
-        WorkManager.getInstance(context).enqueue(workRequest)
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(uniqueName, ExistingWorkPolicy.REPLACE, workRequest)
+    }
+
+    /** Anula la notificación pendiente con ese nombre (si ya se mostró o no existe, no hace nada). */
+    fun cancelNotification(context: Context, uniqueName: String) {
+        WorkManager.getInstance(context).cancelUniqueWork(uniqueName)
     }
 }

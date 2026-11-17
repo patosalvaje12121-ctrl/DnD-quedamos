@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.dnd_quedamos.notifications.NotificationScheduler
 
+private const val NOTIF_VUELVE = "vuelve"
+
 class MainActivity : ComponentActivity() {
 
     // Desde Android 13 el permiso de notificaciones se pide en tiempo de ejecución
@@ -29,11 +31,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        // Si el usuario vuelve antes de que salte, ya no hace falta el "¡Vuelve!"
+        NotificationScheduler.cancelNotification(applicationContext, NOTIF_VUELVE)
+    }
+
     override fun onStop() {
         super.onStop()
-        // Notificación de prueba (fase 0): al salir de la app, llega a los 5 segundos
+        // Notificación de prueba: al salir de la app, llega a los 5 segundos.
+        // Con nombre único: salir varias veces (o girar la pantalla) no acumula notificaciones.
         NotificationScheduler.scheduleNotification(
-            applicationContext, "DnD Quedamos", "¡Vuelve a entrar!", 5
+            applicationContext, NOTIF_VUELVE, "DnD Quedamos", "¡Vuelve a entrar!", 5
         )
     }
 
