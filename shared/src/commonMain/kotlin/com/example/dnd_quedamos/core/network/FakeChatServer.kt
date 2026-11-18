@@ -143,8 +143,12 @@ internal object FakeChatServer {
                         }
                         val ahora = ahora()
                         val creado = mensajeSemilla(chat, body.autorId, body.texto.trim(), ahora)
-                        // Respuesta automática en chats directos, "llega" 2.5 s después
-                        if (chat.tipo == "DIRECTO") {
+                        // Si el mensaje dice "olvidona", otro participante responde con el ASCII (en cualquier chat)
+                        if (body.texto.contains("olvidona", ignoreCase = true)) {
+                            val otro = chat.participantes.first { it != body.autorId }
+                            mensajeSemilla(chat, otro, OLVIDONA_ASCII.trimEnd(), ahora + 2_500)
+                        } else if (chat.tipo == "DIRECTO") {
+                            // Respuesta automática en chats directos, "llega" 2.5 s después
                             val otro = chat.participantes.first { it != body.autorId }
                             mensajeSemilla(chat, otro, respuestasAutomaticas.random(), ahora + 2_500)
                         }

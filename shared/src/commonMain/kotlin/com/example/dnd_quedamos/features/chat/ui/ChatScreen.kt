@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -37,7 +38,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -134,7 +137,7 @@ fun ChatScreen(
                 OutlinedTextField(
                     value = uiState.input,
                     onValueChange = viewModel::onInputChange,
-                    placeholder = { Text("Escribe un mensaje…") },
+                    placeholder = { Text("Escribe un mensaje como olvidona...") },
                     maxLines = 4,
                     modifier = Modifier.weight(1f),
                 )
@@ -164,6 +167,10 @@ private fun Burbuja(
     val fondo = if (esMio) colores.primary else colores.surfaceVariant
     val texto = if (esMio) colores.onPrimary else colores.onSurfaceVariant
 
+    // Arte ASCII (muchas líneas): ocupa todo el ancho y la letra se ajusta para que quepa entero
+    val lineas = m.mensaje.texto.lines()
+    val esAscii = lineas.size > 20
+
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = if (esMio) Arrangement.End else Arrangement.Start,
@@ -171,20 +178,36 @@ private fun Burbuja(
         Column(
             horizontalAlignment = if (esMio) Alignment.End else Alignment.Start,
             modifier = Modifier
-                .widthIn(max = 300.dp)
+                .then(if (esAscii) Modifier.fillMaxWidth() else Modifier.widthIn(max = 300.dp))
                 .alpha(if (m.estado == EstadoEnvio.ENVIANDO) 0.6f else 1f)
                 .then(if (m.estado == EstadoEnvio.ERROR) Modifier.clickable(onClick = onReintentar) else Modifier),
         ) {
             if (!esMio && mostrarAutor) {
                 Text(m.mensaje.autorNombre, fontSize = 12.sp, color = colores.primary, fontWeight = FontWeight.Bold)
             }
-            Text(
-                m.mensaje.texto,
-                color = texto,
-                modifier = Modifier
-                    .background(fondo, RoundedCornerShape(14.dp))
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-            )
+            val burbuja = Modifier
+                .background(fondo, RoundedCornerShape(14.dp))
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+            if (esAscii) {
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val columnas = lineas.maxOf { it.length }.coerceAtLeast(1)
+                    // Una letra monoespaciada mide ~0.6 de ancho respecto a su tamaño
+                    val tamano = with(LocalDensity.current) {
+                        ((maxWidth - 24.dp) / (columnas * 0.62f)).toSp()
+                    }
+                    Text(
+                        m.mensaje.texto,
+                        color = texto,
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = tamano,
+                        lineHeight = tamano,
+                        softWrap = false,
+                        modifier = burbuja,
+                    )
+                }
+            } else {
+                Text(m.mensaje.texto, color = texto, modifier = burbuja)
+            }
             Text(
                 text = when (m.estado) {
                     EstadoEnvio.ENVIANDO -> "enviando…"
