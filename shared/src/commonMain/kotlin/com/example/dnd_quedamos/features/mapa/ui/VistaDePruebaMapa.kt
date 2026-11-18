@@ -45,12 +45,18 @@ fun VistaDePruebaMapa(modifier: Modifier = Modifier) {
     val permissionState = rememberLocationPermissionState()
 
     // Definimos variables de ubicacion del susuario, si no tiene permisos, se asigna null
-    val locationProvider = if (permissionState.isGranted) {
+    val locationProvider = if (permissionState.isGranted && permissionState.isRequired) {
         rememberDefaultLocationProvider()
     } else {
+
         rememberNullLocationProvider()
     }
-    val orientationProvider = rememberDefaultOrientationProvider()
+    val orientationProvider = if (!permissionState.isRequired) {
+        rememberNullOrientationProvider()
+    }
+    else{
+        rememberDefaultOrientationProvider()
+    }
 
     val locationState = rememberUserLocationState(
         locationProvider = locationProvider,
@@ -82,7 +88,7 @@ fun VistaDePruebaMapa(modifier: Modifier = Modifier) {
             cameraState = cameraState,
             zoomRange = 1.0f..22.0f
         ) {
-            if (permissionState.isGranted) {
+            if (permissionState.isGranted  && permissionState.isRequired) {
                 // Punto azul del usuario
                 LocationPuck(
                     idPrefix = "user-location",
@@ -93,7 +99,7 @@ fun VistaDePruebaMapa(modifier: Modifier = Modifier) {
         }
 
         // Centrar vista en el usuario
-        if (permissionState.isGranted) {
+        if (permissionState.isGranted  && permissionState.isRequired) {
             FloatingActionButton(
                 onClick = {
                     userPosition?.let { pos ->
@@ -118,7 +124,7 @@ fun VistaDePruebaMapa(modifier: Modifier = Modifier) {
             }
         }
 
-        if (!permissionState.isGranted) {
+        if (!permissionState.isGranted  && permissionState.isRequired) {
             Card(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

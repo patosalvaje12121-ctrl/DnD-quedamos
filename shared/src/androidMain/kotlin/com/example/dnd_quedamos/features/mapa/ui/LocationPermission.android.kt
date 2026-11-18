@@ -78,6 +78,9 @@ actual fun rememberLocationPermissionState(): LocationPermissionState {
                 }
                 context.startActivity(intent)
             }
+
+            override val isRequired: Boolean
+                get() = true
         }
     }
 }

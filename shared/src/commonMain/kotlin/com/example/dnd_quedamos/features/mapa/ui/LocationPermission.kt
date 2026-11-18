@@ -6,6 +6,8 @@ interface LocationPermissionState {
     val isGranted: Boolean
     fun requestPermission()
     fun openAppSettings()
+
+    val isRequired: Boolean
 }
 
 /**

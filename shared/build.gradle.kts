@@ -86,6 +86,28 @@ kotlin {
         jvmMain.dependencies {
             // Ktor: motor HTTP para escritorio
             implementation(libs.ktor.client.okhttp)
+            // MapLibre para JVM/Desktopimplementation(libs.maplibre.compose)
+
+            // Windows (64-bit AMD64)
+            runtimeOnly("org.maplibre.compose:maplibre-native-bindings-jni:0.13.0") {
+                capabilities {
+                    requireCapability("org.maplibre.compose:maplibre-native-bindings-jni-windows-amd64-opengl")
+                }
+            }
+
+            // Linux (64-bit AMD64)
+            runtimeOnly("org.maplibre.compose:maplibre-native-bindings-jni:0.13.0") {
+                capabilities {
+                    requireCapability("org.maplibre.compose:maplibre-native-bindings-jni-linux-amd64-opengl")
+                }
+            }
+
+            // macOS (Apple Silicon / ARM64)
+            runtimeOnly("org.maplibre.compose:maplibre-native-bindings-jni:0.13.0") {
+                capabilities {
+                    requireCapability("org.maplibre.compose:maplibre-native-bindings-jni-macos-aarch64-metal")
+                }
+            }
         }
         jsMain.dependencies {
             implementation(libs.wrappers.browser)

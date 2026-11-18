@@ -31,6 +31,7 @@ import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
 import com.example.dnd_quedamos.features.evento.ui.HomeEventViewRoot
 import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
 import com.example.dnd_quedamos.features.mapa.ui.VistaDePruebaMapa
+import com.example.dnd_quedamos.features.mapa.ui.VistaMainMapa
 import kotlinx.coroutines.selects.select
 
 data class Objeto(
@@ -160,7 +161,7 @@ fun App(
                     )
                 }
                 composable<Route.MainMap> {
-                    VistaDePruebaMapa()
+                    VistaMainMapa()
                 }
 
                 // ---------- Usuario ----------
