@@ -11,17 +11,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.dnd_quedamos.features.usuario.domain.usecase.UserPermissionsUseCase
 
 data class UsuarioUiState(
     val dataUsuario: DataUsuario? = null,
     val loading: Boolean = false,
     val error: String? = null,
-    val mensaje: String? = null
+    val mensaje: String? = null,
+    val esAdmin: Boolean? = null,
+    val loadingPermisos: Boolean = false
 )
 
 class UsuarioViewModel(
     private val userID: Int,
-    private val managerUsuarioUseCase: ManagerUsuarioUseCase
+    private val managerUsuarioUseCase: ManagerUsuarioUseCase,
+    private val userPermissionsUseCase: UserPermissionsUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UsuarioUiState())
@@ -29,6 +33,7 @@ class UsuarioViewModel(
 
     fun inicializar() {
         cargarUsuario(userID)
+        comprobarPermisos()
     }
 
     fun onAction(action: UsuarioAction) {
@@ -39,6 +44,45 @@ class UsuarioViewModel(
             is UsuarioAction.Eliminar -> eliminarUsuario(action.id)
         }
     }
+
+    private fun comprobarPermisos() {
+        viewModelScope.launch {
+
+            _uiState.update {
+                it.copy(
+                    esAdmin = null,
+                    loadingPermisos = true
+                )
+            }
+
+            //Ponemos esAdmin a null mientras no haya un resultado valido
+            //para evitar conservar permisos anteriores
+
+
+            try {
+                val esAdministrador = userPermissionsUseCase.esAdmin()
+
+                _uiState.update {
+                    it.copy(
+                        esAdmin = esAdministrador,
+                        loadingPermisos = false
+                    )
+                }
+
+            } catch (e: CancellationException) {
+                throw e
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        esAdmin = null,
+                        loadingPermisos = false
+                    )
+                }
+            }
+        }
+    }
+
 
     private fun cargarUsuario(id: Int) {
         viewModelScope.launch {

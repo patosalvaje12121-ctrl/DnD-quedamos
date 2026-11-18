@@ -30,6 +30,10 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import com.example.dnd_quedamos.features.usuario.data.remote.PermisosUsuarioApi
+import com.example.dnd_quedamos.features.usuario.data.repository.RepositoryPermisosUsuario
+import com.example.dnd_quedamos.features.usuario.domain.repository.IRepositoryPermisosUsuario
+import com.example.dnd_quedamos.features.usuario.domain.usecase.UserPermissionsUseCase
 
 /**
  * true  -> las peticiones las contesta el servidor falso (core/network/FakeApiEngine.kt)
@@ -40,7 +44,7 @@ const val USE_FAKE_API = true
 // Red: un único HttpClient compartido por todas las Api de la app
 val networkModule = module {
     single<HttpClient> {
-        if (USE_FAKE_API) createHttpClient(createFakeApiEngine())
+        if (USE_FAKE_API) createHttpClient(createFakeApiEngine(get<CurrentUserProvider>()))
         else createHttpClient()
     }
 }
@@ -74,11 +78,19 @@ val chatModule = module {
     viewModel { (chatId: Int) -> ChatViewModel(chatId, get(), get()) }
 }
 
-// El repositorio Ktor (RepositoryUsuarioApi).
+
 val usuarioModule = module {
+
+    // Gestión de usuarios existente
     singleOf(::RepositoryUsuario) bind IRepositoryUsuario::class
     factoryOf(::ManagerUsuarioUseCase)
-    viewModel { (userID: Int) -> UsuarioViewModel(userID, get()) }
+    viewModel { (userID: Int) -> UsuarioViewModel(userID, get(), get()) }
+
+    // Gestión de permisos de usuario
+    singleOf(::PermisosUsuarioApi)
+    singleOf(::RepositoryPermisosUsuario) bind IRepositoryPermisosUsuario::class
+    factoryOf(::UserPermissionsUseCase)
 }
+
 
 val appModules = listOf(networkModule, sessionModule, eventoModule, chatModule, usuarioModule, notificacionesModule)
