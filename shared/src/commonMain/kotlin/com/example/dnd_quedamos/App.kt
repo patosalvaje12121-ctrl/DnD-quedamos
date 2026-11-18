@@ -62,8 +62,14 @@ fun BottomNavButton(
         Text(label, fontSize = 12.sp, color = color)
     }
 }
+/**
+ * @param toScreen pantalla a la que navegar al arrancar o al tocar una notificación (solo Android;
+ *  escritorio y web no lo usan y se queda en null).
+ */
 @Composable
-fun App() {
+fun App(
+    toScreen: Route? = null
+) {
     val navController = rememberNavController();
     val destinoActual = navController.currentBackStackEntryAsState().value?.destination
     fun estaEn(vararg rutas: kotlin.reflect.KClass<out Route>) =
@@ -131,7 +137,15 @@ fun App() {
 
 
 
-        ) { innerPadding ->
+        ) {
+            innerPadding ->
+
+            // Navegar a una pantalla cuando toScreen vale algo, por ejemplo con una notificacion
+            LaunchedEffect(toScreen) {
+                toScreen?.let { navController.navigate(it) { launchSingleTop = true } }
+            }
+
+
             NavHost(navController = navController,
                 startDestination = Route.Home,
                 modifier = Modifier.padding(innerPadding)) {
@@ -193,6 +207,7 @@ fun App() {
                     )
                 }
             }
+
 
         }
     }

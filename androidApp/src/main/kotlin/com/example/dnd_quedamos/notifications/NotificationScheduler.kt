@@ -1,6 +1,8 @@
 package com.example.dnd_quedamos.notifications
 
 import android.content.Context
+import com.example.dnd_quedamos.Route
+import kotlinx.serialization.json.Json
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
@@ -24,10 +26,13 @@ object NotificationScheduler {
         title: String,
         message: String,
         delaySeconds: Long,
+        toScreen: Route = Route.Home,
     ) {
         val data = Data.Builder()
             .putString(KEY_TITLE, title)
             .putString(KEY_MESSAGE, message)
+            // La pantalla destino viaja como JSON: Route es @Serializable
+            .putString(KEY_ROUTE, Json.encodeToString<Route>(toScreen))
             .build()
 
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
