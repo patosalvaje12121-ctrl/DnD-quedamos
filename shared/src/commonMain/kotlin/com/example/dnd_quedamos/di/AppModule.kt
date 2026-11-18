@@ -1,6 +1,8 @@
 package com.example.dnd_quedamos.di
 
 import com.example.dnd_quedamos.core.network.createFakeApiEngine
+import com.example.dnd_quedamos.core.notificaciones.RecordatorioEventos
+import com.example.dnd_quedamos.core.notificaciones.RecordatorioEventosVacio
 import com.example.dnd_quedamos.core.network.createHttpClient
 import com.example.dnd_quedamos.features.evento.data.remote.EventoApi
 import com.example.dnd_quedamos.features.evento.data.repository.RepositoryEvento
@@ -50,6 +52,12 @@ val sessionModule = module {
     single<CurrentUserProvider> { FakeCurrentUserProvider() }
 }
 
+// Recordatorios de eventos: por defecto no hacen nada. Android lo sobrescribe con su propio módulo
+// (ver DndApplication), por eso initKoin carga la configuración de la plataforma DESPUÉS de appModules.
+val notificacionesModule = module {
+    single<RecordatorioEventos> { RecordatorioEventosVacio() }
+}
+
 val chatModule = module {
     singleOf(::ChatApi)
     singleOf(::RepositoryChat) bind IRepositoryChat::class
@@ -61,4 +69,4 @@ val chatModule = module {
 }
 
 // Añadir aquí mapaModule y usuarioModule cuando sigan el mismo patrón
-val appModules = listOf(networkModule, sessionModule, eventoModule, chatModule)
+val appModules = listOf(networkModule, sessionModule, notificacionesModule, eventoModule, chatModule)

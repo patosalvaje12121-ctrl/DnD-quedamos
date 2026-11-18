@@ -3,6 +3,7 @@
 package com.example.dnd_quedamos.features.evento.domain.usecase
 
 
+import com.example.dnd_quedamos.core.notificaciones.RecordatorioEventos
 import com.example.dnd_quedamos.core.session.CurrentUserProvider
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.domain.repository.IRepositoryEvento
@@ -13,6 +14,7 @@ import kotlin.time.ExperimentalTime
 class ManagerEventoUseCase(
     private val repositoryEvento: IRepositoryEvento,
     private val currentUserProvider: CurrentUserProvider,
+    private val recordatorio: RecordatorioEventos, // avisos antes del evento (solo hacen algo en Android)
 ) {
 
     /**
@@ -27,8 +29,9 @@ class ManagerEventoUseCase(
      *    ViewModel está vacío y el error se ignora).
      *  Para eso EventoUiState necesita campos como cargando y error.
      */
-    suspend fun MostrarEvento(): Result<List<DataEvento>> =
-        runSafe { repositoryEvento.bbddEvento() }
+    suspend fun MostrarEvento(): Result<List<DataEvento>> = runSafe {
+        repositoryEvento.bbddEvento().also { sincronizarRecordatorios(it) }
+    }
 
     /** Un evento concreto, con sus participantes (para la pantalla de detalle). */
     suspend fun ObtenerEvento(eventoId: Int): Result<DataEvento> =
@@ -75,7 +78,8 @@ class ManagerEventoUseCase(
         validar(limpio)?.let { return Result.failure(it) }
         return runSafe {
             val nuevo = limpio.copy(organizadorId = usuarioActual(), participantes = emptyList())
-            repositoryEvento.crearEvento(nuevo)
+            // El servidor apunta al organizador al crearlo, así que también le toca aviso
+            repositoryEvento.crearEvento(nuevo).also { recordatorio.programar(it) }
         }
     }
 
@@ -89,7 +93,9 @@ class ManagerEventoUseCase(
         validar(limpio)?.let { return Result.failure(it) }
         return runSafe {
             comprobarOrganizador(limpio.id)
-            repositoryEvento.editarEvento(limpio)
+            // Reprograma el aviso por si ha cambiado la fecha (sustituye al anterior).
+            // Los demás apuntados lo actualizan en su próxima sincronización (MostrarEvento).
+            repositoryEvento.editarEvento(limpio).also { recordatorio.programar(it) }
         }
     }
 
@@ -97,6 +103,7 @@ class ManagerEventoUseCase(
     suspend fun CancelarEvento(eventoId: Int): Result<Unit> = runSafe {
         comprobarOrganizador(eventoId)
         repositoryEvento.cancelarEvento(eventoId)
+        recordatorio.cancelar(eventoId)
     }
 
     /** Ids de los usuarios apuntados al evento. */
@@ -113,6 +120,8 @@ class ManagerEventoUseCase(
             throw IllegalStateException("Ya estás apuntado a este evento")
         }
         repositoryEvento.unirseEvento(eventoId, yo)
+        // Hace falta el evento completo para saber la fecha y el nombre del aviso
+        recordatorio.programar(repositoryEvento.obtenerEvento(eventoId))
     }
 
     /** Desapunta al usuario actual del evento. */
@@ -122,9 +131,25 @@ class ManagerEventoUseCase(
             throw IllegalStateException("No estás apuntado a este evento")
         }
         repositoryEvento.abandonarEvento(eventoId, yo)
+        recordatorio.cancelar(eventoId)
     }
 
     // ---------- Ayudantes ----------
+
+    /**
+     * Programa el aviso de todos los eventos a los que está apuntado el usuario actual.
+     * Se llama cada vez que se descarga la lista (al abrir la app y al refrescar), así los avisos
+     * se recuperan tras reinstalar y se actualizan si otro (el organizador) cambia la fecha.
+     * Repetirlo no duplica avisos: cada evento sustituye el suyo.
+     *
+     * TODO: no cancela avisos de eventos que ya no están en la lista (p. ej. si el organizador lo
+     *  cancela desde otro dispositivo). Haría falta guardar qué eventos tienen aviso programado, o
+     *  que el servidor avise (cuando el evento tenga estado INACTIVO, ver DataEvento).
+     */
+    private suspend fun sincronizarRecordatorios(eventos: List<DataEvento>) {
+        val yo = currentUserProvider.currentUser()?.id ?: return
+        eventos.filter { yo in it.participantes }.forEach { recordatorio.programar(it) }
+    }
 
     private suspend fun usuarioActual(): Int =
         currentUserProvider.currentUser()?.id
