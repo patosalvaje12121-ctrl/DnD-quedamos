@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalTime::class)
-
 package com.example.dnd_quedamos.core.network
 
 import com.example.dnd_quedamos.features.evento.data.remote.dto.EventoDto
@@ -15,18 +13,15 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.time.Clock
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.ExperimentalTime
 
 /**
  * Datos de ejemplo con los que arranca el servidor falso.
  *
  * Están pensados para probar casos concretos:
- *  - Fechas relativas a "ahora": siempre hay eventos próximos y uno pasado (el 4), sin importar
- *    cuándo se ejecute la app.
+ *  - Fechas fijas (ISO-8601 en UTC, igual que la API real): no cambian al reiniciar la app, así
+ *    los avisos programados (RecordatorioEventos) no se mueven cada vez que se abre.
+ *    El evento 4 está en el pasado. OJO: con el tiempo los demás también quedarán en el pasado
+ *    (y CrearEvento/EditarEvento no aceptan fechas pasadas): habrá que actualizarlas.
  *  - Coordenadas por Madrid, para que el mapa muestre chinchetas cerca.
  *  - Evento 2 completo (3/3) para probar "no quedan plazas".
  *  - Evento 5 sin descripción ni dirección (null -> "" en el mapper) y organizado por el usuario
@@ -36,47 +31,43 @@ import kotlin.time.ExperimentalTime
  * Los ids de usuario son los de FakeChatServer: 1 Marco, 2 Ana, 3 Luis, 4 Sara.
  * FakeChatServer usa esta lista para crear los chats de ejemplo de los eventos 1 y 4.
  */
-internal val eventosFalsos: List<EventoDto> = run {
-    val ahora = Clock.System.now()
-    fun en(d: Duration) = (ahora + d).toString() // Instant -> ISO-8601, igual que la API real
-    listOf(
-        EventoDto(
-            1, "Partida en la biblioteca", "Sesión 0 de la nueva campaña. Traed fichas de personaje.",
-            en(3.days), UbicacionDto("Biblioteca María Zambrano, Ciudad Universitaria", 40.4508, -3.7277),
-            "ROL", organizadorId = 3, maxParticipantes = 6,
-        ),
-        EventoDto(
-            2, "One-shot de terror", "Aventura corta nivel 3. Plazas limitadas a 3 jugadores.",
-            en(1.days + 2.hours), UbicacionDto("Parque del Oeste, Madrid", 40.4296, -3.7244),
-            "ROL", organizadorId = 2, maxParticipantes = 3,
-        ),
-        EventoDto(
-            3, "Taller de pintura de minis", "Trae tus miniaturas, ponemos pinturas y pinceles.",
-            en(7.days), UbicacionDto("Calle de Embajadores 35, Lavapiés", 40.4087, -3.7012),
-            "WARGAME", organizadorId = 4, maxParticipantes = 10,
-        ),
-        EventoDto(
-            4, "Campaña Curse of Strahd", "Sesión 12. Seguimos en el castillo.",
-            en(-3.days), UbicacionDto("Parque del Retiro, Madrid", 40.4153, -3.6844),
-            "ROL", organizadorId = 3, maxParticipantes = 5,
-        ),
-        EventoDto(
-            5, "Noche de juegos de mesa", null,
-            en(14.days), UbicacionDto(null, 40.4260, -3.7040),
-            "JUEGOS_DE_MESA", organizadorId = 1, maxParticipantes = 8,
-        ),
-        EventoDto(
-            6, "Torneo de Magic", "Formato draft. Inscripción en la tienda.",
-            en(30.days), UbicacionDto("Calle de Fuencarral 80, Malasaña", 40.4255, -3.7018),
-            "TORNEO", organizadorId = 2, maxParticipantes = 32,
-        ),
-        EventoDto(
-            7, "Convención de rol de Madrid", "Mesas abiertas, charlas y tiendas durante todo el día.",
-            en(45.days), UbicacionDto("IFEMA, Madrid", 40.4637, -3.6164),
-            "CONVENCION", organizadorId = 4, maxParticipantes = 500,
-        ),
-    )
-}
+internal val eventosFalsos: List<EventoDto> = listOf(
+    EventoDto(
+        1, "Partida en la biblioteca", "Sesión 0 de la nueva campaña. Traed fichas de personaje.",
+        "2026-11-21T17:00:00Z", UbicacionDto("Biblioteca María Zambrano, Ciudad Universitaria", 40.4508, -3.7277),
+        "ROL", organizadorId = 3, maxParticipantes = 6,
+    ),
+    EventoDto(
+        2, "One-shot de terror", "Aventura corta nivel 3. Plazas limitadas a 3 jugadores.",
+        "2026-11-19T18:00:00Z", UbicacionDto("Parque del Oeste, Madrid", 40.4296, -3.7244),
+        "ROL", organizadorId = 2, maxParticipantes = 3,
+    ),
+    EventoDto(
+        3, "Taller de pintura de minis", "Trae tus miniaturas, ponemos pinturas y pinceles.",
+        "2026-11-25T16:00:00Z", UbicacionDto("Calle de Embajadores 35, Lavapiés", 40.4087, -3.7012),
+        "WARGAME", organizadorId = 4, maxParticipantes = 10,
+    ),
+    EventoDto(
+        4, "Campaña Curse of Strahd", "Sesión 12. Seguimos en el castillo.",
+        "2026-11-15T17:00:00Z", UbicacionDto("Parque del Retiro, Madrid", 40.4153, -3.6844),
+        "ROL", organizadorId = 3, maxParticipantes = 5,
+    ),
+    EventoDto(
+        5, "Noche de juegos de mesa", null,
+        "2026-12-02T19:00:00Z", UbicacionDto(null, 40.4260, -3.7040),
+        "JUEGOS_DE_MESA", organizadorId = 1, maxParticipantes = 8,
+    ),
+    EventoDto(
+        6, "Torneo de Magic", "Formato draft. Inscripción en la tienda.",
+        "2026-12-18T10:00:00Z", UbicacionDto("Calle de Fuencarral 80, Malasaña", 40.4255, -3.7018),
+        "TORNEO", organizadorId = 2, maxParticipantes = 32,
+    ),
+    EventoDto(
+        7, "Convención de rol de Madrid", "Mesas abiertas, charlas y tiendas durante todo el día.",
+        "2027-01-02T09:00:00Z", UbicacionDto("IFEMA, Madrid", 40.4637, -3.6164),
+        "CONVENCION", organizadorId = 4, maxParticipantes = 500,
+    ),
+)
 
 /**
  * Parte de eventos del "servidor falso" (ver FakeApiEngine.kt). Guarda eventos y participantes

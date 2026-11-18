@@ -3,6 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
+    // Para que Json.encodeToString<Route>/decodeFromString<Route> encuentren el serializador
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -17,6 +19,12 @@ dependencies {
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
+
+    // Notificaciones: WorkManager programa el Worker que lanza la notificación
+    implementation(libs.worker.runtime)
+    // Json para pasar la Route (pantalla destino) dentro de la notificación;
+    // shared la usa como implementation y no la expone a androidApp
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
