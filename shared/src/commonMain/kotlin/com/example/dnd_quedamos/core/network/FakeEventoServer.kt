@@ -106,7 +106,7 @@ internal object FakeEventoServer {
     suspend fun buscarEvento(id: Int): EventoDto? = mutex.withLock { eventos.find { it.id == id } }
 
     /** Devuelve la respuesta si la petición es de eventos, o null para que la maneje otra parte. */
-    suspend fun manejar(scope: MockRequestHandleScope, request: HttpRequestData): HttpResponseData? {
+    suspend fun manejar(scope: MockRequestHandleScope, request: HttpRequestData, usuarioAutenticadoId: Int?): HttpResponseData? {
         val seg = request.url.encodedPath.removePrefix("$API/").trimEnd('/').split("/")
         if (seg[0] != "eventos") return null
         val method = request.method
