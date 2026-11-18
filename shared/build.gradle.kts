@@ -95,6 +95,13 @@ kotlin {
     }
 }
 
+compose.resources {
+    // Set a custom package path for the Res class
+    packageOfResClass = "com.example.dnd_quedamos.resources" // You can use any package you like
+    // Force the Res class to always be generated
+    generateResClass = always
+}
+
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
 }
