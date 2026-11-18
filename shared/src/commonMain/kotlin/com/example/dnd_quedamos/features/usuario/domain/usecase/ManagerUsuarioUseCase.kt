@@ -2,7 +2,6 @@ package com.example.dnd_quedamos.features.usuario.domain.usecase
 
 import com.example.dnd_quedamos.core.session.CurrentUserProvider
 import com.example.dnd_quedamos.core.session.MutableCurrentUserProvider
-import com.example.dnd_quedamos.features.usuario.data.repository.RepositoryUsuario
 import com.example.dnd_quedamos.features.usuario.domain.model.DataUsuario
 import com.example.dnd_quedamos.features.usuario.domain.repository.IRepositoryUsuario
 import kotlinx.coroutines.CancellationException
@@ -95,7 +94,7 @@ class ManagerUsuarioUseCase (
                     )
 
             val usuarioEditado = usuarioGuardado.copy(
-                name = limpio.name,
+                nombre = limpio.nombre,
                 descBio = limpio.descBio,
                 imageID = limpio.imageID
             )
@@ -154,7 +153,7 @@ class ManagerUsuarioUseCase (
 
     private fun DataUsuario.limpio(): DataUsuario =
         copy(
-            name = name.trim(),
+            nombre = nombre.trim(),
             descBio = descBio.trim()
         )
 
@@ -162,10 +161,10 @@ class ManagerUsuarioUseCase (
     private fun validar(usuario: DataUsuario): Exception? {
 
         val error = when {
-            usuario.name.isEmpty() ->
+            usuario.nombre.isEmpty() ->
                 "El nombre del usuario no puede estar vacío"
 
-            usuario.name.length > 50 ->
+            usuario.nombre.length > 50 ->
                 "El nombre no puede superar los 50 caracteres"
 
             usuario.descBio.length > 500 ->

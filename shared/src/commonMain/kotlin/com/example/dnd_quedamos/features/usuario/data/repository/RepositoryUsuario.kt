@@ -1,3 +1,4 @@
+
 package com.example.dnd_quedamos.features.usuario.data.repository
 
 import com.example.dnd_quedamos.features.usuario.domain.model.DataUsuario
@@ -9,26 +10,22 @@ class RepositoryUsuario : IRepositoryUsuario {
     private val usuarios = hashMapOf(
         1 to DataUsuario(
             id = 1,
-            name = "Admin",
-            imageID = 0,
-            descBio = "Admin User",
-            assistedEvents = emptyList()
+            nombre = "Marco"
         ),
 
         2 to DataUsuario(
             id = 2,
-            name = "Default",
-            imageID = 0,
-            descBio = "Default User",
-            assistedEvents = listOf(2, 3)
+            nombre = "Ana"
         ),
 
         3 to DataUsuario(
             id = 3,
-            name = "Default2",
-            imageID = 0,
-            descBio = "Default User 2",
-            assistedEvents = listOf(1, 2, 3)
+            nombre = "Luis"
+        ),
+
+        4 to DataUsuario(
+            id = 4,
+            nombre = "Sara"
         )
     )
 
@@ -39,7 +36,6 @@ class RepositoryUsuario : IRepositoryUsuario {
     override suspend fun obtenerUsuario(id: Int): DataUsuario? {
         return bbddUsuario(id)
     }
-
 
     override suspend fun crearUsuario(usuario: DataUsuario): DataUsuario {
 
@@ -53,7 +49,6 @@ class RepositoryUsuario : IRepositoryUsuario {
 
         return nuevoUsuario
     }
-
 
     override suspend fun editarUsuario(usuario: DataUsuario): DataUsuario {
 
@@ -71,5 +66,4 @@ class RepositoryUsuario : IRepositoryUsuario {
     override suspend fun eliminarUsuario(id: Int): Boolean {
         return usuarios.remove(id) != null
     }
-
 }

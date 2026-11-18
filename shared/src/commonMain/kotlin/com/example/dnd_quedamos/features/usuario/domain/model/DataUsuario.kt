@@ -1,10 +1,9 @@
 package com.example.dnd_quedamos.features.usuario.domain.model
 
-data class DataUsuario (
-    val id : Int,
-    val name : String,
+data class DataUsuario(
+    val id: Int,
+    val nombre: String,
     val imageID: Int = 0,
     val descBio: String = "",
-
-    val assistedEvents: List<Int> = emptyList(),
+    val assistedEvents: List<Int> = emptyList()
 )

@@ -50,7 +50,7 @@ fun UserDetailsScreen(
 
             viewModel.dataUsuario != null -> {
                 Text(
-                    text = viewModel.dataUsuario.name
+                    text = viewModel.dataUsuario.nombre
                 )
             }
 

@@ -15,7 +15,7 @@ class FakeCurrentUserProvider : MutableCurrentUserProvider {
 
     private var usuarioActual: DataUsuario? = DataUsuario(
         id = 1,
-        name = "Admin"
+        nombre = "Marco"
     )
 
     override suspend fun currentUser(): DataUsuario? {

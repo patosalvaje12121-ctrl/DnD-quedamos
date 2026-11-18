@@ -7,7 +7,7 @@ import com.example.dnd_quedamos.features.usuario.domain.model.DataUsuario
 fun UsuarioDto.toDomain(): DataUsuario {
     return DataUsuario(
         id = id,
-        name = nombre,
+        nombre = nombre,
         imageID = imagenId,
         descBio = biografia,
         assistedEvents = eventosAsistidos
@@ -17,7 +17,7 @@ fun UsuarioDto.toDomain(): DataUsuario {
 fun DataUsuario.toDto(): UsuarioDto {
     return UsuarioDto(
         id = id,
-        nombre = name,
+        nombre = nombre,
         imagenId = imageID,
         biografia = descBio,
         eventosAsistidos = assistedEvents
