@@ -9,8 +9,13 @@ import com.example.dnd_quedamos.features.evento.data.repository.RepositoryEvento
 import com.example.dnd_quedamos.features.evento.domain.repository.IRepositoryEvento
 import com.example.dnd_quedamos.features.evento.domain.usecase.ManagerEventoUseCase
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
+import com.example.dnd_quedamos.core.session.MutableCurrentUserProvider
 import com.example.dnd_quedamos.core.session.CurrentUserProvider
 import com.example.dnd_quedamos.core.session.FakeCurrentUserProvider
+import com.example.dnd_quedamos.features.usuario.data.repository.RepositoryUsuario
+import com.example.dnd_quedamos.features.usuario.domain.repository.IRepositoryUsuario
+import com.example.dnd_quedamos.features.usuario.domain.usecase.ManagerUsuarioUseCase
+import com.example.dnd_quedamos.features.usuario.presentation.UsuarioViewModel
 import com.example.dnd_quedamos.features.chat.data.remote.ChatApi
 import com.example.dnd_quedamos.features.chat.data.repository.RepositoryChat
 import com.example.dnd_quedamos.features.chat.domain.repository.IRepositoryChat
@@ -49,7 +54,8 @@ val eventoModule = module {
 
 // Sesión: quién es el usuario actual (falso hasta que exista login)
 val sessionModule = module {
-    single<CurrentUserProvider> { FakeCurrentUserProvider() }
+    single<MutableCurrentUserProvider> { FakeCurrentUserProvider() }
+    single<CurrentUserProvider> { get<MutableCurrentUserProvider>() }
 }
 
 // Recordatorios de eventos: por defecto no hacen nada. Android lo sobrescribe con su propio módulo
@@ -68,5 +74,11 @@ val chatModule = module {
     viewModel { (chatId: Int) -> ChatViewModel(chatId, get(), get()) }
 }
 
-// Añadir aquí mapaModule y usuarioModule cuando sigan el mismo patrón
-val appModules = listOf(networkModule, sessionModule, notificacionesModule, eventoModule, chatModule)
+// El repositorio Ktor (RepositoryUsuarioApi).
+val usuarioModule = module {
+    singleOf(::RepositoryUsuario) bind IRepositoryUsuario::class
+    factoryOf(::ManagerUsuarioUseCase)
+    viewModel { (userID: Int) -> UsuarioViewModel(userID, get()) }
+}
+
+val appModules = listOf(networkModule, sessionModule, eventoModule, chatModule, usuarioModule, notificacionesModule)

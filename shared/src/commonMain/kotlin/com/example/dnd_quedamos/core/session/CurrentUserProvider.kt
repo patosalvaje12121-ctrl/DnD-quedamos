@@ -7,10 +7,27 @@ interface CurrentUserProvider {
     suspend fun currentUser(): DataUsuario?
 }
 
-/**
- * Usuario fijo mientras no hay login.
- * TODO: cuando se integre la rama `user`, delegar en IRepositoryUsuario.obtenerPerfil().
- */
-class FakeCurrentUserProvider : CurrentUserProvider {
-    override suspend fun currentUser(): DataUsuario = DataUsuario(id = 1, nombre = "Marco")
+interface MutableCurrentUserProvider : CurrentUserProvider {
+    suspend fun iniciarSesion(usuario: DataUsuario)
+    suspend fun cerrarSesion()
+}
+
+class FakeCurrentUserProvider : MutableCurrentUserProvider {
+
+    private var usuarioActual: DataUsuario? = DataUsuario(
+        id = 1,
+        nombre = "Marco"
+    )
+
+    override suspend fun currentUser(): DataUsuario? {
+        return usuarioActual
+    }
+
+    override suspend fun iniciarSesion(usuario: DataUsuario) {
+        usuarioActual = usuario
+    }
+
+    override suspend fun cerrarSesion() {
+        usuarioActual = null
+    }
 }

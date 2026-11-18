@@ -27,6 +27,7 @@ import com.example.dnd_quedamos.features.chat.ui.ChatEventoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatListScreen
 import com.example.dnd_quedamos.features.chat.ui.NuevoChatScreen
 import com.example.dnd_quedamos.features.chat.ui.ChatScreen
+import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
 import com.example.dnd_quedamos.features.evento.ui.HomeEventViewRoot
 import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
 import com.example.dnd_quedamos.features.mapa.ui.VistaDePruebaMapa
@@ -131,7 +132,11 @@ fun App(
                             restoreState = true
                         }
                     }
-                    BottomNavButton(emoji = "⚙️", label = "Ajustes", selected = false) { }
+                    BottomNavButton(emoji = "⚙️", label = "Ajustes", selected = estaEn(Route.UserProfile::class)) {
+                        navController.navigate(Route.UserProfile(-1)) {
+                            launchSingleTop = true
+                        }
+                    }
                 }
             }
 
@@ -156,6 +161,12 @@ fun App(
                 }
                 composable<Route.MainMap> {
                     VistaDePruebaMapa()
+                }
+
+                // ---------- Usuario ----------
+                composable<Route.UserProfile> { entry ->
+                    val ruta = entry.toRoute<Route.UserProfile>()
+                    ViewUserRoot(iD = ruta.userID)
                 }
 
                 // ---------- Chat ----------
