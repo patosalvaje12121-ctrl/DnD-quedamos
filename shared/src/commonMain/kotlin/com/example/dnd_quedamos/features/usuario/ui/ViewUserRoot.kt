@@ -26,7 +26,7 @@ fun ViewUserRoot(
 
     UserDetailsScreen(
         viewModel = uiState,
-        onAction = viewModel::onAction,
+        onAction = {},
         modifier = modifier
     )
 }
