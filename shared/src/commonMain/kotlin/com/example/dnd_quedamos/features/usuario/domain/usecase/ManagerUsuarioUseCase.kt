@@ -44,25 +44,19 @@ class ManagerUsuarioUseCase (
 
     suspend fun CrearUsuario(usuario: DataUsuario): Result<DataUsuario> {
 
+        val limpio = usuario.limpio()
+
+        validar(limpio)?.let {
+            return Result.failure(it)
+        }
+
         return try {
 
-            // Validar que el nombre no esté vacío
-            val nombre = usuario.name.trim()
+            val nuevoUsuario = limpio.copy(id = 0)
 
-            require(nombre.isNotEmpty()) {
-                "El nombre del usuario no puede estar vacío"
-            }
-
-            // El ID lo asigna el repositorio
-            val nuevoUsuario = usuario.copy(
-                id = 0,
-                name = nombre
-            )
-
-            val usuarioGuardado =
+            Result.success(
                 repositoryUsuario.crearUsuario(nuevoUsuario)
-
-            Result.success(usuarioGuardado)
+            )
 
         } catch (e: CancellationException) {
             throw e
@@ -74,14 +68,10 @@ class ManagerUsuarioUseCase (
 
     suspend fun EditarUsuario(usuario: DataUsuario): Result<DataUsuario> {
 
-        val nombre = usuario.name.trim()
+        val limpio = usuario.limpio()
 
-        if (nombre.isEmpty()) {
-            return Result.failure(
-                IllegalArgumentException(
-                    "El nombre del usuario no puede estar vacío"
-                )
-            )
+        validar(limpio)?.let {
+            return Result.failure(it)
         }
 
         return try {
@@ -91,15 +81,22 @@ class ManagerUsuarioUseCase (
                     "No hay ningún usuario con sesión iniciada"
                 )
 
-            if (usuario.id != usuarioActual.id) {
+            if (limpio.id != usuarioActual.id) {
                 throw IllegalStateException(
                     "No puedes modificar el perfil de otro usuario"
                 )
             }
 
-            val usuarioEditado = usuario.copy(
-                name = nombre,
-                descBio = usuario.descBio.trim()
+            val usuarioGuardado =
+                repositoryUsuario.obtenerUsuario(limpio.id)
+                    ?: throw NoSuchElementException(
+                        "El usuario no existe"
+                    )
+
+            val usuarioEditado = usuarioGuardado.copy(
+                name = limpio.name,
+                descBio = limpio.descBio,
+                imageID = limpio.imageID
             )
 
             Result.success(
@@ -148,6 +145,32 @@ class ManagerUsuarioUseCase (
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+
+    private fun DataUsuario.limpio(): DataUsuario =
+        copy(
+            name = name.trim(),
+            descBio = descBio.trim()
+        )
+
+
+    private fun validar(usuario: DataUsuario): Exception? {
+
+        val error = when {
+            usuario.name.isEmpty() ->
+                "El nombre del usuario no puede estar vacío"
+
+            usuario.name.length > 50 ->
+                "El nombre no puede superar los 50 caracteres"
+
+            usuario.descBio.length > 500 ->
+                "La biografía no puede superar los 500 caracteres"
+
+            else -> return null
+        }
+
+        return IllegalArgumentException(error)
     }
 
 
