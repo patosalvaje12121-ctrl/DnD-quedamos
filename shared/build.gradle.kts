@@ -16,7 +16,7 @@ kotlin {
         browser()
         binaries.executable()
     }
-    
+
     android {
         namespace = "com.example.dnd_quedamos.shared"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
