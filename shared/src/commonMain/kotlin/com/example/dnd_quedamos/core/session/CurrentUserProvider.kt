@@ -6,12 +6,27 @@ interface CurrentUserProvider {
     suspend fun currentUser(): DataUsuario?
 }
 
-class FakeCurrentUserProvider : CurrentUserProvider {
+interface MutableCurrentUserProvider : CurrentUserProvider {
+    suspend fun iniciarSesion(usuario: DataUsuario)
+    suspend fun cerrarSesion()
+}
 
-    override suspend fun currentUser(): DataUsuario {
-        return DataUsuario(
-            id = 1,
-            name = "Admin"
-        )
+class FakeCurrentUserProvider : MutableCurrentUserProvider {
+
+    private var usuarioActual: DataUsuario? = DataUsuario(
+        id = 1,
+        name = "Admin"
+    )
+
+    override suspend fun currentUser(): DataUsuario? {
+        return usuarioActual
+    }
+
+    override suspend fun iniciarSesion(usuario: DataUsuario) {
+        usuarioActual = usuario
+    }
+
+    override suspend fun cerrarSesion() {
+        usuarioActual = null
     }
 }

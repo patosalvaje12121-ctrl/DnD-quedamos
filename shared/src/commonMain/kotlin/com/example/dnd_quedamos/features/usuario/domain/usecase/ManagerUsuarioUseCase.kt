@@ -1,6 +1,7 @@
 package com.example.dnd_quedamos.features.usuario.domain.usecase
 
 import com.example.dnd_quedamos.core.session.CurrentUserProvider
+import com.example.dnd_quedamos.core.session.MutableCurrentUserProvider
 import com.example.dnd_quedamos.features.usuario.data.repository.RepositoryUsuario
 import com.example.dnd_quedamos.features.usuario.domain.model.DataUsuario
 import com.example.dnd_quedamos.features.usuario.domain.repository.IRepositoryUsuario
@@ -8,7 +9,7 @@ import kotlinx.coroutines.CancellationException
 
 class ManagerUsuarioUseCase (
     private val repositoryUsuario: IRepositoryUsuario,
-    private val currentUserProvider: CurrentUserProvider
+    private val currentUserProvider: MutableCurrentUserProvider
 ) {
 
     suspend fun MostrarUsuario(id: Int): Result<DataUsuario> {
@@ -111,6 +112,7 @@ class ManagerUsuarioUseCase (
     }
 
 
+
     suspend fun EliminarUsuario(id: Int): Result<Boolean> {
 
         return try {
@@ -137,6 +139,8 @@ class ManagerUsuarioUseCase (
                     "No existe el usuario con ID $idUsuario"
                 )
             }
+
+            currentUserProvider.cerrarSesion()
 
             Result.success(true)
 
