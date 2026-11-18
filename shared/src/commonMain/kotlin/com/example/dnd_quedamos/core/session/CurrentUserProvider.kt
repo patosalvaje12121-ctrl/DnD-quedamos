@@ -2,6 +2,7 @@ package com.example.dnd_quedamos.core.session
 
 import com.example.dnd_quedamos.features.usuario.domain.model.DataUsuario
 
+/** Quién es el usuario que está usando la app. */
 interface CurrentUserProvider {
     suspend fun currentUser(): DataUsuario?
 }

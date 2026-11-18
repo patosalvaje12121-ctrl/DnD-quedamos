@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,12 +19,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.dnd_quedamos.features.evento.domain.usecase.ManagerEventoUseCase
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeEventViewRoot(modifier: Modifier = Modifier,
-                      viewModel: EventoViewModel = EventoViewModel(ManagerEventoUseCase())
+                      onAbrirChat: (eventoId: Int) -> Unit = {},
+                      viewModel: EventoViewModel = koinViewModel()
 ) {
     // 1. Inicializa el ViewModel de forma segura una sola vez
     LaunchedEffect(Unit) {
@@ -47,6 +49,7 @@ fun HomeEventViewRoot(modifier: Modifier = Modifier,
                     // Ajusta estos campos según las propiedades reales de tu clase 'DataEvento'
                     Text(evento.nombre, fontWeight = FontWeight.Bold)
                     Text(evento.descripcion, fontSize = 14.sp)
+                    TextButton(onClick = { onAbrirChat(evento.id) }) { Text("💬 Chat") }
                 }
             }
         }
