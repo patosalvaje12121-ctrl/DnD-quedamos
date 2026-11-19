@@ -68,12 +68,17 @@ fun PantallaFormularioEvento(
     }
 }
 
-/** Los campos del formulario. Si [original] no es null, empiezan rellenos con sus datos. */
+/**
+ * Los campos del formulario. Si [original] no es null, empiezan rellenos con sus datos.
+ * Tambien se usa en el feed para filtrar (con titulo y textoBoton cambiados).
+ */
 @Composable
-private fun Formulario(
+fun Formulario(
     original: DataEvento?,
     error: String?,
     onGuardar: (CamposEvento) -> Unit,
+    titulo: String = if (original == null) "Crear evento" else "Editar evento",
+    textoBoton: String = "Guardar",
 ) {
     var nombre by remember { mutableStateOf(original?.nombre ?: "") }
     var descripcion by remember { mutableStateOf(original?.descripcion ?: "") }
@@ -85,7 +90,7 @@ private fun Formulario(
     var longitud by remember { mutableStateOf(original?.ubicacion?.longitud?.toString() ?: "") }
     var plazas by remember { mutableStateOf(original?.maxParticipantes?.toString() ?: "") }
 
-    Text(if (original == null) "Crear evento" else "Editar evento")
+    Text(titulo)
 
     OutlinedTextField(nombre, { nombre = it }, label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
     OutlinedTextField(descripcion, { descripcion = it }, label = { Text("Descripción") }, modifier = Modifier.fillMaxWidth())
@@ -109,5 +114,5 @@ private fun Formulario(
     Button(
         onClick = { onGuardar(CamposEvento(nombre, descripcion, tipo, fecha, hora, direccion, latitud, longitud, plazas)) },
         modifier = Modifier.fillMaxWidth(),
-    ) { Text("Guardar") }
+    ) { Text(textoBoton) }
 }
