@@ -24,7 +24,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeEventViewRoot(modifier: Modifier = Modifier,
-                      onAbrirChat: (eventoId: Int) -> Unit = {},
+                      onVerMas: (eventoId: Int) -> Unit = {},
                       viewModel: EventoViewModel = koinViewModel()
 ) {
     // 1. Inicializa el ViewModel de forma segura una sola vez
@@ -49,7 +49,7 @@ fun HomeEventViewRoot(modifier: Modifier = Modifier,
                     // Ajusta estos campos según las propiedades reales de tu clase 'DataEvento'
                     Text(evento.nombre, fontWeight = FontWeight.Bold)
                     Text(evento.descripcion, fontSize = 14.sp)
-                    TextButton(onClick = { onAbrirChat(evento.id) }) { Text("💬 Chat") }
+                    TextButton(onClick = { onVerMas(evento.id) }) { Text("➕ Más") }
                 }
             }
         }

@@ -29,6 +29,7 @@ import com.example.dnd_quedamos.features.chat.ui.NuevoChatScreen
 import com.example.dnd_quedamos.features.chat.ui.ChatScreen
 import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
 import com.example.dnd_quedamos.features.evento.ui.HomeEventViewRoot
+import com.example.dnd_quedamos.features.evento.ui.PantallaViewEvent
 import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
 import com.example.dnd_quedamos.features.mapa.ui.VistaDePruebaMapa
 import com.example.dnd_quedamos.features.mapa.ui.VistaMainMapa
@@ -159,7 +160,15 @@ fun App(
                 modifier = Modifier.padding(innerPadding)) {
                 composable<Route.Home> {
                     HomeEventViewRoot(
-                        onAbrirChat = { eventoId -> navController.navigate(Route.ChatEvento(eventoId)) }
+                        onVerMas = { eventoId -> navController.navigate(Route.InspectEvent(eventoId)) }
+                    )
+                }
+                composable<Route.InspectEvent> { entry ->
+                    val ruta = entry.toRoute<Route.InspectEvent>()
+                    PantallaViewEvent(
+                        eventoId = ruta.eventID,
+                        onBack = { navController.popBackStack() },
+                        onAbrirChat = { eventoId -> navController.navigate(Route.ChatEvento(eventoId)) },
                     )
                 }
                 composable<Route.MainMap> {
