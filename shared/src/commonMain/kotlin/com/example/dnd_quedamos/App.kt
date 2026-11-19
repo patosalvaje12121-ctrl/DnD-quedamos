@@ -108,16 +108,16 @@ fun App(
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    BottomNavButton(emoji = "🏠", label = "Inicio", selected = estaEn(Route.Home::class)) {
+                    BottomNavButton(emoji = "🏠", label = "Feed", selected = estaEn(Route.Home::class)) {
                         navController.navigate(Route.Home) {
                             popUpTo(Route.Home) { inclusive = true }
                             launchSingleTop = true
                         }
                     }
-                    BottomNavButton(emoji = "🧙", label = "Personajes", selected = false) { }
+                    BottomNavButton(emoji = "🐲", label = "Gestion", selected = false) { }
                     BottomNavButton(
                         emoji = "📜",
-                        label = "Partidas",
+                        label = "Chat",
                         selected = estaEn(Route.Chats::class, Route.Chat::class, Route.ChatEvento::class, Route.ChatWith::class, Route.NuevoChat::class),
                     ) {
                         navController.navigate(Route.Chats) {
@@ -133,7 +133,7 @@ fun App(
                             restoreState = true
                         }
                     }
-                    BottomNavButton(emoji = "⚙️", label = "Ajustes", selected = estaEn(Route.UserProfile::class)) {
+                    BottomNavButton(emoji = "👤", label = "Usuario", selected = estaEn(Route.UserProfile::class)) {
                         navController.navigate(Route.UserProfile(-1)) {
                             popUpTo(Route.Home) { saveState = true }
                             launchSingleTop = true
