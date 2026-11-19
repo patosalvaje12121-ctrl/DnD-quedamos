@@ -13,7 +13,7 @@ fun EditUserScreen(state: EditUserUiState, onAction: (EditUserAction) -> Unit, o
                    modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Editar usuario", style = MaterialTheme.typography.headlineSmall)
-        Text("TODO: implementar imagenes")
+//        Text("TODO: implementar imagenes")
         OutlinedTextField(value = state.nombre,
             onValueChange = { onAction(EditUserAction.CambiarNombre(it)) },
             label = { Text("Nombre") }, singleLine = true, modifier = Modifier.fillMaxWidth())

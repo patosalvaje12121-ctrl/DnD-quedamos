@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dnd_quedamos.features.usuario.domain.model.DataUsuario
 import com.example.dnd_quedamos.features.usuario.domain.usecase.EditUserUseCase
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,7 +52,25 @@ class EditUserViewModel(private val editUserUseCase: EditUserUseCase): ViewModel
                 editUserUseCase.editar(original, estado.nombre, estado.descripcion)
                 _uiState.update { it.copy(guardando = false, guardado = true) }
             } catch (e: CancellationException) { throw e }
-            catch (e: Exception) { _uiState.update { it.copy(guardando = false, error = e.message) } }
+
+            catch (e: CancellationException) {
+                throw e
+            } catch (e: ClientRequestException) {
+                val mensaje = if (e.response.status == HttpStatusCode.Conflict) {
+                    "Ese nombre de usuario ya está en uso"
+                } else {
+                    "No se han podido guardar los cambios"
+                }
+                _uiState.update { it.copy( error = mensaje, guardando = false )}
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        error = "No se han podido guardar los cambios",
+                        guardando = false
+                    )
+                }
+            }
+
         }
     }
 }

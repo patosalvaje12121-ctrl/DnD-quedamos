@@ -34,6 +34,7 @@ fun UserDetailsScreen(
     onRegistrarse: (() -> Unit)? = null,
     onIniciarSesion: (() -> Unit)? = null,
     onEditarUsuario: (() -> Unit)? = null,
+    onCerrarSesion: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
 
@@ -42,6 +43,11 @@ fun UserDetailsScreen(
         contentAlignment = Alignment.Center
     ) {
         when {
+
+            viewModel.loading -> {
+                CircularProgressIndicator()
+            }
+
             // Ajustes sin sesión
             viewModel.sinSesion -> {
                 AccesoUsuario(
@@ -50,10 +56,6 @@ fun UserDetailsScreen(
                 )
             }
 
-            // Cargando el perfil
-            viewModel.loading -> {
-                CircularProgressIndicator()
-            }
 
             // Error al cargar el perfil
             viewModel.error != null -> {
@@ -74,7 +76,8 @@ fun UserDetailsScreen(
                     descripcion = viewModel.dataUsuario.descBio,
                     esPerfilPropio = viewModel.esPerfilPropio,
                     esAdminPerfil = esAdministradorPerfil,
-                    onEditarUsuario = onEditarUsuario
+                    onEditarUsuario = onEditarUsuario,
+                    onCerrarSesion = onCerrarSesion
                 )
             }
 
@@ -85,7 +88,6 @@ fun UserDetailsScreen(
     }
 }
 
-//registrarse e iniciar sesion
 @Composable
 private fun AccesoUsuario(
     onRegistrarse: (() -> Unit)?,
@@ -140,14 +142,14 @@ private fun AccesoUsuario(
     }
 }
 
-//ver user ya sea tuyo o de otra persona
 @Composable
 private fun CartaUsuario(
     nombre: String,
     descripcion: String,
     esPerfilPropio: Boolean,
     esAdminPerfil: Boolean,
-    onEditarUsuario: (() -> Unit)?
+    onEditarUsuario: (() -> Unit)?,
+    onCerrarSesion: (() -> Unit)?
 ) {
     Card(
         modifier = Modifier
@@ -175,22 +177,22 @@ private fun CartaUsuario(
                 }
             }
 
-            // TODO: implementar imágenes de usuario
-            Box(
-                modifier = Modifier
-                    .size(110.dp)
-                    .background(
-                        color = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer,
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "TODO:\nimplementar\nimagenes",
-                    fontSize = 11.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
+//            // TODO: implementar imágenes de usuario
+//            Box(
+//                modifier = Modifier
+//                    .size(110.dp)
+//                    .background(
+//                        color = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer,
+//                        shape = CircleShape
+//                    ),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Text(
+//                    text = "TODO:\nimplementar\nimagenes",
+//                    fontSize = 11.sp,
+//                    textAlign = TextAlign.Center
+//                )
+//            }
 
             Text(
                 text = nombre,
@@ -212,11 +214,25 @@ private fun CartaUsuario(
 
             Text(
                 text = descripcion.ifBlank {
-                    "Este usuario todavía no tiene descripción."
+                    ""
                 },
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center
             )
+
+
+            if (esPerfilPropio) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedButton(
+                    onClick = { onCerrarSesion?.invoke() },
+                    enabled = onCerrarSesion != null,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Cerrar sesión")
+                }
+            }
+
         }
     }
 }

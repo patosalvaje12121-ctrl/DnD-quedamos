@@ -50,7 +50,6 @@ class ViewUserViewModel(
                 _uiState.update { it.copy(dataUsuario = perfil, sinSesion = false,
                     esPerfilPropio = propio, esAdmin = null, esAdminPerfil = null, loading = false) }
                 if (propio) {
-                    // La consulta de permisos no debe impedir mostrar el perfil.
                     try {
                         val admin = userPermissionsUseCase.esAdmin()
                         _uiState.update { it.copy(esAdmin = admin) }
@@ -73,4 +72,32 @@ class ViewUserViewModel(
         if (_uiState.value.sinSesion) _uiState.update { it.copy(pagina = UserPage.LOGIN) }
     }
     fun volverPerfil() { _uiState.update { it.copy(pagina = UserPage.PERFIL) } }
+
+
+    fun cerrarSesion() {
+        if (!_uiState.value.esPerfilPropio) return
+
+        viewModelScope.launch {
+            try {
+                viewUserUseCase.cerrarSesion()
+
+                _uiState.update {
+                    ViewUserUiState(
+                        sinSesion = true,
+                        pagina = UserPage.PERFIL
+                    )
+                }
+
+            } catch (e: CancellationException) {
+                throw e
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = e.message)
+                }
+            }
+        }
+    }
+
+
 }

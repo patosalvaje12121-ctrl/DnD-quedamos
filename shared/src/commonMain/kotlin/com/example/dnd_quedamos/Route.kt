@@ -24,6 +24,13 @@ sealed interface Route {
     data object CreateEvent : Route;
 
     @Serializable
+    data class EditEvent(val eventoId: Int) : Route
+
+    // Lista de eventos que puedes gestionar (los tuyos, o todos si eres administrador)
+    @Serializable
+    data object Gestion : Route
+
+    @Serializable
     data object Chats : Route;
 
     @Serializable

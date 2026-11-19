@@ -9,6 +9,9 @@ import com.example.dnd_quedamos.features.evento.data.repository.RepositoryEvento
 import com.example.dnd_quedamos.features.evento.domain.repository.IRepositoryEvento
 import com.example.dnd_quedamos.features.evento.domain.usecase.ManagerEventoUseCase
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
+import com.example.dnd_quedamos.features.evento.presentation.DetalleEventoViewModel
+import com.example.dnd_quedamos.features.evento.presentation.FormularioEventoViewModel
+import com.example.dnd_quedamos.features.evento.presentation.GestionViewModel
 import com.example.dnd_quedamos.core.session.MutableCurrentUserProvider
 import com.example.dnd_quedamos.core.session.CurrentUserProvider
 import com.example.dnd_quedamos.core.session.FakeCurrentUserProvider
@@ -29,6 +32,7 @@ import com.example.dnd_quedamos.features.chat.domain.usecase.ManagerChatUseCase
 import com.example.dnd_quedamos.features.chat.presentation.ChatListViewModel
 import com.example.dnd_quedamos.features.chat.presentation.ChatViewModel
 import com.example.dnd_quedamos.features.chat.presentation.NuevoChatViewModel
+import com.example.dnd_quedamos.features.usuario.data.remote.AuthApi
 import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -64,6 +68,11 @@ val eventoModule = module {
     singleOf(::RepositoryEvento) bind IRepositoryEvento::class // una única instancia, expuesta como interfaz
     factoryOf(::ManagerEventoUseCase)                          // nueva instancia en cada petición
     viewModelOf(::EventoViewModel)                             // ligado al ciclo de vida de la pantalla
+    // DetalleEventoViewModel necesita el eventoId: se pasa con koinViewModel { parametersOf(eventoId) }
+    viewModel { (eventoId: Int) -> DetalleEventoViewModel(eventoId, get(), get(), get()) }
+    viewModelOf(::GestionViewModel)
+    // eventoId = -1 -> crear evento; otro valor -> editar ese evento
+    viewModel { (eventoId: Int) -> FormularioEventoViewModel(eventoId, get()) }
 }
 
 // Sesión: quién es el usuario actual (falso hasta que exista login)
@@ -90,6 +99,9 @@ val chatModule = module {
 
 
 val usuarioModule = module {
+
+    // API encargada del registro e inicio de sesión
+    singleOf(::AuthApi)
 
     // Gestión de usuarios existente
     singleOf(::UsuarioApi)
