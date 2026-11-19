@@ -13,8 +13,15 @@ import com.example.dnd_quedamos.core.session.MutableCurrentUserProvider
 import com.example.dnd_quedamos.core.session.CurrentUserProvider
 import com.example.dnd_quedamos.core.session.FakeCurrentUserProvider
 import com.example.dnd_quedamos.features.usuario.domain.repository.IRepositoryUsuario
-import com.example.dnd_quedamos.features.usuario.domain.usecase.ManagerUsuarioUseCase
-import com.example.dnd_quedamos.features.usuario.presentation.UsuarioViewModel
+import com.example.dnd_quedamos.features.usuario.presentation.ViewUserViewModel
+import com.example.dnd_quedamos.features.usuario.presentation.EditUserViewModel
+import com.example.dnd_quedamos.features.usuario.presentation.RegisterUserViewModel
+import com.example.dnd_quedamos.features.usuario.presentation.LoginUserViewModel
+import com.example.dnd_quedamos.features.usuario.domain.usecase.ViewUserUseCase
+import com.example.dnd_quedamos.features.usuario.domain.usecase.EditUserUseCase
+import com.example.dnd_quedamos.features.usuario.domain.usecase.RegisterUserUseCase
+import com.example.dnd_quedamos.features.usuario.domain.usecase.LoginUserUseCase
+import com.example.dnd_quedamos.features.usuario.domain.usecase.DeleteUserUseCase
 import com.example.dnd_quedamos.features.chat.data.remote.ChatApi
 import com.example.dnd_quedamos.features.chat.data.repository.RepositoryChat
 import com.example.dnd_quedamos.features.chat.domain.repository.IRepositoryChat
@@ -85,7 +92,7 @@ val usuarioModule = module {
     // Gestión de usuarios existente
     singleOf(::UsuarioApi)
     singleOf(::RepositoryUsuarioApi) bind IRepositoryUsuario::class
-    factoryOf(::ManagerUsuarioUseCase)
+
 
 
     // Gestión de permisos de usuario
@@ -93,8 +100,18 @@ val usuarioModule = module {
     singleOf(::RepositoryPermisosUsuario) bind IRepositoryPermisosUsuario::class
     factoryOf(::UserPermissionsUseCase)
 
-    //ViewModel
-    viewModel { (userID: Int) -> UsuarioViewModel(userID, get(), get(), get()) }
+    // Casos de uso separados por operaciones de cada pantalla
+    factoryOf(::ViewUserUseCase)
+    factoryOf(::EditUserUseCase)
+    factoryOf(::RegisterUserUseCase)
+    factoryOf(::LoginUserUseCase)
+    factoryOf(::DeleteUserUseCase)
+
+    // Un ViewModel para cada pantalla, un solo ViewUserRoot
+    viewModel { (userID: Int) -> ViewUserViewModel(userID, get(), get(), get()) }
+    viewModelOf(::EditUserViewModel)
+    viewModelOf(::RegisterUserViewModel)
+    viewModelOf(::LoginUserViewModel)
 }
 
 
