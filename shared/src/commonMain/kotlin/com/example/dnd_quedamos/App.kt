@@ -38,12 +38,12 @@ import com.example.dnd_quedamos.features.evento.ui.PantallaViewEvent
 import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
 import com.example.dnd_quedamos.features.mapa.ui.VistaDePruebaMapa
 import com.example.dnd_quedamos.features.mapa.ui.VistaMainMapa
-import com.example.dnd_quedamos.resources.NVAEvents
-import com.example.dnd_quedamos.resources.NVMain
-import com.example.dnd_quedamos.resources.NVMap
-import com.example.dnd_quedamos.resources.NVMessages
-import com.example.dnd_quedamos.resources.NVProfile
-import com.example.dnd_quedamos.resources.Res
+import dndquedamos.shared.generated.resources.Res
+import dndquedamos.shared.generated.resources.NVAEvents
+import dndquedamos.shared.generated.resources.NVMain
+import dndquedamos.shared.generated.resources.NVMap
+import dndquedamos.shared.generated.resources.NVMessages
+import dndquedamos.shared.generated.resources.NVProfile
 import kotlinx.coroutines.selects.select
 import org.jetbrains.compose.resources.painterResource
 
