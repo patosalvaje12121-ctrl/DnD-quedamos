@@ -26,11 +26,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-import com.example.dnd_quedamos.features.usuario.presentation.UsuarioUiState
+import com.example.dnd_quedamos.features.usuario.presentation.ViewUserUiState
 
 @Composable
 fun UserDetailsScreen(
-    viewModel: UsuarioUiState,
+    viewModel: ViewUserUiState,
     onRegistrarse: (() -> Unit)? = null,
     onIniciarSesion: (() -> Unit)? = null,
     onEditarUsuario: (() -> Unit)? = null,
