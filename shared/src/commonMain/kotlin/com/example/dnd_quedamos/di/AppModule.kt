@@ -64,7 +64,7 @@ val eventoModule = module {
     factoryOf(::ManagerEventoUseCase)                          // nueva instancia en cada petición
     viewModelOf(::EventoViewModel)                             // ligado al ciclo de vida de la pantalla
     // DetalleEventoViewModel necesita el eventoId: se pasa con koinViewModel { parametersOf(eventoId) }
-    viewModel { (eventoId: Int) -> DetalleEventoViewModel(eventoId, get(), get()) }
+    viewModel { (eventoId: Int) -> DetalleEventoViewModel(eventoId, get(), get(), get()) }
 }
 
 // Sesión: quién es el usuario actual (falso hasta que exista login)
