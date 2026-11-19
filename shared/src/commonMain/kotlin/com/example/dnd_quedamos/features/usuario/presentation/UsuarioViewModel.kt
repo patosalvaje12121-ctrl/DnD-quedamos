@@ -12,29 +12,96 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.example.dnd_quedamos.features.usuario.domain.usecase.UserPermissionsUseCase
+import com.example.dnd_quedamos.core.session.CurrentUserProvider
 
 data class UsuarioUiState(
     val dataUsuario: DataUsuario? = null,
     val loading: Boolean = false,
     val error: String? = null,
     val mensaje: String? = null,
-    val esAdmin: Boolean? = null,
-    val loadingPermisos: Boolean = false
+    val esAdmin: Boolean? = null, //el perfil autenticado
+    val loadingPermisos: Boolean = false,
+
+    val sinSesion: Boolean = false, //inicio / registrarse
+    val esPerfilPropio: Boolean = false, //editar perfil
+    val esAdminPerfil: Boolean? = null //el perfil estamos visitando
 )
 
 class UsuarioViewModel(
     private val userID: Int,
     private val managerUsuarioUseCase: ManagerUsuarioUseCase,
-    private val userPermissionsUseCase: UserPermissionsUseCase
+    private val userPermissionsUseCase: UserPermissionsUseCase,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UsuarioUiState())
     val uiState: StateFlow<UsuarioUiState> = _uiState.asStateFlow()
 
+
+
     fun inicializar() {
-        cargarUsuario(userID)
-        comprobarPermisos()
+        viewModelScope.launch {
+            try {
+                val usuarioActual = currentUserProvider.currentUser()
+
+                if (userID == -1 && usuarioActual == null) {
+                    // Ajustes sin sesión iniciada
+                    _uiState.update {
+                        it.copy(
+                            dataUsuario = null,
+                            sinSesion = true,
+                            esPerfilPropio = false,
+                            esAdmin = null,
+                            esAdminPerfil = null,
+                            loading = false,
+                            loadingPermisos = false,
+                            error = null
+                        )
+                    }
+                    return@launch
+                }
+
+                val idPerfil = if (userID == -1) {
+                    usuarioActual?.id ?: return@launch
+                } else {
+                    userID
+                }
+
+                val esPropio = usuarioActual?.id == idPerfil
+
+                _uiState.update {
+                    it.copy(
+                        sinSesion = false,
+                        esPerfilPropio = esPropio,
+                        esAdminPerfil = null,
+                        esAdmin = null,
+                        error = null
+                    )
+                }
+
+                cargarUsuario(idPerfil)
+
+                if (usuarioActual != null) {
+                    comprobarPermisos()
+                }
+
+            } catch (e: CancellationException) {
+                throw e
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        loading = false,
+                        error = e.message
+                    )
+                }
+            }
+        }
     }
+
+
+
+
 
     fun onAction(action: UsuarioAction) {
         when (action) {

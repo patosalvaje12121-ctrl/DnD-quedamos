@@ -14,6 +14,9 @@ import org.koin.core.parameter.parametersOf
 fun ViewUserRoot(
     iD: Int,
     modifier: Modifier = Modifier,
+    onRegistrarse: (() -> Unit)? = null,
+    onIniciarSesion: (() -> Unit)? = null,
+    onEditarUsuario: (() -> Unit)? = null,
     viewModel: UsuarioViewModel = koinViewModel {
         parametersOf(iD)
     }
@@ -26,7 +29,9 @@ fun ViewUserRoot(
 
     UserDetailsScreen(
         viewModel = uiState,
-        onAction = {},
+        onRegistrarse = onRegistrarse,
+        onIniciarSesion = onIniciarSesion,
+        onEditarUsuario = onEditarUsuario,
         modifier = modifier
     )
 }
