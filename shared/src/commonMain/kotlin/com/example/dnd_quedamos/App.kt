@@ -30,6 +30,8 @@ import com.example.dnd_quedamos.features.chat.ui.ChatScreen
 import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
 import com.example.dnd_quedamos.features.evento.ui.HomeEventViewRoot
 import com.example.dnd_quedamos.features.evento.ui.PantallaViewEvent
+import com.example.dnd_quedamos.features.evento.ui.PantallaGestion
+import com.example.dnd_quedamos.features.evento.ui.PantallaFormularioEvento
 import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
 import com.example.dnd_quedamos.features.mapa.ui.VistaDePruebaMapa
 import com.example.dnd_quedamos.features.mapa.ui.VistaMainMapa
@@ -115,7 +117,17 @@ fun App(
                             launchSingleTop = true
                         }
                     }
-                    BottomNavButton(emoji = "🐲", label = "Gestion", selected = false) { }
+                    BottomNavButton(
+                        emoji = "🐲",
+                        label = "Gestion",
+                        selected = estaEn(Route.Gestion::class, Route.CreateEvent::class, Route.EditEvent::class),
+                    ) {
+                        navController.navigate(Route.Gestion) {
+                            popUpTo(Route.Home) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                     BottomNavButton(
                         emoji = "📜",
                         label = "Chat",
@@ -169,6 +181,30 @@ fun App(
                         eventoId = ruta.eventID,
                         onBack = { navController.popBackStack() },
                         onAbrirChat = { eventoId -> navController.navigate(Route.ChatEvento(eventoId)) },
+                        onEditar = { eventoId -> navController.navigate(Route.EditEvent(eventoId)) },
+                    )
+                }
+
+                // ---------- Gestión de eventos ----------
+                composable<Route.Gestion> {
+                    PantallaGestion(
+                        onCrear = { navController.navigate(Route.CreateEvent) },
+                        onEditar = { eventoId -> navController.navigate(Route.EditEvent(eventoId)) },
+                    )
+                }
+                composable<Route.CreateEvent> {
+                    PantallaFormularioEvento(
+                        eventoId = -1, // -1 = crear uno nuevo
+                        onBack = { navController.popBackStack() },
+                        onGuardado = { navController.popBackStack() },
+                    )
+                }
+                composable<Route.EditEvent> { entry ->
+                    val ruta = entry.toRoute<Route.EditEvent>()
+                    PantallaFormularioEvento(
+                        eventoId = ruta.eventoId,
+                        onBack = { navController.popBackStack() },
+                        onGuardado = { navController.popBackStack() },
                     )
                 }
                 composable<Route.MainMap> {
