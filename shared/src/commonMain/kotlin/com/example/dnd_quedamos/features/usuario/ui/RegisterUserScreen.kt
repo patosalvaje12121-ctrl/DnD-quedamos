@@ -19,7 +19,7 @@ fun RegisterUserScreen(state: RegisterUserUiState, onAction: (RegisterUserAction
         OutlinedTextField(value = state.descripcion,
             onValueChange = { onAction(RegisterUserAction.CambiarDescripcion(it)) },
             label = { Text("Descripción") }, modifier = Modifier.fillMaxWidth())
-        Text("TODO: implementar imagenes")
+//        Text("TODO: implementar imagenes")
         state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         Button(onClick = { onAction(RegisterUserAction.Registrar) },
             enabled = !state.guardando && state.nombre.isNotBlank() && state.nombre.length <= 50 && state.descripcion.length <= 500,
