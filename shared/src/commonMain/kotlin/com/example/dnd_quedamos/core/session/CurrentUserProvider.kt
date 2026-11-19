@@ -14,12 +14,12 @@ interface MutableCurrentUserProvider : CurrentUserProvider {
 
 class FakeCurrentUserProvider : MutableCurrentUserProvider {
 
-//    private var usuarioActual: DataUsuario? = DataUsuario(
-//        id = 1,
-//        nombre = "Marco"
-//    )
+    private var usuarioActual: DataUsuario? = DataUsuario(
+        id = 1,
+        nombre = "Marco"
+    )
 
-    private var usuarioActual: DataUsuario? = null
+//    private var usuarioActual: DataUsuario? = null
 
     override suspend fun currentUser(): DataUsuario? {
         return usuarioActual
