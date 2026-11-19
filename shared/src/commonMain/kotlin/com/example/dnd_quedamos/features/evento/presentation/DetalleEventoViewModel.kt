@@ -2,65 +2,77 @@ package com.example.dnd_quedamos.features.evento.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dnd_quedamos.core.session.CurrentUserProvider
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.domain.usecase.ManagerEventoUseCase
 import com.example.dnd_quedamos.features.usuario.domain.usecase.ViewUserUseCase
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class DetalleEventoUiState(
-    val cargando: Boolean = true,
-    val evento: DataEvento? = null,
+    val evento: DataEvento? = null, // null mientras carga
+    val miId: Int? = null,          // usuario con la sesión iniciada
+    val nombres: Map<Int, String> = emptyMap(), // id de usuario -> nombre
+    val puedeGestionar: Boolean = false, // organizador o administrador: ve Editar y Borrar
     val error: String? = null,
-    // id de usuario -> nombre (organizador y participantes). Si no se encuentra, la UI pone "Usuario #id"
-    val nombres: Map<Int, String> = emptyMap(),
 )
 
-/** Pantalla de detalle de un evento. Recibe el eventoId con koinViewModel { parametersOf(eventoId) }. */
+/** Detalle de un evento. Recibe el eventoId con koinViewModel { parametersOf(eventoId) }. */
 class DetalleEventoViewModel(
     private val eventoId: Int,
     private val managerEventoUseCase: ManagerEventoUseCase,
+    private val currentUserProvider: CurrentUserProvider,
     private val viewUserUseCase: ViewUserUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetalleEventoUiState())
-    val uiState: StateFlow<DetalleEventoUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<DetalleEventoUiState> = _uiState
 
-    init {
-        cargar()
-    }
-
+    // cargar() lo llama la pantalla cada vez que se entra (así se ve actualizado al volver de editar)
     fun cargar() {
-        _uiState.update { it.copy(cargando = true, error = null) }
         viewModelScope.launch {
+            val miId = currentUserProvider.currentUser()?.id
             managerEventoUseCase.ObtenerEvento(eventoId)
                 .onSuccess { evento ->
-                    _uiState.update { it.copy(cargando = false, evento = evento) }
-                    cargarNombres(evento)
-                }
-                .onFailure { e ->
-                    _uiState.update {
-                        it.copy(cargando = false, error = e.message ?: "No se pudo cargar el evento")
+                    // Nombre del organizador y de cada participante (si falla alguno, no se pone)
+                    val ids = listOf(evento.organizadorId) + evento.participantes
+                    val nombres = mutableMapOf<Int, String>()
+                    for (id in ids) {
+                        runCatching { viewUserUseCase.obtenerPerfil(id) }
+                            .onSuccess { nombres[id] = it.nombre }
                     }
+                    val puedeGestionar = managerEventoUseCase.PuedeGestionar(eventoId).getOrDefault(false)
+                    _uiState.value = DetalleEventoUiState(
+                        evento = evento, miId = miId, nombres = nombres, puedeGestionar = puedeGestionar,
+                    )
                 }
+                .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
         }
     }
 
-    private suspend fun cargarNombres(evento: DataEvento) {
-        val ids = (listOf(evento.organizadorId) + evento.participantes).distinct()
-        val nombres = ids.mapNotNull { id ->
-            try {
-                id to viewUserUseCase.obtenerPerfil(id).nombre
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                null // si un usuario no se encuentra se muestra su id
-            }
-        }.toMap()
-        _uiState.update { it.copy(nombres = nombres) }
+    fun apuntarse() {
+        viewModelScope.launch {
+            managerEventoUseCase.UnirseEvento(eventoId)
+                .onSuccess { cargar() }
+                .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
+        }
+    }
+
+    fun desapuntarse() {
+        viewModelScope.launch {
+            managerEventoUseCase.AbandonarEvento(eventoId)
+                .onSuccess { cargar() }
+                .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
+        }
+    }
+
+    /** Borra el evento. Si va bien llama a [onBorrado] (normalmente, volver atrás). */
+    fun borrar(onBorrado: () -> Unit) {
+        viewModelScope.launch {
+            managerEventoUseCase.CancelarEvento(eventoId)
+                .onSuccess { onBorrado() }
+                .onFailure { _uiState.value = _uiState.value.copy(error = it.message) }
+        }
     }
 }
