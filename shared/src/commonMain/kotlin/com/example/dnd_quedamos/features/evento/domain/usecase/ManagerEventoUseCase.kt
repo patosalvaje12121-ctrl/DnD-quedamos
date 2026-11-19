@@ -142,9 +142,13 @@ class ManagerEventoUseCase(
      * se recuperan tras reinstalar y se actualizan si otro (el organizador) cambia la fecha.
      * Repetirlo no duplica avisos: cada evento sustituye el suyo.
      *
-     * TODO: no cancela avisos de eventos que ya no están en la lista (p. ej. si el organizador lo
+     * TODO: Recibe toda la lista de eventos y comprueba los que estas tu apuntado, tremendamente ineficiente.
+     *  Ademas no cancela avisos de eventos que ya no están en la lista (p. ej. si el organizador lo
      *  cancela desde otro dispositivo). Haría falta guardar qué eventos tienen aviso programado, o
      *  que el servidor avise (cuando el evento tenga estado INACTIVO, ver DataEvento).
+     *
+     *
+     *
      */
     private suspend fun sincronizarRecordatorios(eventos: List<DataEvento>) {
         val yo = currentUserProvider.currentUser()?.id ?: return

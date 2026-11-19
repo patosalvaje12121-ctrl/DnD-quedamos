@@ -21,6 +21,7 @@ import com.example.dnd_quedamos.core.session.CurrentUserProvider
  *
  * Cada parte de la API tiene su propio "servidor" en memoria:
  *  - FakeChatServer.kt   -> chats, mensajes, usuarios y eventos/{id}/chat
+ *  - FakeUsuarioServer.kt -> perfiles de usuario y permisos (y los datos de ejemplo, usuariosFalsos)
  *  - FakeEventoServer.kt -> eventos y participantes (y los datos de ejemplo, eventosFalsos)
  *
  * Para cambiar entre falso y real: USE_FAKE_API en di/AppModule.kt.
