@@ -63,6 +63,7 @@ fun ViewUserRoot(
                     viewModel.abrirEdicion()
                 }
             },
+            onCerrarSesion = viewModel::cerrarSesion,
             modifier = modifier
         )
     }

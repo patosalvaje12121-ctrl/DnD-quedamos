@@ -73,4 +73,32 @@ class ViewUserViewModel(
         if (_uiState.value.sinSesion) _uiState.update { it.copy(pagina = UserPage.LOGIN) }
     }
     fun volverPerfil() { _uiState.update { it.copy(pagina = UserPage.PERFIL) } }
+
+
+    fun cerrarSesion() {
+        if (!_uiState.value.esPerfilPropio) return
+
+        viewModelScope.launch {
+            try {
+                viewUserUseCase.cerrarSesion()
+
+                _uiState.update {
+                    ViewUserUiState(
+                        sinSesion = true,
+                        pagina = UserPage.PERFIL
+                    )
+                }
+
+            } catch (e: CancellationException) {
+                throw e
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = e.message)
+                }
+            }
+        }
+    }
+
+
 }
