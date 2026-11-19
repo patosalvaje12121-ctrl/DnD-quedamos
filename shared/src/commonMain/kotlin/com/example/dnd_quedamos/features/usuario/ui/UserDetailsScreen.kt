@@ -43,6 +43,12 @@ fun UserDetailsScreen(
         contentAlignment = Alignment.Center
     ) {
         when {
+
+            // Cargando el perfil
+            viewModel.loading -> {
+                CircularProgressIndicator()
+            }
+
             // Ajustes sin sesión
             viewModel.sinSesion -> {
                 AccesoUsuario(
@@ -51,10 +57,6 @@ fun UserDetailsScreen(
                 )
             }
 
-            // Cargando el perfil
-            viewModel.loading -> {
-                CircularProgressIndicator()
-            }
 
             // Error al cargar el perfil
             viewModel.error != null -> {
