@@ -29,6 +29,7 @@ import com.example.dnd_quedamos.features.chat.domain.usecase.ManagerChatUseCase
 import com.example.dnd_quedamos.features.chat.presentation.ChatListViewModel
 import com.example.dnd_quedamos.features.chat.presentation.ChatViewModel
 import com.example.dnd_quedamos.features.chat.presentation.NuevoChatViewModel
+import com.example.dnd_quedamos.features.usuario.data.remote.AuthApi
 import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -88,6 +89,9 @@ val chatModule = module {
 
 
 val usuarioModule = module {
+
+    // API encargada del registro e inicio de sesión
+    singleOf(::AuthApi)
 
     // Gestión de usuarios existente
     singleOf(::UsuarioApi)

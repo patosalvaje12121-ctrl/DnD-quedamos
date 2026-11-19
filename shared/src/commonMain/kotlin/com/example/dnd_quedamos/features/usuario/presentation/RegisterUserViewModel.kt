@@ -10,12 +10,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class RegisterUserUiState(
-    val nombre: String = "", val descripcion: String = "",
+    val nombre: String = "", val descripcion: String = "", val password: String = "", val repetirPassword: String = "",
     val guardando: Boolean = false, val completado: Boolean = false, val error: String? = null
 )
 sealed interface RegisterUserAction {
     data class CambiarNombre(val valor: String): RegisterUserAction
     data class CambiarDescripcion(val valor: String): RegisterUserAction
+    data class CambiarPassword(val valor: String): RegisterUserAction
+    data class CambiarRepetirPassword(val valor: String): RegisterUserAction
     data object Registrar: RegisterUserAction
 }
 class RegisterUserViewModel(private val useCase: RegisterUserUseCase): ViewModel() {
@@ -26,6 +28,8 @@ class RegisterUserViewModel(private val useCase: RegisterUserUseCase): ViewModel
         when(action) {
             is RegisterUserAction.CambiarNombre -> _uiState.update { it.copy(nombre = action.valor) }
             is RegisterUserAction.CambiarDescripcion -> _uiState.update { it.copy(descripcion = action.valor) }
+            is RegisterUserAction.CambiarPassword -> _uiState.update { it.copy(password = action.valor) }
+            is RegisterUserAction.CambiarRepetirPassword -> _uiState.update { it.copy(repetirPassword = action.valor) }
             RegisterUserAction.Registrar -> registrar()
         }
     }
@@ -35,8 +39,8 @@ class RegisterUserViewModel(private val useCase: RegisterUserUseCase): ViewModel
         viewModelScope.launch {
             _uiState.update { it.copy(guardando = true, completado = false, error = null) }
             try {
-                useCase.registrar(estado.nombre, estado.descripcion)
-                _uiState.update { it.copy(guardando = false, completado = true) }
+                useCase.registrar(estado.nombre, estado.descripcion, estado.password, estado.repetirPassword)
+                _uiState.update { it.copy(guardando = false, completado = true, password = "", repetirPassword = "") }
             } catch (e: CancellationException) { throw e }
             catch (e: Exception) { _uiState.update { it.copy(guardando = false, error = e.message) } }
         }

@@ -79,6 +79,9 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             // MockEngine: respuestas falsas mientras no haya backend
             implementation(libs.ktor.client.mock)
+
+            // SHA-256 multiplataforma (Android, Desktop y JS) para el FakeLoginServer.
+            implementation("com.squareup.okio:okio:3.18.2")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

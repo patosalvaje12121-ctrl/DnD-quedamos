@@ -130,6 +130,24 @@ internal object FakeUsuarioServer {
         }
     }
 
+
+    /**
+     * Crea un perfil desde el endpoint de registro de FakeLoginServer.
+     */
+    suspend fun crearDesdeRegistro(nombre: String, biografia: String): UsuarioDto = mutex.withLock {
+        val nuevo = UsuarioDto(id = nextId++, nombre = nombre, biografia = biografia)
+        usuarios += nuevo
+        nuevo
+    }
+
+    /**
+     * Busca los datos públicos del usuario para devolverlos tras validar credenciales.
+     * El hash de la contraseña NUNCA se añade al UsuarioDto.
+     */
+    suspend fun buscarDesdeAuth(id: Int): UsuarioDto? = mutex.withLock {
+        usuarios.firstOrNull { it.id == id }
+    }
+
     // ---------- helpers (llamar siempre con el mutex cogido) ----------
 
     private fun usuario(id: Int): UsuarioDto = usuarios.first { it.id == id }
