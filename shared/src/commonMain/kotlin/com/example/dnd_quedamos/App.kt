@@ -135,7 +135,9 @@ fun App(
                     }
                     BottomNavButton(emoji = "⚙️", label = "Ajustes", selected = estaEn(Route.UserProfile::class)) {
                         navController.navigate(Route.UserProfile(-1)) {
+                            popUpTo(Route.Home) { saveState = true }
                             launchSingleTop = true
+                            restoreState = true
                         }
                     }
                 }
