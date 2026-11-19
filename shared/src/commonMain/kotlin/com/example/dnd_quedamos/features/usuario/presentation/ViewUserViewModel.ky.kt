@@ -50,7 +50,6 @@ class ViewUserViewModel(
                 _uiState.update { it.copy(dataUsuario = perfil, sinSesion = false,
                     esPerfilPropio = propio, esAdmin = null, esAdminPerfil = null, loading = false) }
                 if (propio) {
-                    // La consulta de permisos no debe impedir mostrar el perfil.
                     try {
                         val admin = userPermissionsUseCase.esAdmin()
                         _uiState.update { it.copy(esAdmin = admin) }

@@ -9,13 +9,11 @@ class LoginUserUseCase(
     private val authApi: AuthApi,
     private val session: MutableCurrentUserProvider
 ) {
-    suspend fun iniciarSesion(id: Int, password: String): DataUsuario {
-        require(id > 0) { "Introduce un ID válido" }
+    suspend fun iniciarSesion(nombre: String, password: String): DataUsuario {
+        require(nombre.trim().isNotEmpty()) { "Introduce el nombre de usuario" }
         require(password.isNotBlank()) { "Introduce la contraseña" }
-        // Solo iniciamos sesión si la API confirma las credenciales.
-        val usuario = authApi.iniciarSesion(id, password).toDomain()
+        val usuario = authApi.iniciarSesion(nombre.trim(), password).toDomain()
         session.iniciarSesion(usuario)
         return usuario
     }
 }
-

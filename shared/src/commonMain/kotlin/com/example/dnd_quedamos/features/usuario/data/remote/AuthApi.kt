@@ -16,10 +16,10 @@ class AuthApi(private val client: HttpClient) {
             setBody(RegistroRequest(nombre, biografia, password))
         }.body()
 
-    suspend fun iniciarSesion(id: Int, password: String): UsuarioDto =
+    suspend fun iniciarSesion(nombre: String, password: String): UsuarioDto =
         client.post("auth/login") {
             contentType(ContentType.Application.Json)
-            setBody(LoginRequest(id, password))
+            setBody(LoginRequest(nombre, password))
         }.body()
 }
 
@@ -27,4 +27,4 @@ class AuthApi(private val client: HttpClient) {
 private data class RegistroRequest(val nombre: String, val biografia: String, val password: String)
 
 @Serializable
-private data class LoginRequest(val usuarioId: Int, val password: String)
+private data class LoginRequest(val nombre: String, val password: String)

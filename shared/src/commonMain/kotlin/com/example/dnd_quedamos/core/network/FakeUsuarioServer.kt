@@ -47,6 +47,10 @@ internal object FakeUsuarioServer {
     private val usuarios = usuariosFalsos.toMutableList()
     private var nextId = (usuarios.maxOfOrNull { it.id } ?: 0) + 1
 
+    /** Los nombres son únicos ignorando mayúsculas y espacios en los extremos. */
+    private fun nombreOcupado(nombre: String, exceptoId: Int? = null): Boolean =
+        usuarios.any { it.id != exceptoId && it.nombre.trim().equals(nombre.trim(), ignoreCase = true) }
+
     fun esAdmin(usuarioAutenticadoId: Int?): Boolean =
         usuarioAutenticadoId != null &&
                 usuarioAutenticadoId in administradores
@@ -86,10 +90,14 @@ internal object FakeUsuarioServer {
                     // POST usuarios
                     method == HttpMethod.Post && seg.size == 1 -> {
                         val recibido = AppJson.decodeFromString<UsuarioDto>(cuerpo)
-                        if (recibido.nombre.isBlank()) {
+                        val nombre = recibido.nombre.trim()
+                        if (nombre.isBlank() || nombre.length > 50) {
                             respondError(HttpStatusCode.BadRequest)
+                        } else if (nombreOcupado(nombre)) {
+                            // El nombre ya lo usa otra cuenta.
+                            respondError(HttpStatusCode.Conflict)
                         } else {
-                            val nuevo = recibido.copy(id = nextId++)
+                            val nuevo = recibido.copy(id = nextId++, nombre = nombre)
                             usuarios += nuevo
                             respondJson(AppJson.encodeToString(nuevo), HttpStatusCode.Created)
                         }
@@ -110,11 +118,15 @@ internal object FakeUsuarioServer {
                     // PUT usuarios/{id}
                     method == HttpMethod.Put -> {
                         val editado = AppJson.decodeFromString<UsuarioDto>(cuerpo).copy(id = id)
-                        if (editado.nombre.isBlank()) {
+                        val nombre = editado.nombre.trim()
+                        if (nombre.isBlank() || nombre.length > 50) {
                             respondError(HttpStatusCode.BadRequest)
+                        } else if (nombreOcupado(nombre, exceptoId = id)) {
+                            respondError(HttpStatusCode.Conflict)
                         } else {
-                            usuarios[usuarios.indexOf(usuario(id))] = editado
-                            respondJson(AppJson.encodeToString(editado))
+                            val actualizado = editado.copy(nombre = nombre)
+                            usuarios[usuarios.indexOf(usuario(id))] = actualizado
+                            respondJson(AppJson.encodeToString(actualizado))
                         }
                     }
 
@@ -133,9 +145,15 @@ internal object FakeUsuarioServer {
 
     /**
      * Crea un perfil desde el endpoint de registro de FakeLoginServer.
+     * Reutiliza la misma lista de usuarios y el mismo contador de IDs del CRUD.
+     * Así no mantenemos dos colecciones de perfiles distintas.
      */
-    suspend fun crearDesdeRegistro(nombre: String, biografia: String): UsuarioDto = mutex.withLock {
-        val nuevo = UsuarioDto(id = nextId++, nombre = nombre, biografia = biografia)
+    suspend fun crearDesdeRegistro(nombre: String, biografia: String): UsuarioDto? = mutex.withLock {
+        // El mismo mutex protege la comprobación y el alta: dos registros simultáneos
+        // no pueden tener el mismo nombre.
+        val nombreLimpio = nombre.trim()
+        if (nombreOcupado(nombreLimpio)) return@withLock null
+        val nuevo = UsuarioDto(id = nextId++, nombre = nombreLimpio, biografia = biografia)
         usuarios += nuevo
         nuevo
     }
@@ -144,8 +162,9 @@ internal object FakeUsuarioServer {
      * Busca los datos públicos del usuario para devolverlos tras validar credenciales.
      * El hash de la contraseña NUNCA se añade al UsuarioDto.
      */
-    suspend fun buscarDesdeAuth(id: Int): UsuarioDto? = mutex.withLock {
-        usuarios.firstOrNull { it.id == id }
+    suspend fun buscarDesdeAuth(nombre: String): UsuarioDto? = mutex.withLock {
+        // Se busca en la lista de perfiles para incluir las ediciones del nombre.
+        usuarios.firstOrNull { it.nombre.trim().equals(nombre.trim(), ignoreCase = true) }
     }
 
     // ---------- helpers (llamar siempre con el mutex cogido) ----------

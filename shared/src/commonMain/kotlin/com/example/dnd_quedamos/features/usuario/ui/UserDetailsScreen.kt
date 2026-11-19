@@ -44,7 +44,6 @@ fun UserDetailsScreen(
     ) {
         when {
 
-            // Cargando el perfil
             viewModel.loading -> {
                 CircularProgressIndicator()
             }
@@ -89,7 +88,6 @@ fun UserDetailsScreen(
     }
 }
 
-//registrarse e iniciar sesion
 @Composable
 private fun AccesoUsuario(
     onRegistrarse: (() -> Unit)?,
@@ -144,7 +142,6 @@ private fun AccesoUsuario(
     }
 }
 
-//ver user ya sea tuyo o de otra persona
 @Composable
 private fun CartaUsuario(
     nombre: String,
@@ -217,7 +214,7 @@ private fun CartaUsuario(
 
             Text(
                 text = descripcion.ifBlank {
-                    "Este usuario todavía no tiene descripción."
+                    ""
                 },
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center

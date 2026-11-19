@@ -3,6 +3,8 @@ package com.example.dnd_quedamos.features.usuario.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dnd_quedamos.features.usuario.domain.usecase.RegisterUserUseCase
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,6 +44,11 @@ class RegisterUserViewModel(private val useCase: RegisterUserUseCase): ViewModel
                 useCase.registrar(estado.nombre, estado.descripcion, estado.password, estado.repetirPassword)
                 _uiState.update { it.copy(guardando = false, completado = true, password = "", repetirPassword = "") }
             } catch (e: CancellationException) { throw e }
+            catch (e: ClientRequestException) {
+                val mensaje = if (e.response.status == HttpStatusCode.Conflict)
+                    "Ese nombre de usuario ya está en uso" else "No se pudo completar el registro"
+                _uiState.update { it.copy(guardando = false, error = mensaje) }
+            }
             catch (e: Exception) { _uiState.update { it.copy(guardando = false, error = e.message) } }
         }
     }

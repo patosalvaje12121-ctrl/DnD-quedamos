@@ -16,7 +16,7 @@ fun RegisterUserScreen(state: RegisterUserUiState, onAction: (RegisterUserAction
         Text("Registrarse", style = MaterialTheme.typography.headlineSmall)
         OutlinedTextField(value = state.nombre,
             onValueChange = { onAction(RegisterUserAction.CambiarNombre(it)) },
-            label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
+            label = { Text("Nombre de usuario") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = state.descripcion,
             onValueChange = { onAction(RegisterUserAction.CambiarDescripcion(it)) },
             label = { Text("Descripción") }, modifier = Modifier.fillMaxWidth())

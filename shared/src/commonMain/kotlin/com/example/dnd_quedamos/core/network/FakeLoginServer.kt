@@ -17,7 +17,7 @@ import kotlinx.serialization.Serializable
  *
  * Rutas:
  *   POST /api/auth/register -> crea usuario + guarda hash de contraseña
- *   POST /api/auth/login    -> comprueba ID + contraseña y devuelve usuario
+ *   POST /api/auth/login    -> comprueba nombre + contraseña y devuelve usuario
  *
  * No gestiona sesiones: la capa LoginUserUseCase actualiza FakeCurrentUserProvider
  * cuando recibe una respuesta válida. No hay tokens en esta demo.
@@ -59,26 +59,32 @@ internal object FakeLoginServer {
 
                     // El Mutex impide registrar dos veces el mismo hash/ID simultáneamente.
                     mutex.withLock {
-                        // FakeUsuarioServer conserva la lista y asigna el ID (no duplicarla aquí).
+                        // La comprobación del nombre único y el alta se hacen dentro
+                        // del mutex de FakeUsuarioServer para evitar registros duplicados.
                         val creado = FakeUsuarioServer.crearDesdeRegistro(
                             datos.nombre.trim(), datos.biografia.trim()
                         )
-                        hashes[creado.id] = Sha256Demo.hash(datos.password)
-                        respondJson(AppJson.encodeToString(creado), HttpStatusCode.Created)
+                        if (creado == null) {
+                            respondError(HttpStatusCode.Conflict)
+                        } else {
+                            hashes[creado.id] = Sha256Demo.hash(datos.password)
+                            respondJson(AppJson.encodeToString(creado), HttpStatusCode.Created)
+                        }
                     }
                 }
                 else -> {
                     val datos = try { AppJson.decodeFromString<LoginAuthDto>(cuerpo) }
                     catch (_: Exception) { return@with respondError(HttpStatusCode.BadRequest) }
                     mutex.withLock {
-                        val hashGuardado = hashes[datos.usuarioId]
-                        // Mensaje único para no indicar si existe un ID o no.
+                        // Buscamos el perfil por nombre, ignorando mayúsculas.
+                        // El ID sigue siendo la clave interna del hash: si el usuario
+                        // modifica su nombre, podrá entrar con el nombre nuevo.
+                        val usuario = FakeUsuarioServer.buscarDesdeAuth(datos.nombre)
+                        val hashGuardado = usuario?.let { hashes[it.id] }
                         if (hashGuardado == null || hashGuardado != Sha256Demo.hash(datos.password)) {
                             respondError(HttpStatusCode.Unauthorized)
                         } else {
-                            val usuario = FakeUsuarioServer.buscarDesdeAuth(datos.usuarioId)
-                            if (usuario == null) respondError(HttpStatusCode.Unauthorized)
-                            else respondJson(AppJson.encodeToString(usuario))
+                            respondJson(AppJson.encodeToString(usuario))
                         }
                     }
                 }
@@ -96,4 +102,4 @@ internal object FakeLoginServer {
 internal data class RegistroAuthDto(val nombre: String, val biografia: String = "", val password: String)
 
 @Serializable
-internal data class LoginAuthDto(val usuarioId: Int, val password: String)
+internal data class LoginAuthDto(val nombre: String, val password: String)
