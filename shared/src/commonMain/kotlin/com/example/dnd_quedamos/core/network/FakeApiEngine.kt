@@ -40,6 +40,7 @@ fun createFakeApiEngine(currentUserProvider: CurrentUserProvider): HttpClientEng
     // también contesta una ruta bajo /eventos (eventos/{id}/chat).
     val autenticadoId = currentUserProvider.currentUser()?.id
     FakeChatServer.manejar(this, request)
+        ?: FakeLoginServer.manejar(this, request)
         ?: FakeUsuarioServer.manejar(this, request, autenticadoId)
         ?: FakeEventoServer.manejar(this, request, autenticadoId)
         // Cualquier otra ruta: 404 (igual que un servidor real con una ruta que no existe)
