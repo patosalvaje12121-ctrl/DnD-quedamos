@@ -8,6 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,6 +24,7 @@ import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import androidx.navigation.toRoute
+import coil3.compose.ImagePainter
 import com.example.dnd_quedamos.features.chat.ui.ChatDirectoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatEventoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatListScreen
@@ -29,13 +32,20 @@ import com.example.dnd_quedamos.features.chat.ui.NuevoChatScreen
 import com.example.dnd_quedamos.features.chat.ui.ChatScreen
 import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
 import com.example.dnd_quedamos.features.evento.ui.HomeEventViewRoot
-import com.example.dnd_quedamos.features.evento.ui.PantallaViewEvent
-import com.example.dnd_quedamos.features.evento.ui.PantallaGestion
 import com.example.dnd_quedamos.features.evento.ui.PantallaFormularioEvento
+import com.example.dnd_quedamos.features.evento.ui.PantallaGestion
+import com.example.dnd_quedamos.features.evento.ui.PantallaViewEvent
 import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
 import com.example.dnd_quedamos.features.mapa.ui.VistaDePruebaMapa
 import com.example.dnd_quedamos.features.mapa.ui.VistaMainMapa
+import com.example.dnd_quedamos.resources.NVAEvents
+import com.example.dnd_quedamos.resources.NVMain
+import com.example.dnd_quedamos.resources.NVMap
+import com.example.dnd_quedamos.resources.NVMessages
+import com.example.dnd_quedamos.resources.NVProfile
+import com.example.dnd_quedamos.resources.Res
 import kotlinx.coroutines.selects.select
+import org.jetbrains.compose.resources.painterResource
 
 data class Objeto(
     val id: Int,
@@ -50,27 +60,27 @@ val objetosDeEjemplo = (1..30).map { i ->
 
 @Composable
 fun BottomNavButton(
-    emoji: String,
+    scope: RowScope,
+    image: Painter,
     label: String,
-    selected: Boolean,
     onClick: () -> Unit
 ) {
-    val color = if (selected) MaterialTheme.colorScheme.primary
-    else MaterialTheme.colorScheme.onSurfaceVariant
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .clickable(onClick = onClick)
-            .padding(8.dp)
-    ) {
-        Text(emoji, fontSize = 20.sp)
-        Text(label, fontSize = 12.sp, color = color)
-    }
+    scope.NavigationBarItem(
+        false,
+        onClick = onClick,
+        icon = {
+            Icon(
+                image,
+                contentDescription = label,
+                tint = Color.Unspecified,
+            )
+        },
+        modifier = Modifier,
+        enabled = true,
+        alwaysShowLabel = false,
+    )
 }
-/**
- * @param toScreen pantalla a la que navegar al arrancar o al tocar una notificación (solo Android;
- *  escritorio y web no lo usan y se queda en null).
- */
+
 @Composable
 fun App(
     toScreen: Route? = null
@@ -104,34 +114,17 @@ fun App(
             },
 
             bottomBar = {
-                Row(
+                NavigationBar(
                     modifier = Modifier
-                        .fillMaxWidth()
                         .navigationBarsPadding()
                         .padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+
                 ) {
-                    BottomNavButton(emoji = "🏠", label = "Feed", selected = estaEn(Route.Home::class)) {
-                        navController.navigate(Route.Home) {
-                            popUpTo(Route.Home) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    }
-                    BottomNavButton(
-                        emoji = "🐲",
-                        label = "Gestion",
-                        selected = estaEn(Route.Gestion::class, Route.CreateEvent::class, Route.EditEvent::class),
-                    ) {
-                        navController.navigate(Route.Gestion) {
-                            popUpTo(Route.Home) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                    BottomNavButton(
-                        emoji = "📜",
-                        label = "Chat",
-                        selected = estaEn(Route.Chats::class, Route.Chat::class, Route.ChatEvento::class, Route.ChatWith::class, Route.NuevoChat::class),
+                    BottomNavButton(scope = this, image = painterResource(Res.drawable.NVAEvents), label = "AddEvento") { }
+                    BottomNavButton(scope = this,
+                        image = painterResource(Res.drawable.NVMessages),
+                        label = "Partidas",
+                        //ass),
                     ) {
                         navController.navigate(Route.Chats) {
                             popUpTo(Route.Home) { saveState = true }
@@ -139,20 +132,20 @@ fun App(
                             restoreState = true
                         }
                     }
-                    BottomNavButton(emoji = "\uD83C\uDF0E", label = "Mapa", selected = estaEn(Route.MainMap::class)) {
+                    BottomNavButton(scope = this, image = painterResource(Res.drawable.NVMain), label = "Inicio") {
+                        navController.navigate(Route.Home) {
+                            popUpTo(Route.Home) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                    BottomNavButton(scope = this, image = painterResource(Res.drawable.NVMap), label = "Mapa") {
                         navController.navigate(Route.MainMap) {
                             popUpTo(Route.Home) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
                         }
                     }
-                    BottomNavButton(emoji = "👤", label = "Usuario", selected = estaEn(Route.UserProfile::class)) {
-                        navController.navigate(Route.UserProfile(-1)) {
-                            popUpTo(Route.Home) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
+                    BottomNavButton(scope = this, image = painterResource(Res.drawable.NVProfile), label = "Personajes") { }
                 }
             }
 
