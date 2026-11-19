@@ -80,8 +80,9 @@ class ManagerEventoUseCase(
         validar(limpio)?.let { return Result.failure(it) }
         return runSafe {
             val nuevo = limpio.copy(organizadorId = usuarioActual(), participantes = emptyList())
-            // El servidor apunta al organizador al crearlo, así que también le toca aviso
-            repositoryEvento.crearEvento(nuevo).also { recordatorio.programar(it) }
+            // No programa aviso: los avisos solo los gestionan UnirseEvento/AbandonarEvento
+            // (y la sincronización de MostrarEvento)
+            repositoryEvento.crearEvento(nuevo)
         }
     }
 
@@ -96,9 +97,9 @@ class ManagerEventoUseCase(
         validar(limpio)?.let { return Result.failure(it) }
         return runSafe {
             comprobarPuedeGestionar(limpio.id)
-            // Reprograma el aviso por si ha cambiado la fecha (sustituye al anterior).
-            // Los demás apuntados lo actualizan en su próxima sincronización (MostrarEvento).
-            repositoryEvento.editarEvento(limpio).also { recordatorio.programar(it) }
+            // No reprograma avisos: si cambia la fecha, los apuntados lo actualizan en su próxima
+            // sincronización (MostrarEvento)
+            repositoryEvento.editarEvento(limpio)
         }
     }
 
@@ -106,7 +107,6 @@ class ManagerEventoUseCase(
     suspend fun CancelarEvento(eventoId: Int): Result<Unit> = runSafe {
         comprobarPuedeGestionar(eventoId)
         repositoryEvento.cancelarEvento(eventoId)
-        recordatorio.cancelar(eventoId)
     }
 
     /**
