@@ -10,6 +10,7 @@ actual fun rememberLocationPermissionState(): LocationPermissionState {
             override val isGranted: Boolean = true
             override fun requestPermission() {}
             override fun openAppSettings() {} //Sin esta funcion no compila
+            override val getPlatform = "desktop"
             override val isRequired: Boolean = false
         }
     }

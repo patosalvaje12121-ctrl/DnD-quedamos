@@ -7,6 +7,8 @@ interface LocationPermissionState {
     fun requestPermission()
     fun openAppSettings()
 
+    val getPlatform: String
+
     val isRequired: Boolean
 }
 

@@ -79,8 +79,8 @@ actual fun rememberLocationPermissionState(): LocationPermissionState {
                 context.startActivity(intent)
             }
 
-            override val isRequired: Boolean
-                get() = true
+            override val getPlatform = "android"
+            override val isRequired = true
         }
     }
 }

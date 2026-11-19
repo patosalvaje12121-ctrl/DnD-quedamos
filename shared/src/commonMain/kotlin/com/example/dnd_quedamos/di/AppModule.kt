@@ -42,6 +42,8 @@ import com.example.dnd_quedamos.features.usuario.domain.repository.IRepositoryPe
 import com.example.dnd_quedamos.features.usuario.domain.usecase.UserPermissionsUseCase
 import com.example.dnd_quedamos.features.usuario.data.remote.UsuarioApi
 import com.example.dnd_quedamos.features.usuario.data.repository.RepositoryUsuarioApi
+import com.example.dnd_quedamos.features.mapa.domain.usecase.ManagerMapaUseCase
+import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
 
 /**
  * true  -> las peticiones las contesta el servidor falso (core/network/FakeApiEngine.kt)
@@ -114,6 +116,9 @@ val usuarioModule = module {
     viewModelOf(::LoginUserViewModel)
 }
 
+val mapaModule = module {
+    factoryOf(::ManagerMapaUseCase)
+    viewModelOf(::MapaViewModel)
+}
 
-
-val appModules = listOf(networkModule, sessionModule, eventoModule, chatModule, usuarioModule, notificacionesModule)
+val appModules = listOf(networkModule, sessionModule, eventoModule, chatModule, usuarioModule, notificacionesModule, mapaModule)

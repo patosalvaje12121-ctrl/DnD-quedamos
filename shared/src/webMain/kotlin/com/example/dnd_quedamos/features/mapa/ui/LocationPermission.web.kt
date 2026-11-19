@@ -10,7 +10,8 @@ actual fun rememberLocationPermissionState(): LocationPermissionState {
             override val isGranted: Boolean = true
             override fun requestPermission() {}
             override fun openAppSettings() {}
-            override val isRequired: Boolean = false
+            override val getPlatform = "web"
+            override val isRequired: Boolean = true
         }
     }
 }
