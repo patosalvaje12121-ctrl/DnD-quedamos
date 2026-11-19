@@ -274,7 +274,7 @@ fun VistaMainMapa(
             }
         }
 
-        if (!permissionState.isGranted && permissionState.isRequired && permissionState.getPlatform != "desktop") {
+        if (!permissionState.isGranted && permissionState.getPlatform != "desktop") {
             Card(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
