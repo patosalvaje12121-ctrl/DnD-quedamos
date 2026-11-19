@@ -1,5 +1,6 @@
 package com.example.dnd_quedamos.features.mapa.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -68,21 +70,21 @@ fun VistaMainMapa(
     val permissionState = rememberLocationPermissionState()
 
     // Definimos variables de ubicacion del susuario, si no tiene permisos, se asigna null
-    val locationProvider = if (permissionState.isGranted && permissionState.isRequired) {
+    /*val locationProvider = if (permissionState.isGranted && permissionState.isRequired) {
         rememberDefaultLocationProvider()
     } else {
         rememberNullLocationProvider()
     }
 
-    val orientationProvider = if (permissionState.getPlatform != "android") {
+    val orientationProvider = if (!permissionState.isRequired) {
         rememberNullOrientationProvider()
     } else {
         rememberDefaultOrientationProvider()
-    }
+    }*/
 
-    val locationState = rememberUserLocationState(
-        locationProvider = locationProvider,
-        orientationProvider = orientationProvider
+    val locationState = rememberLocationState(
+        provider = rememberDefaultLocationProvider(),
+        enabled = permissionState.isGranted && permissionState.isRequired
     )
 
     val cameraState = rememberCameraState()
@@ -112,46 +114,34 @@ fun VistaMainMapa(
             cameraState = cameraState,
             zoomRange = 1.0f..22.0f
         ) {
-            if (permissionState.isGranted && permissionState.isRequired) {
-                // Punto azul del usuario
-                LocationPuck(
-                    idPrefix = "user-location",
-                    cameraState = cameraState,
-                    location = locationState.location
-                )
-            }
-            for (evento in uiState.eventos) {
-                val estaApuntado = uiState.usuarioActualId != null && uiState.usuarioActualId in evento.participantes
-                val colorPuck = when {
-                    estaApuntado -> Color(0xFF9C27B0)            // Morado: Ya estás apuntado
-                    evento.plazasLibres > 0 -> Color(0xFF4CAF50) // Verde: Plazas disponibles
-                    else -> Color(0xFFFB5050)                    // Rojo: Plazas llenas
+            if (permissionState.getPlatform == "android") {
+                if (permissionState.isGranted) {
+                    // Punto azul del usuario
+                    LocationPuck(
+                        idPrefix = "user-location",
+                        cameraState = cameraState,
+                        location = locationState.location
+                    )
                 }
-                LocationPuck(
-                    idPrefix = "evento-${evento.id}",
-                    cameraState = cameraState,
-                    location = Location(
-                        PositionWithAccuracy(
-                            Position(
-                                longitude = evento.ubicacion.longitud,
-                                latitude = evento.ubicacion.latitud
-                            ),
-                            accuracy = 15.0.meters
-                        ),
-                        timestamp = TimeSource.Monotonic.markNow()
-                    ),
-                    colors = LocationPuckColors(
-                        dotFillColorCurrentLocation = colorPuck,
-                        dotStrokeColor = Color.White
-                    ),
-                    onClick = {
-                        viewModel.seleccionarEvento(evento)
-                    }
-                )
             }
-
-
+            EventosMapLayer(
+                eventos = uiState.eventos,
+                usuarioActualId = uiState.usuarioActualId,
+                viewModel = viewModel,
+                cameraState = cameraState,
+                onEventoSelected = { evento ->
+                    viewModel.seleccionarEvento(evento)
+                }
+            )
         }
+
+        EventosMapOverlay(
+            eventos = uiState.eventos,
+            usuarioActualId = uiState.usuarioActualId,
+            viewModel = viewModel,
+            cameraState = cameraState,
+            onEventoSelected = { evento -> viewModel.seleccionarEvento(evento) }
+        )
 
         // Card con detalle del evento si el usuario hace clic en un evento
         uiState.eventoSeleccionado?.let { evento ->
@@ -249,7 +239,7 @@ fun VistaMainMapa(
         }
 
         // Centrar vista en el usuario
-        if (permissionState.isGranted && permissionState.isRequired) {
+        if (permissionState.isGranted && permissionState.getPlatform == "android") {
             FloatingActionButton(
                 onClick = {
                     userPosition?.let { pos ->

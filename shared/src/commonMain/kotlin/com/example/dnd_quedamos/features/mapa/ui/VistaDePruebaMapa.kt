@@ -41,9 +41,7 @@ import org.maplibre.compose.location.LocationPuckColors
 import org.maplibre.compose.location.PositionWithAccuracy
 import org.maplibre.compose.location.rememberDefaultLocationProvider
 import org.maplibre.compose.location.rememberDefaultOrientationProvider
-import org.maplibre.compose.location.rememberNullLocationProvider
-import org.maplibre.compose.location.rememberNullOrientationProvider
-import org.maplibre.compose.location.rememberUserLocationState
+import org.maplibre.compose.location.rememberLocationState
 import org.maplibre.compose.map.MaplibreMap
 import org.maplibre.compose.style.BaseStyle
 import org.maplibre.spatialk.geojson.Position
@@ -61,7 +59,7 @@ fun VistaDePruebaMapa(
     val permissionState = rememberLocationPermissionState()
 
     // Definimos variables de ubicacion del susuario, si no tiene permisos, se asigna null
-    val locationProvider = if (permissionState.isGranted && permissionState.isRequired) {
+    /*val locationProvider = if (permissionState.isGranted && permissionState.isRequired) {
         rememberDefaultLocationProvider()
     } else {
         rememberNullLocationProvider()
@@ -71,11 +69,11 @@ fun VistaDePruebaMapa(
         rememberNullOrientationProvider()
     } else {
         rememberDefaultOrientationProvider()
-    }
+    }*/
 
-    val locationState = rememberUserLocationState(
-        locationProvider = locationProvider,
-        orientationProvider = orientationProvider
+    val locationState = rememberLocationState(
+        provider = rememberDefaultLocationProvider(),
+        enabled = permissionState.isGranted && permissionState.isRequired
     )
 
     val cameraState = rememberCameraState()

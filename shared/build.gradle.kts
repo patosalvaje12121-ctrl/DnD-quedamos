@@ -47,6 +47,8 @@ kotlin {
 
             // Ktor: motor HTTP para Android
             implementation(libs.ktor.client.okhttp)
+
+            runtimeOnly("org.maplibre.compose:maplibre-compose-runtime-opengl-android:${libs.versions.maplibre.compose.get()}")
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -88,26 +90,10 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             // MapLibre para JVM/Desktopimplementation(libs.maplibre.compose)
 
-            // Windows (64-bit AMD64)
-            runtimeOnly("org.maplibre.compose:maplibre-native-bindings-jni:0.13.0") {
-                capabilities {
-                    requireCapability("org.maplibre.compose:maplibre-native-bindings-jni-windows-amd64-opengl")
-                }
-            }
-
-            // Linux (64-bit AMD64)
-            runtimeOnly("org.maplibre.compose:maplibre-native-bindings-jni:0.13.0") {
-                capabilities {
-                    requireCapability("org.maplibre.compose:maplibre-native-bindings-jni-linux-amd64-opengl")
-                }
-            }
-
-            // macOS (Apple Silicon / ARM64)
-            runtimeOnly("org.maplibre.compose:maplibre-native-bindings-jni:0.13.0") {
-                capabilities {
-                    requireCapability("org.maplibre.compose:maplibre-native-bindings-jni-macos-aarch64-metal")
-                }
-            }
+            // Misma versión que la librería (todos los runtimes deben coincidir)
+            val maplibre = libs.versions.maplibre.compose.get()
+            runtimeOnly("org.maplibre.compose:maplibre-compose-runtime-vulkan-windows-x64:$maplibre")
+            runtimeOnly("org.maplibre.compose:maplibre-compose-runtime-vulkan-linux-x64:$maplibre")
         }
         jsMain.dependencies {
             implementation(libs.wrappers.browser)

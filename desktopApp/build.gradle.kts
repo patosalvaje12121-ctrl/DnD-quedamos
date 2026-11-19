@@ -6,9 +6,13 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
+kotlin {
+    jvmToolchain(25)
+}
+
 dependencies {
     implementation(project(":shared"))
-
+    implementation(libs.maplibre.compose)
     implementation(compose.desktop.currentOs)
     implementation(libs.kotlinx.coroutinesSwing)
 
