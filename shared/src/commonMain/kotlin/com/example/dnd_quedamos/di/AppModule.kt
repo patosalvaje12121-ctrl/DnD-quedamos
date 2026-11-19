@@ -84,7 +84,7 @@ val usuarioModule = module {
     // Gestión de usuarios existente
     singleOf(::RepositoryUsuario) bind IRepositoryUsuario::class
     factoryOf(::ManagerUsuarioUseCase)
-    viewModel { (userID: Int) -> UsuarioViewModel(userID, get(), get()) }
+    viewModel { (userID: Int) -> UsuarioViewModel(userID, get(), get(), get()) }
 
     // Gestión de permisos de usuario
     singleOf(::PermisosUsuarioApi)
