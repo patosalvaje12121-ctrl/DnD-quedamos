@@ -80,6 +80,7 @@ internal val eventosFalsos: List<EventoDto> = listOf(
  *   POST   /api/eventos                              -> crear (el servidor pone el id y apunta al organizador)
  *   PUT    /api/eventos/{id}                         -> editar (id y organizador no se pueden cambiar)
  *   DELETE /api/eventos/{id}                         -> cancelar
+ *     PUT y DELETE: solo el organizador o un administrador (401 sin sesión, 403 si no tiene permiso)
  *   GET    /api/eventos/{id}/participantes           -> ids de los apuntados
  *   POST   /api/eventos/{id}/participantes           -> apuntarse (409 si ya estaba o está completo)
  *   DELETE /api/eventos/{id}/participantes/{usuario} -> desapuntarse (404 si no estaba)
@@ -133,6 +134,15 @@ internal object FakeEventoServer {
                     // Todo lo demás necesita un evento que exista
                     id == null -> respondError(HttpStatusCode.NotFound)
                     eventos.none { it.id == id } -> respondError(HttpStatusCode.NotFound)
+
+                    // Editar y cancelar: solo el organizador o un administrador
+                    (method == HttpMethod.Put || method == HttpMethod.Delete) && seg.size == 2 &&
+                        usuarioAutenticadoId == null -> respondError(HttpStatusCode.Unauthorized)
+
+                    (method == HttpMethod.Put || method == HttpMethod.Delete) && seg.size == 2 &&
+                        evento(id).organizadorId != usuarioAutenticadoId &&
+                        !FakeUsuarioServer.esAdmin(usuarioAutenticadoId) ->
+                        respondError(HttpStatusCode.Forbidden)
 
                     // GET eventos/{id}
                     method == HttpMethod.Get && seg.size == 2 ->

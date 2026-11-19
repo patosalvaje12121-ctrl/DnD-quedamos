@@ -7,6 +7,7 @@ import com.example.dnd_quedamos.core.notificaciones.RecordatorioEventos
 import com.example.dnd_quedamos.core.session.CurrentUserProvider
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.domain.repository.IRepositoryEvento
+import com.example.dnd_quedamos.features.usuario.domain.usecase.UserPermissionsUseCase
 import kotlinx.coroutines.CancellationException
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -15,6 +16,7 @@ class ManagerEventoUseCase(
     private val repositoryEvento: IRepositoryEvento,
     private val currentUserProvider: CurrentUserProvider,
     private val recordatorio: RecordatorioEventos, // avisos antes del evento (solo hacen algo en Android)
+    private val permisos: UserPermissionsUseCase,  // para saber si el usuario actual es administrador
 ) {
 
     /**
@@ -84,7 +86,8 @@ class ManagerEventoUseCase(
     }
 
     /**
-     * Guarda los cambios de un evento existente. Solo puede hacerlo su organizador.
+     * Guarda los cambios de un evento existente. Solo puede hacerlo su organizador o un administrador
+     * (el organizador no cambia aunque edite un administrador: lo conserva el servidor).
      * Pasa la misma validación que al crear, así que un evento que ya ha pasado no se puede editar
      * (su fecha está en el pasado) y no se le puede poner una fecha pasada a uno futuro.
      */
@@ -92,19 +95,26 @@ class ManagerEventoUseCase(
         val limpio = evento.limpio()
         validar(limpio)?.let { return Result.failure(it) }
         return runSafe {
-            comprobarOrganizador(limpio.id)
+            comprobarPuedeGestionar(limpio.id)
             // Reprograma el aviso por si ha cambiado la fecha (sustituye al anterior).
             // Los demás apuntados lo actualizan en su próxima sincronización (MostrarEvento).
             repositoryEvento.editarEvento(limpio).also { recordatorio.programar(it) }
         }
     }
 
-    /** Cancela (elimina) un evento. Solo puede hacerlo su organizador. */
+    /** Cancela (elimina) un evento. Solo puede hacerlo su organizador o un administrador. */
     suspend fun CancelarEvento(eventoId: Int): Result<Unit> = runSafe {
-        comprobarOrganizador(eventoId)
+        comprobarPuedeGestionar(eventoId)
         repositoryEvento.cancelarEvento(eventoId)
         recordatorio.cancelar(eventoId)
     }
+
+    /**
+     * Si el usuario actual puede editar y cancelar el evento (es su organizador o un administrador).
+     * Pensado para que la UI decida si enseña esos botones.
+     */
+    suspend fun PuedeGestionar(eventoId: Int): Result<Boolean> =
+        runSafe { puedeGestionar(eventoId) }
 
     /** Ids de los usuarios apuntados al evento. */
     suspend fun ListarParticipantes(eventoId: Int): Result<List<Int>> =
@@ -160,33 +170,40 @@ class ManagerEventoUseCase(
             ?: throw IllegalStateException("No hay ningún usuario con la sesión iniciada")
 
     /**
-     * Lanza una excepción si el usuario actual no es el organizador del evento.
+     * true si el usuario actual es el organizador del evento o un administrador.
      *
      * El organizador se pide al servidor en vez de leerlo del DataEvento que llega a EditarEvento:
      * ese objeto viene de la UI y podría estar desactualizado o tener otro organizadorId puesto.
      *
-     * Esto solo sirve para que la app no deje intentarlo y muestre un error claro. La protección
-     * de verdad tiene que estar en el servidor real (con login sabrá quién hace la petición),
-     * porque cualquiera podría llamar a la API sin pasar por la app.
+     * Se mira primero el organizador para no pedir los permisos en el caso normal. Si la consulta
+     * de permisos falla (p. ej. sin conexión) se trata como "no es admin": nunca se dan permisos
+     * por un error.
      *
-     * TODO: un usuario con rol MODERADOR (el "Administrador" del documento de diseño) debería poder
-     *  editar y cancelar cualquier evento, igual que su organizador. Habría que cambiar:
-     *   - DataUsuario: añadir el rol (p. ej. enum RolUsuario { USUARIO, MODERADOR }), y lo mismo en
-     *     su DTO y mapper (un rol desconocido -> USUARIO, nunca dar más permisos por error).
-     *   - CurrentUserProvider: devolver el usuario con su rol (ahora solo tiene id y nombre).
-     *   - Esta función: dejar pasar si yo == organizadorId O si soy MODERADOR; y renombrarla a algo
-     *     como comprobarPuedeGestionar, porque ya no comprobará solo al organizador.
-     *   - Cuando un moderador edita, el organizadorId NO debe cambiar a él (el PUT del servidor
-     *     falso ya conserva el organizador original).
-     *   - Servidor (falso y real): aplicar la misma regla, y quizá avisar al organizador de que un
-     *     moderador ha modificado o cancelado su evento.
-     *   - UI: mostrar los botones de editar/cancelar también a los moderadores.
-     *   - Datos falsos: algún usuario de ejemplo con rol MODERADOR para poder probarlo.
+     * Esto solo sirve para que la app no deje intentarlo y muestre un error claro. La protección
+     * de verdad tiene que estar en el servidor (FakeEventoServer aplica la misma regla), porque
+     * cualquiera podría llamar a la API sin pasar por la app.
+     *
+     * TODO: avisar al organizador cuando un administrador modifique o cancele su evento (necesita
+     *  notificaciones push desde el servidor).
      */
-    private suspend fun comprobarOrganizador(eventoId: Int) {
+    private suspend fun puedeGestionar(eventoId: Int): Boolean {
         val yo = usuarioActual()
-        if (repositoryEvento.obtenerEvento(eventoId).organizadorId != yo) {
-            throw IllegalStateException("Solo el organizador puede modificar o cancelar este evento")
+        if (repositoryEvento.obtenerEvento(eventoId).organizadorId == yo) return true
+        return try {
+            permisos.esAdmin()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /** Lanza una excepción si el usuario actual no puede editar ni cancelar el evento. */
+    private suspend fun comprobarPuedeGestionar(eventoId: Int) {
+        if (!puedeGestionar(eventoId)) {
+            throw IllegalStateException(
+                "Solo el organizador o un administrador puede modificar o cancelar este evento"
+            )
         }
     }
 
