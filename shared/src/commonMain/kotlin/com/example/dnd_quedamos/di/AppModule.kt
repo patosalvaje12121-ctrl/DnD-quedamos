@@ -9,6 +9,7 @@ import com.example.dnd_quedamos.features.evento.data.repository.RepositoryEvento
 import com.example.dnd_quedamos.features.evento.domain.repository.IRepositoryEvento
 import com.example.dnd_quedamos.features.evento.domain.usecase.ManagerEventoUseCase
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
+import com.example.dnd_quedamos.features.evento.presentation.DetalleEventoViewModel
 import com.example.dnd_quedamos.core.session.MutableCurrentUserProvider
 import com.example.dnd_quedamos.core.session.CurrentUserProvider
 import com.example.dnd_quedamos.core.session.FakeCurrentUserProvider
@@ -62,6 +63,8 @@ val eventoModule = module {
     singleOf(::RepositoryEvento) bind IRepositoryEvento::class // una única instancia, expuesta como interfaz
     factoryOf(::ManagerEventoUseCase)                          // nueva instancia en cada petición
     viewModelOf(::EventoViewModel)                             // ligado al ciclo de vida de la pantalla
+    // DetalleEventoViewModel necesita el eventoId: se pasa con koinViewModel { parametersOf(eventoId) }
+    viewModel { (eventoId: Int) -> DetalleEventoViewModel(eventoId, get(), get()) }
 }
 
 // Sesión: quién es el usuario actual (falso hasta que exista login)
