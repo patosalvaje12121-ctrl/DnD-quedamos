@@ -12,7 +12,6 @@ import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
 import com.example.dnd_quedamos.core.session.MutableCurrentUserProvider
 import com.example.dnd_quedamos.core.session.CurrentUserProvider
 import com.example.dnd_quedamos.core.session.FakeCurrentUserProvider
-import com.example.dnd_quedamos.features.usuario.data.repository.RepositoryUsuario
 import com.example.dnd_quedamos.features.usuario.domain.repository.IRepositoryUsuario
 import com.example.dnd_quedamos.features.usuario.domain.usecase.ManagerUsuarioUseCase
 import com.example.dnd_quedamos.features.usuario.presentation.UsuarioViewModel
@@ -34,6 +33,8 @@ import com.example.dnd_quedamos.features.usuario.data.remote.PermisosUsuarioApi
 import com.example.dnd_quedamos.features.usuario.data.repository.RepositoryPermisosUsuario
 import com.example.dnd_quedamos.features.usuario.domain.repository.IRepositoryPermisosUsuario
 import com.example.dnd_quedamos.features.usuario.domain.usecase.UserPermissionsUseCase
+import com.example.dnd_quedamos.features.usuario.data.remote.UsuarioApi
+import com.example.dnd_quedamos.features.usuario.data.repository.RepositoryUsuarioApi
 
 /**
  * true  -> las peticiones las contesta el servidor falso (core/network/FakeApiEngine.kt)
@@ -82,15 +83,20 @@ val chatModule = module {
 val usuarioModule = module {
 
     // Gestión de usuarios existente
-    singleOf(::RepositoryUsuario) bind IRepositoryUsuario::class
+    singleOf(::UsuarioApi)
+    singleOf(::RepositoryUsuarioApi) bind IRepositoryUsuario::class
     factoryOf(::ManagerUsuarioUseCase)
-    viewModel { (userID: Int) -> UsuarioViewModel(userID, get(), get(), get()) }
+
 
     // Gestión de permisos de usuario
     singleOf(::PermisosUsuarioApi)
     singleOf(::RepositoryPermisosUsuario) bind IRepositoryPermisosUsuario::class
     factoryOf(::UserPermissionsUseCase)
+
+    //ViewModel
+    viewModel { (userID: Int) -> UsuarioViewModel(userID, get(), get(), get()) }
 }
+
 
 
 val appModules = listOf(networkModule, sessionModule, eventoModule, chatModule, usuarioModule, notificacionesModule)
