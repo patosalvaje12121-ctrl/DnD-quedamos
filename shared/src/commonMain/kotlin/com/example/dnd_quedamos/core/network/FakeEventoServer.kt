@@ -1,5 +1,6 @@
 package com.example.dnd_quedamos.core.network
 
+import com.example.dnd_quedamos.core.network.FakeEventoServer.participantes
 import com.example.dnd_quedamos.features.evento.data.remote.dto.EventoDto
 import com.example.dnd_quedamos.features.evento.data.remote.dto.ParticipanteDto
 import com.example.dnd_quedamos.features.evento.data.remote.dto.UbicacionDto
@@ -34,37 +35,37 @@ import kotlinx.coroutines.sync.withLock
 internal val eventosFalsos: List<EventoDto> = listOf(
     EventoDto(
         1, "Partida en la biblioteca", "Sesión 0 de la nueva campaña. Traed fichas de personaje.",
-        "2026-11-21T17:00:00Z", UbicacionDto("Biblioteca María Zambrano, Ciudad Universitaria", 40.4508, -3.7277),
+        "2026-11-21T17:00:00Z", 1, UbicacionDto("Biblioteca María Zambrano, Ciudad Universitaria", 40.4508, -3.7277),
         "ROL", organizadorId = 3, maxParticipantes = 6,
     ),
     EventoDto(
         2, "One-shot de terror", "Aventura corta nivel 3. Plazas limitadas a 3 jugadores.",
-        "2026-11-19T18:00:00Z", UbicacionDto("Parque del Oeste, Madrid", 40.4296, -3.7244),
+        "2026-11-19T18:00:00Z", 2, UbicacionDto("Parque del Oeste, Madrid", 40.4296, -3.7244),
         "ROL", organizadorId = 2, maxParticipantes = 3,
     ),
     EventoDto(
         3, "Taller de pintura de minis", "Trae tus miniaturas, ponemos pinturas y pinceles.",
-        "2026-11-25T16:00:00Z", UbicacionDto("Calle de Embajadores 35, Lavapiés", 40.4087, -3.7012),
+        "2026-11-25T16:00:00Z", 3, UbicacionDto("Calle de Embajadores 35, Lavapiés", 40.4087, -3.7012),
         "WARGAME", organizadorId = 4, maxParticipantes = 10,
     ),
     EventoDto(
         4, "Campaña Curse of Strahd", "Sesión 12. Seguimos en el castillo.",
-        "2026-11-15T17:00:00Z", UbicacionDto("Parque del Retiro, Madrid", 40.4153, -3.6844),
+        "2026-11-15T17:00:00Z", 4, UbicacionDto("Parque del Retiro, Madrid", 40.4153, -3.6844),
         "ROL", organizadorId = 3, maxParticipantes = 5,
     ),
     EventoDto(
         5, "Noche de juegos de mesa", null,
-        "2026-12-02T19:00:00Z", UbicacionDto(null, 40.4260, -3.7040),
+        "2026-12-02T19:00:00Z", 5, UbicacionDto(null, 40.4260, -3.7040),
         "JUEGOS_DE_MESA", organizadorId = 1, maxParticipantes = 8,
     ),
     EventoDto(
         6, "Torneo de Magic", "Formato draft. Inscripción en la tienda.",
-        "2026-12-18T10:00:00Z", UbicacionDto("Calle de Fuencarral 80, Malasaña", 40.4255, -3.7018),
+        "2026-12-18T10:00:00Z", 6, UbicacionDto("Calle de Fuencarral 80, Malasaña", 40.4255, -3.7018),
         "TORNEO", organizadorId = 2, maxParticipantes = 32,
     ),
     EventoDto(
         7, "Convención de rol de Madrid", "Mesas abiertas, charlas y tiendas durante todo el día.",
-        "2027-01-02T09:00:00Z", UbicacionDto("IFEMA, Madrid", 40.4637, -3.6164),
+        "2027-01-02T09:00:00Z", 7, UbicacionDto("IFEMA, Madrid", 40.4637, -3.6164),
         "CONVENCION", organizadorId = 4, maxParticipantes = 500,
     ),
 )
@@ -80,7 +81,6 @@ internal val eventosFalsos: List<EventoDto> = listOf(
  *   POST   /api/eventos                              -> crear (el servidor pone el id y apunta al organizador)
  *   PUT    /api/eventos/{id}                         -> editar (id y organizador no se pueden cambiar)
  *   DELETE /api/eventos/{id}                         -> cancelar
- *     PUT y DELETE: solo el organizador o un administrador (401 sin sesión, 403 si no tiene permiso)
  *   GET    /api/eventos/{id}/participantes           -> ids de los apuntados
  *   POST   /api/eventos/{id}/participantes           -> apuntarse (409 si ya estaba o está completo)
  *   DELETE /api/eventos/{id}/participantes/{usuario} -> desapuntarse (404 si no estaba)

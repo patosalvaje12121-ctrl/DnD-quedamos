@@ -1,50 +1,39 @@
 package com.example.dnd_quedamos
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
-import androidx.navigation.toRoute
-import coil3.compose.ImagePainter
 import com.example.dnd_quedamos.features.chat.ui.ChatDirectoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatEventoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatListScreen
-import com.example.dnd_quedamos.features.chat.ui.NuevoChatScreen
 import com.example.dnd_quedamos.features.chat.ui.ChatScreen
-import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
+import com.example.dnd_quedamos.features.chat.ui.NuevoChatScreen
 import com.example.dnd_quedamos.features.evento.ui.HomeEventViewRoot
 import com.example.dnd_quedamos.features.evento.ui.PantallaFormularioEvento
 import com.example.dnd_quedamos.features.evento.ui.PantallaGestion
 import com.example.dnd_quedamos.features.evento.ui.PantallaViewEvent
-import com.example.dnd_quedamos.features.mapa.presentation.MapaViewModel
-import com.example.dnd_quedamos.features.mapa.ui.VistaDePruebaMapa
 import com.example.dnd_quedamos.features.mapa.ui.VistaMainMapa
-import dndquedamos.shared.generated.resources.Res
-import dndquedamos.shared.generated.resources.NVAEvents
-import dndquedamos.shared.generated.resources.NVMain
-import dndquedamos.shared.generated.resources.NVMap
-import dndquedamos.shared.generated.resources.NVMessages
-import dndquedamos.shared.generated.resources.NVProfile
-import kotlinx.coroutines.selects.select
+import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
+import com.example.dnd_quedamos.resources.NVAEvents
+import com.example.dnd_quedamos.resources.NVMain
+import com.example.dnd_quedamos.resources.NVMap
+import com.example.dnd_quedamos.resources.NVMessages
+import com.example.dnd_quedamos.resources.NVProfile
+import com.example.dnd_quedamos.resources.Res
 import org.jetbrains.compose.resources.painterResource
 
 data class Objeto(
@@ -97,13 +86,14 @@ fun App(
     }
 
     MaterialTheme(
-        colorScheme = darkColorScheme() // DnD = dark fantasy vibe
+        colorScheme = customScheme()
     ) {
         Scaffold(
             modifier =Modifier
                 .fillMaxWidth(),
             topBar = {
                 CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = customScheme().primaryContainer),
                     title = {
                         Text(
                             "DnD Quedamos",
@@ -118,7 +108,6 @@ fun App(
                     modifier = Modifier
                         .navigationBarsPadding()
                         .padding(8.dp),
-
                 ) {
                     BottomNavButton(scope = this, image = painterResource(Res.drawable.NVAEvents), label = "AddEvento") { }
                     BottomNavButton(scope = this,
@@ -162,7 +151,9 @@ fun App(
 
             NavHost(navController = navController,
                 startDestination = Route.Home,
-                modifier = Modifier.padding(innerPadding)) {
+                modifier = Modifier.padding(innerPadding)
+                    //.background(darkColor)
+            ) {
                 composable<Route.Home> {
                     HomeEventViewRoot(
                         onVerMas = { eventoId -> navController.navigate(Route.InspectEvent(eventoId)) }
@@ -260,9 +251,6 @@ fun App(
                 }
             }
 
-
         }
     }
-
-
 }

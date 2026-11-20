@@ -15,6 +15,7 @@ import kotlinx.serialization.Serializable
  *   "nombre": "Partida en la biblioteca",
  *   "descripcion": "Sesión 0",
  *   "fecha": "2026-11-20T17:00:00Z",
+ *   "id_image": 2
  *   "ubicacion": { "direccion": "Biblioteca María Zambrano", "latitud": 40.4508, "longitud": -3.7277 },
  *   "tipoActividad": "ROL",
  *   "organizadorId": 3,
@@ -39,6 +40,9 @@ data class EventoDto(
     // viaja como texto y el mapper la convierte en Instant.
     @SerialName("fecha")
     val fecha: String,
+
+    @SerialName("id_image")
+    val id_image: Int,
 
     @SerialName("ubicacion")
     val ubicacion: UbicacionDto,
