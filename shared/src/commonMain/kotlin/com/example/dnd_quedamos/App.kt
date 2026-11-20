@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -28,12 +29,14 @@ import com.example.dnd_quedamos.features.evento.ui.PantallaGestion
 import com.example.dnd_quedamos.features.evento.ui.PantallaViewEvent
 import com.example.dnd_quedamos.features.mapa.ui.VistaMainMapa
 import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
+import com.example.dnd_quedamos.resources.MedievalSharp_Book
 import com.example.dnd_quedamos.resources.NVAEvents
 import com.example.dnd_quedamos.resources.NVMain
 import com.example.dnd_quedamos.resources.NVMap
 import com.example.dnd_quedamos.resources.NVMessages
 import com.example.dnd_quedamos.resources.NVProfile
 import com.example.dnd_quedamos.resources.Res
+import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
 
 data class Objeto(
@@ -47,28 +50,19 @@ val objetosDeEjemplo = (1..30).map { i ->
     Objeto(id = i, nombre = "Objeto $i", descripcion = "Descripción de ejemplo $i")
 }
 
-@Composable
-fun BottomNavButton(
-    scope: RowScope,
-    image: Painter,
-    label: String,
-    onClick: () -> Unit
-) {
-    scope.NavigationBarItem(
-        false,
-        onClick = onClick,
-        icon = {
-            Icon(
-                image,
-                contentDescription = label,
-                tint = Color.Unspecified,
-            )
-        },
-        modifier = Modifier,
-        enabled = true,
-        alwaysShowLabel = false,
-    )
-}
+val Typography
+    @Composable
+    get() = Typography().let {
+        val medFont = FontFamily(Font(Res.font.MedievalSharp_Book))
+        it.copy(
+            headlineLarge = it.headlineLarge.copy(fontFamily = medFont),
+            headlineMedium = it.headlineMedium.copy(fontFamily = medFont),
+            headlineSmall = it.headlineSmall.copy(fontFamily = medFont),
+            titleLarge = it.titleLarge.copy(fontFamily = medFont),
+            titleMedium = it.titleMedium.copy(fontFamily = medFont),
+            titleSmall = it.titleSmall.copy(fontFamily = medFont),
+        )
+    }
 
 @Composable
 fun App(
@@ -76,8 +70,8 @@ fun App(
 ) {
     val navController = rememberNavController();
     val destinoActual = navController.currentBackStackEntryAsState().value?.destination
-    fun estaEn(vararg rutas: kotlin.reflect.KClass<out Route>) =
-        rutas.any { destinoActual?.hasRoute(it) == true }
+//    fun estaEn(vararg rutas: kotlin.reflect.KClass<out Route>) =
+//        rutas.any { destinoActual?.hasRoute(it) == true }
 
     setSingletonImageLoaderFactory { context ->
         ImageLoader.Builder(context)
@@ -85,8 +79,10 @@ fun App(
             .build()
     }
 
+
     MaterialTheme(
-        colorScheme = customScheme()
+        colorScheme = customScheme(),
+        typography = Typography
     ) {
         Scaffold(
             modifier =Modifier
@@ -104,41 +100,8 @@ fun App(
             },
 
             bottomBar = {
-                NavigationBar(
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .padding(8.dp),
-                ) {
-                    BottomNavButton(scope = this, image = painterResource(Res.drawable.NVAEvents), label = "AddEvento") { }
-                    BottomNavButton(scope = this,
-                        image = painterResource(Res.drawable.NVMessages),
-                        label = "Partidas",
-                        //ass),
-                    ) {
-                        navController.navigate(Route.Chats) {
-                            popUpTo(Route.Home) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                    BottomNavButton(scope = this, image = painterResource(Res.drawable.NVMain), label = "Inicio") {
-                        navController.navigate(Route.Home) {
-                            popUpTo(Route.Home) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    }
-                    BottomNavButton(scope = this, image = painterResource(Res.drawable.NVMap), label = "Mapa") {
-                        navController.navigate(Route.MainMap) {
-                            popUpTo(Route.Home) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                    BottomNavButton(scope = this, image = painterResource(Res.drawable.NVProfile), label = "Personajes") { }
-                }
+                NavBarMenu(navController);
             }
-
-
 
         ) {
             innerPadding ->

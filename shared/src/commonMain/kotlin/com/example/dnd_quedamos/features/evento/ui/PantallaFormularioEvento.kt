@@ -52,8 +52,6 @@ fun PantallaFormularioEvento(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        TextButton(onClick = onBack) { Text("← Volver") }
-
         if (uiState.error != null && !uiState.listo) {
             Text("Error: ${uiState.error}")
         } else if (!uiState.listo) {

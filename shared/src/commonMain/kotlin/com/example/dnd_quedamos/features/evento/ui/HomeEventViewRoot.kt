@@ -51,7 +51,11 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -61,11 +65,13 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.example.dnd_quedamos.Typography
 import com.example.dnd_quedamos.customScheme
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
 import com.example.dnd_quedamos.resources.BG
 import com.example.dnd_quedamos.resources.Map
+import com.example.dnd_quedamos.resources.MedievalSharp_Book
 import com.example.dnd_quedamos.resources.Res
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
@@ -253,7 +259,7 @@ private fun EventoCard(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f)
-                            .clip(RoundedCornerShape(8.dp)),
+                            .clip(RoundedCornerShape(2.dp)),
                     )
                     Spacer(Modifier.height(gap * 0.5f))
                     TextButton(onClick = { onAbrirChat(evento.id) }) {

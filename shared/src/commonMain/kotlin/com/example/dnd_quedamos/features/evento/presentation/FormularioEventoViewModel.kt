@@ -92,6 +92,7 @@ class FormularioEventoViewModel(
                         nombre = campos.nombre,
                         descripcion = campos.descripcion,
                         fecha = fecha!!,
+                        id_image = 0,
                         ubicacion = ubicacion,
                         tipoActividad = campos.tipo,
                         organizadorId = 0,
