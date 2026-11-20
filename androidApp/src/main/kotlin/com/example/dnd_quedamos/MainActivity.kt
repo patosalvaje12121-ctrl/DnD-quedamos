@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
         // Notificación de prueba: al salir de la app, llega a los 5 segundos.
         // Con nombre único: salir varias veces (o girar la pantalla) no acumula notificaciones.
         NotificationScheduler.scheduleNotification(
-            applicationContext, NOTIF_VUELVE, "DnD Quedamos", "¡Vuelve a entrar!", 5,
+            applicationContext, NOTIF_VUELVE, "DnD Quedamos", "¡Vuelve a entrar!", 172800,
             toScreen = Route.MainMap, // prueba: al tocarla se abre el mapa
         )
     }
