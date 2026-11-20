@@ -1,5 +1,6 @@
 package com.example.dnd_quedamos
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,20 +77,23 @@ fun App() {
             .build()
     }
 
+    val darkColor = Color(40, 12, 20);
+
     MaterialTheme(
-        colorScheme = darkColorScheme() // DnD = dark fantasy vibe
+        colorScheme = customScheme()
     ) {
         Scaffold(
             modifier =Modifier
                 .fillMaxWidth(),
             topBar = {
                 CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = darkColor),
                     title = {
                         Text(
                             "DnD Quedamos",
                             fontWeight = FontWeight.Bold
                         )
-                    }
+                    },
                 )
             },
 
@@ -97,7 +102,8 @@ fun App() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .navigationBarsPadding()
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .background(darkColor),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     BottomNavButton(emoji = "🏠", label = "Inicio", selected = estaEn(Route.Home::class)) {
@@ -134,7 +140,7 @@ fun App() {
         ) { innerPadding ->
             NavHost(navController = navController,
                 startDestination = Route.Home,
-                modifier = Modifier.padding(innerPadding)) {
+                modifier = Modifier.padding(innerPadding).background(darkColor)) {
                 composable<Route.Home> {
                     HomeEventViewRoot(
                         onAbrirChat = { eventoId -> navController.navigate(Route.ChatEvento(eventoId)) }
@@ -193,9 +199,6 @@ fun App() {
                     )
                 }
             }
-
         }
     }
-
-
 }

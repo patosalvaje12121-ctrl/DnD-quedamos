@@ -42,37 +42,37 @@ internal val eventosFalsos: List<EventoDto> = run {
     listOf(
         EventoDto(
             1, "Partida en la biblioteca", "Sesión 0 de la nueva campaña. Traed fichas de personaje.",
-            en(3.days), UbicacionDto("Biblioteca María Zambrano, Ciudad Universitaria", 40.4508, -3.7277),
+            en(3.days), 1, UbicacionDto("Biblioteca María Zambrano, Ciudad Universitaria", 40.4508, -3.7277),
             "ROL", organizadorId = 3, maxParticipantes = 6,
         ),
         EventoDto(
             2, "One-shot de terror", "Aventura corta nivel 3. Plazas limitadas a 3 jugadores.",
-            en(1.days + 2.hours), UbicacionDto("Parque del Oeste, Madrid", 40.4296, -3.7244),
+            en(1.days + 2.hours), 2, UbicacionDto("Parque del Oeste, Madrid", 40.4296, -3.7244),
             "ROL", organizadorId = 2, maxParticipantes = 3,
         ),
         EventoDto(
             3, "Taller de pintura de minis", "Trae tus miniaturas, ponemos pinturas y pinceles.",
-            en(7.days), UbicacionDto("Calle de Embajadores 35, Lavapiés", 40.4087, -3.7012),
+            en(7.days), 3, UbicacionDto("Calle de Embajadores 35, Lavapiés", 40.4087, -3.7012),
             "WARGAME", organizadorId = 4, maxParticipantes = 10,
         ),
         EventoDto(
             4, "Campaña Curse of Strahd", "Sesión 12. Seguimos en el castillo.",
-            en(-3.days), UbicacionDto("Parque del Retiro, Madrid", 40.4153, -3.6844),
+            en(-3.days), 4, UbicacionDto("Parque del Retiro, Madrid", 40.4153, -3.6844),
             "ROL", organizadorId = 3, maxParticipantes = 5,
         ),
         EventoDto(
             5, "Noche de juegos de mesa", null,
-            en(14.days), UbicacionDto(null, 40.4260, -3.7040),
+            en(14.days), 5, UbicacionDto(null, 40.4260, -3.7040),
             "JUEGOS_DE_MESA", organizadorId = 1, maxParticipantes = 8,
         ),
         EventoDto(
             6, "Torneo de Magic", "Formato draft. Inscripción en la tienda.",
-            en(30.days), UbicacionDto("Calle de Fuencarral 80, Malasaña", 40.4255, -3.7018),
+            en(30.days), 6, UbicacionDto("Calle de Fuencarral 80, Malasaña", 40.4255, -3.7018),
             "TORNEO", organizadorId = 2, maxParticipantes = 32,
         ),
         EventoDto(
             7, "Convención de rol de Madrid", "Mesas abiertas, charlas y tiendas durante todo el día.",
-            en(45.days), UbicacionDto("IFEMA, Madrid", 40.4637, -3.6164),
+            en(45.days), 7, UbicacionDto("IFEMA, Madrid", 40.4637, -3.6164),
             "CONVENCION", organizadorId = 4, maxParticipantes = 500,
         ),
     )

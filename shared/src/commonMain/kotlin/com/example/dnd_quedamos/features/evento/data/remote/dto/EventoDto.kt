@@ -40,6 +40,9 @@ data class EventoDto(
     @SerialName("fecha")
     val fecha: String,
 
+    @SerialName("id_image")
+    val id_image: Int,
+
     @SerialName("ubicacion")
     val ubicacion: UbicacionDto,
 

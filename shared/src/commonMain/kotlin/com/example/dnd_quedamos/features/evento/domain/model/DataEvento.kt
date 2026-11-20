@@ -40,6 +40,7 @@ data class DataEvento (
     val nombre : String,
     val descripcion: String,
     val fecha: Instant,                 // momento exacto de inicio (la UI lo pasa a la hora local)
+    val id_image: Int,
     val ubicacion: DataUbicacion,
     val tipoActividad: TipoActividad,
     val organizadorId: Int,
