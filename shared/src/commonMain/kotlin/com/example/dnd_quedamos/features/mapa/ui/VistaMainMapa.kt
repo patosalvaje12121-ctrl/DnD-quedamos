@@ -69,19 +69,6 @@ fun VistaMainMapa(
     // Primero revisamos permisos de ubicación
     val permissionState = rememberLocationPermissionState()
 
-    // Definimos variables de ubicacion del susuario, si no tiene permisos, se asigna null
-    /*val locationProvider = if (permissionState.isGranted && permissionState.isRequired) {
-        rememberDefaultLocationProvider()
-    } else {
-        rememberNullLocationProvider()
-    }
-
-    val orientationProvider = if (!permissionState.isRequired) {
-        rememberNullOrientationProvider()
-    } else {
-        rememberDefaultOrientationProvider()
-    }*/
-
     val locationState = rememberLocationState(
         provider = rememberDefaultLocationProvider(),
         enabled = permissionState.isGranted && permissionState.isRequired
@@ -114,7 +101,7 @@ fun VistaMainMapa(
             cameraState = cameraState,
             zoomRange = 1.0f..22.0f
         ) {
-            if (permissionState.getPlatform == "android") {
+            if (permissionState.getPlatform != "web") {
                 if (permissionState.isGranted) {
                     // Punto azul del usuario
                     LocationPuck(
@@ -239,7 +226,7 @@ fun VistaMainMapa(
         }
 
         // Centrar vista en el usuario
-        if (permissionState.isGranted && permissionState.getPlatform == "android") {
+        if (permissionState.isGranted && permissionState.getPlatform != "web") {
             FloatingActionButton(
                 onClick = {
                     userPosition?.let { pos ->
@@ -264,7 +251,7 @@ fun VistaMainMapa(
             }
         }
 
-        if (!permissionState.isGranted && permissionState.getPlatform != "desktop") {
+        if (!permissionState.isGranted) {
             Card(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

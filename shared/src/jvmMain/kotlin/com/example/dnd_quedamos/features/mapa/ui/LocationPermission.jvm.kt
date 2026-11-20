@@ -5,13 +5,14 @@ import androidx.compose.runtime.remember
 
 @Composable
 actual fun rememberLocationPermissionState(): LocationPermissionState {
-    return remember {
+
+    return remember() {
         object : LocationPermissionState {
             override val isGranted: Boolean = true
             override fun requestPermission() {}
-            override fun openAppSettings() {} //Sin esta funcion no compila
+            override fun openAppSettings() {}
             override val getPlatform = "desktop"
-            override val isRequired: Boolean = false
+            override val isRequired = true
         }
     }
 }
