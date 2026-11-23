@@ -65,14 +65,11 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.example.dnd_quedamos.Typography
-import com.example.dnd_quedamos.customScheme
+import androidx.compose.material3.MaterialTheme
+import com.example.dnd_quedamos.core.ui.skins.DndSkins
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
-import com.example.dnd_quedamos.resources.BG
-import com.example.dnd_quedamos.resources.Map
 import com.example.dnd_quedamos.resources.MedievalSharp_Book
-import com.example.dnd_quedamos.resources.Res
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -117,7 +114,7 @@ fun HomeEventViewRoot(
         return
     }
 
-    val bgImage = imageResource(Res.drawable.BG)
+    val bgImage = imageResource(DndSkins.fondoMosaico)
     val gridState = rememberLazyStaggeredGridState()
 
     BoxWithConstraints(
@@ -195,7 +192,7 @@ private fun EventoCard(
     evento: DataEvento,
     onAbrirChat: (eventoId: Int) -> Unit = {},
 ) {
-    val painter = painterResource(Res.drawable.Map)
+    val painter = painterResource(DndSkins.panelMapa.res)
 
     val imageRatio = painter.intrinsicSize.let { s ->
         if (s.width > 0f && s.height > 0f) s.width / s.height else 1f
@@ -235,7 +232,7 @@ private fun EventoCard(
                         fontSize = titleSize,
                         lineHeight = 1.2.em,
                         fontWeight = FontWeight.Bold,
-                        color = customScheme().background,
+                        color = MaterialTheme.colorScheme.background,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -244,7 +241,7 @@ private fun EventoCard(
                         text = evento.descripcion,
                         fontSize = bodySize,
                         lineHeight = 1.3.em,
-                        color = customScheme().background,
+                        color = MaterialTheme.colorScheme.background,
                         maxLines = 4,
                         overflow = TextOverflow.Ellipsis,
                     )

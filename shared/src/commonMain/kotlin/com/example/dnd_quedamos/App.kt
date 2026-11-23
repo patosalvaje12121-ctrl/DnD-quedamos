@@ -6,7 +6,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -18,6 +17,7 @@ import androidx.navigation.toRoute
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
+import com.example.dnd_quedamos.core.ui.theme.DndTheme
 import com.example.dnd_quedamos.features.chat.ui.ChatDirectoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatEventoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatListScreen
@@ -29,40 +29,7 @@ import com.example.dnd_quedamos.features.evento.ui.PantallaGestion
 import com.example.dnd_quedamos.features.evento.ui.PantallaViewEvent
 import com.example.dnd_quedamos.features.mapa.ui.VistaMainMapa
 import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
-import com.example.dnd_quedamos.resources.MedievalSharp_Book
-import com.example.dnd_quedamos.resources.NVAEvents
-import com.example.dnd_quedamos.resources.NVMain
-import com.example.dnd_quedamos.resources.NVMap
-import com.example.dnd_quedamos.resources.NVMessages
-import com.example.dnd_quedamos.resources.NVProfile
-import com.example.dnd_quedamos.resources.Res
-import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
-
-data class Objeto(
-    val id: Int,
-    val nombre: String,
-    val descripcion: String
-)
-
-// Lista fija de ejemplo, con pocos elementos
-val objetosDeEjemplo = (1..30).map { i ->
-    Objeto(id = i, nombre = "Objeto $i", descripcion = "Descripción de ejemplo $i")
-}
-
-val Typography
-    @Composable
-    get() = Typography().let {
-        val medFont = FontFamily(Font(Res.font.MedievalSharp_Book))
-        it.copy(
-            headlineLarge = it.headlineLarge.copy(fontFamily = medFont),
-            headlineMedium = it.headlineMedium.copy(fontFamily = medFont),
-            headlineSmall = it.headlineSmall.copy(fontFamily = medFont),
-            titleLarge = it.titleLarge.copy(fontFamily = medFont),
-            titleMedium = it.titleMedium.copy(fontFamily = medFont),
-            titleSmall = it.titleSmall.copy(fontFamily = medFont),
-        )
-    }
 
 @Composable
 fun App(
@@ -80,16 +47,13 @@ fun App(
     }
 
 
-    MaterialTheme(
-        colorScheme = customScheme(),
-        typography = Typography
-    ) {
+    DndTheme {
         Scaffold(
             modifier =Modifier
                 .fillMaxWidth(),
             topBar = {
                 CenterAlignedTopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = customScheme().primaryContainer),
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                     title = {
                         Text(
                             "DnD Quedamos",

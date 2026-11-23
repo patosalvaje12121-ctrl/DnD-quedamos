@@ -44,13 +44,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.dnd_quedamos.customScheme
+import com.example.dnd_quedamos.core.ui.skins.DndSkins
 import com.example.dnd_quedamos.features.chat.domain.model.DataChat
 import com.example.dnd_quedamos.features.chat.domain.model.TipoChat
 import com.example.dnd_quedamos.features.chat.presentation.ChatListUiState
 import com.example.dnd_quedamos.features.chat.presentation.ChatListViewModel
-import com.example.dnd_quedamos.resources.MSPanel
-import com.example.dnd_quedamos.resources.Res
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -110,7 +108,7 @@ fun ChatListScreen(
 
 @Composable
 private fun ChatRow(chat: DataChat, onClick: () -> Unit = {}) {
-    val painter = painterResource(Res.drawable.MSPanel)
+    val painter = painterResource(DndSkins.panelFilaChat.res)
     val intrinsic = painter.intrinsicSize
 
     Card(Modifier.fillMaxWidth().sizeIn(10.dp, 24.dp, 800.dp, 120.dp ).clickable(onClick = onClick).background(Color.Unspecified)) {
@@ -157,7 +155,7 @@ private fun ChatRowContent(chat: DataChat) {
         Text(if (chat.tipo == TipoChat.EVENTO) "🎲" else "👤", fontSize = 26.sp)
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(chat.nombre, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, color = customScheme().secondaryContainer)
+            Text(chat.nombre, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.secondaryContainer)
             val ultimo = chat.ultimoMensaje
             Text(
                 text = when {
@@ -166,7 +164,7 @@ private fun ChatRowContent(chat: DataChat) {
                     else -> ultimo.texto
                 },
                 fontSize = 14.sp,
-                color = customScheme().primaryContainer,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -176,7 +174,7 @@ private fun ChatRowContent(chat: DataChat) {
             Text(
                 formatearHora(it.timestamp),
                 fontSize = 18.sp,
-                color = customScheme().primaryContainer,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier.align(Alignment.CenterVertically),
             )
         }
