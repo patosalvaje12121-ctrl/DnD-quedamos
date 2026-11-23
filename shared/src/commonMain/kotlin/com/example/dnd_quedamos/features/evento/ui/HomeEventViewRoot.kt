@@ -165,7 +165,7 @@ fun HomeEventViewRoot(
                 .fillMaxSize()
                 .drawBehind {
                     val dy = scrollOffset.mod(tileHeightPx)
-                    translate(top = (-dy).toFloat()) {
+                    translate(top = (-dy)) {
                         drawRect(
                             brush = tileBrush,
                             topLeft = Offset.Zero,

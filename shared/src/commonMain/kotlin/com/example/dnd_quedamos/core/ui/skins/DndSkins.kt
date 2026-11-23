@@ -7,6 +7,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.example.dnd_quedamos.core.ui.componentes.SkinBoton
 import com.example.dnd_quedamos.core.ui.componentes.SkinPanel
+import com.example.dnd_quedamos.core.ui.fondo.Borde
 import com.example.dnd_quedamos.core.ui.fondo.Corte
 import com.example.dnd_quedamos.core.ui.fondo.Fondo
 import com.example.dnd_quedamos.core.ui.fondo.conTinte
@@ -52,10 +53,9 @@ object DndSkins {
     /** Fila de la lista de chats; la caja oscura de la derecha (hora) no se deforma. */
     val panelFilaChat = Fondo.NineSlice(
         Res.drawable.panel_fila_chat,
-        Corte.px(izq = 50, arriba = 65, der = 490, abajo = 60, ancho = 2048, alto = 233),
+        Corte.px(izq = 50, arriba = 50, der = 490, abajo = 60, ancho = 2048, alto = 233),
         anchoDiseno = 512.dp,
     )
-
     // ---------- Imágenes enteras ----------
 
     /** Mapa de fondo de la tarjeta de evento (se recorta, no se estira). */
@@ -89,8 +89,8 @@ object DndSkins {
 
         /** Acción principal de la pantalla (Guardar, Apuntarme, Iniciar sesión…). */
         val principal = SkinBoton(
-            normal = Fondo.Solido(DndColores.primary, forma),
-            pulsado = Fondo.Solido(DndColores.inversePrimary, forma),
+            normal = Fondo.Solido(DndColores.primary, borde = Borde.Linea(DndColores.inversePrimary)),
+            pulsado = Fondo.Solido(DndColores.inversePrimary, borde = Borde.Linea(DndColores.inversePrimary)),
             colorContenido = DndColores.onPrimary,
         )
 
@@ -104,11 +104,19 @@ object DndSkins {
             )
         }
 
+        /** Acción terciaria: destacar. */
+        val terciario: SkinBoton = SkinBoton(
+            normal = Fondo.Gradient(DndColores.primary, DndColores.surfaceTint, forma = forma, borde = Borde.Doble(DndColores.inverseSurface)),
+            pulsado = Fondo.Solido(DndColores.inversePrimary, forma = forma, borde = Borde.Doble(DndColores.inverseSurface)),
+            colorContenido = DndColores.inverseSurface,
+        )
+
+
         /** Acción discreta (Cancelar, Volver, Editar en una lista…): solo texto. */
         val texto = SkinBoton(
             normal = Fondo.Solido(Color.Transparent, forma),
             pulsado = Fondo.Solido(DndColores.primary.copy(alpha = 0.12f), forma),
-            colorContenido = DndColores.primary,
+            colorContenido = DndColores.tertiary,
             padding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
         )
     }

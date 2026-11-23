@@ -7,9 +7,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.LinearGradient
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
@@ -31,9 +33,15 @@ import org.jetbrains.compose.resources.painterResource
 sealed interface Fondo {
 
     /** Color plano, con forma opcional (esquinas redondeadas, etc.). */
-    data class Solido(val color: Color, val forma: Shape = RectangleShape) : Fondo
+    data class Solido(val color: Color, val forma: Shape = RectangleShape, val borde: Borde? = null) : Fondo
 
-    /** Imagen entera escalada al tamaño del contenedor. */
+    data class Gradient(val color1: Color, val color2: Color, val direccion: Direccion = Direccion.Vertical, val forma: Shape = RectangleShape, val borde: Borde? = null) : Fondo {
+        enum class Direccion { Vertical, Horizontal, Diagonal }
+    }
+
+
+
+        /** Imagen entera escalada al tamaño del contenedor. */
     data class Imagen(
         val res: DrawableResource,
         val escalado: ContentScale = ContentScale.FillBounds,
@@ -64,7 +72,7 @@ sealed interface Fondo {
  * que no tiene arte propio para ese estado). En un color plano no hace nada.
  */
 fun Fondo.conTinte(tinte: ColorFilter?): Fondo = when (this) {
-    is Fondo.Solido -> this
+    is Fondo.Solido, is Fondo.Gradient -> this
     is Fondo.Imagen -> copy(tinte = tinte)
     is Fondo.NineSlice -> copy(tinte = tinte)
 }
@@ -72,7 +80,9 @@ fun Fondo.conTinte(tinte: ColorFilter?): Fondo = when (this) {
 /** Pinta [fondo] detrás del contenido. Solo pinta: no cambia el tamaño ni añade padding. */
 @Composable
 fun Modifier.fondo(fondo: Fondo): Modifier = when (fondo) {
-    is Fondo.Solido -> this.background(fondo.color, fondo.forma)
+    is Fondo.Solido ->
+        this.background(fondo.color, fondo.forma)
+            .borde(fondo.borde, fondo.forma)
 
     is Fondo.Imagen -> this.paint(
         painter = painterResource(fondo.res),
@@ -92,6 +102,16 @@ fun Modifier.fondo(fondo: Fondo): Modifier = when (fondo) {
             contentScale = ContentScale.FillBounds,
             colorFilter = fondo.tinte,
         )
+    }
+
+    is Fondo.Gradient -> {
+        val colores = listOf(fondo.color1, fondo.color2)
+        val brush = when (fondo.direccion) {
+            Fondo.Gradient.Direccion.Vertical -> Brush.verticalGradient(colores)
+            Fondo.Gradient.Direccion.Horizontal -> Brush.horizontalGradient(colores)
+            Fondo.Gradient.Direccion.Diagonal -> Brush.linearGradient(colores)
+        }
+        this.background(brush, fondo.forma).borde(fondo.borde, fondo.forma)
     }
 }
 
@@ -115,5 +135,7 @@ fun Fondo.paddingInterno(): PaddingValues = when (this) {
             bottom = (corte.abajo * imagen.height * dpPorPixel).dp,
         )
     }
+    is Fondo.Solido -> PaddingValues(borde?.grosorTotal ?: 0.dp)
+    is Fondo.Gradient -> PaddingValues(borde?.grosorTotal ?: 0.dp)
     else -> PaddingValues(0.dp)
 }

@@ -10,63 +10,69 @@ import androidx.compose.ui.graphics.Color
  */
 val DndColores: ColorScheme =
     ColorScheme(
-        primary = Color(0xFFD09D2B),
-        onPrimary = Color(0xFF350B13),
-        primaryContainer = Color(0xFF6B1119),
-        onPrimaryContainer = Color(0xFFF0CD7B),
-        inversePrimary = Color(0xFFBC7C23),
+        // Gold
+        primary = Color(0xFFD9A32F),
+        onPrimary = Color(0xFF3A0C15),
+        primaryContainer = Color(0xFF7A1521),
+        onPrimaryContainer = Color(0xFFF6D88A),
+        inversePrimary = Color(0xFF9C6410),
 
-        secondary = Color(0xFFC58A8F),
-        onSecondary = Color(0xFF3B0A18),
-        secondaryContainer = Color(0xFF5A2235),
-        onSecondaryContainer = Color(0xFFF2E7B6),
+        // Rose
+        secondary = Color(0xFFD08A94),
+        onSecondary = Color(0xFF42091B),
+        secondaryContainer = Color(0xFF6A2640),
+        onSecondaryContainer = Color(0xFFF4D3DA),
 
-        tertiary = Color(0xFFC7B3E6),
-        onTertiary = Color(0xFF24102E),
-        tertiaryContainer = Color(0xFF4A2A5C),
-        onTertiaryContainer = Color(0xFFEADDFF),
+        // Violet
+        tertiary = Color(0xFFB9A0F0),
+        onTertiary = Color(0xFF2A0F3F),
+        tertiaryContainer = Color(0xFF55307A),
+        onTertiaryContainer = Color(0xFFE6D6FF),
 
-        background = Color(0xFF190A13),
-        onBackground = Color(0xFFF2E7B6),
+        background = Color(0xFF16080F),
+        onBackground = Color(0xFFEFE2C0),
 
-        surface = Color(0xFF211018),
-        onSurface = Color(0xFFF2E7B6),
-        surfaceVariant = Color(0xFF4A2A38),
-        onSurfaceVariant = Color(0xFFD9C2C9),
-        surfaceTint = Color(0xFFD09D2B),
+        surface = Color(0xFF1E0F17),
+        onSurface = Color(0xFFF3E9CC),
+        surfaceVariant = Color(0xFF50303F),
+        onSurfaceVariant = Color(0xFFDCC4CC),
+        surfaceTint = Color(0xFFE4B54A),
 
-        inverseSurface = Color(0xFFF2E7B6),
-        inverseOnSurface = Color(0xFF2A0B1A),
+        inverseSurface = Color(0xFFF1E4B8),
+        inverseOnSurface = Color(0xFF2E0E1D),
 
         error = Color(0xFFFFB4AB),
         onError = Color(0xFF690005),
         errorContainer = Color(0xFF93000A),
         onErrorContainer = Color(0xFFFFDAD6),
 
-        outline = Color(0xFF9A7A86),
-        outlineVariant = Color(0xFF4E3541),
+        outline = Color(0xFFA3818E),
+        outlineVariant = Color(0xFF5A3C4A),
         scrim = Color(0xFF000000),
 
-        surfaceBright = Color(0xFF3A1B27),
-        surfaceContainer = Color(0xFF26121C),
-        surfaceContainerHigh = Color(0xFF311923),
-        surfaceContainerHighest = Color(0xFF3C1F2B),
-        surfaceContainerLow = Color(0xFF1F0D16),
-        surfaceContainerLowest = Color(0xFF14070E),
-        surfaceDim = Color(0xFF190A13),
+        surfaceDim = Color(0xFF1A0B12),
+        surfaceBright = Color(0xFF42202F),
+        surfaceContainerLowest = Color(0xFF110509),
+        surfaceContainerLow = Color(0xFF220F19),
+        surfaceContainer = Color(0xFF2A141F),
+        surfaceContainerHigh = Color(0xFF351B28),
+        surfaceContainerHighest = Color(0xFF412333),
 
-        primaryFixed = Color(0xFFF0CD7B),
-        primaryFixedDim = Color(0xFFD09D2B),
-        onPrimaryFixed = Color(0xFF350B13),
-        onPrimaryFixedVariant = Color(0xFF6B1119),
+        // Fixed: gold
+        primaryFixed = Color(0xFFFFE19A),
+        primaryFixedDim = Color(0xFFE6B94F),
+        onPrimaryFixed = Color(0xFF2B0710),
+        onPrimaryFixedVariant = Color(0xFF7D2A12),
 
-        secondaryFixed = Color(0xFFF0CDD6),
-        secondaryFixedDim = Color(0xFFC58A8F),
-        onSecondaryFixed = Color(0xFF3B0A18),
-        onSecondaryFixedVariant = Color(0xFF5A2235),
+        // Fixed: orchid / purple-leaning
+        secondaryFixed = Color(0xFFE8CBF2),
+        secondaryFixedDim = Color(0xFFCFA3DE),
+        onSecondaryFixed = Color(0xFF3A0F4A),
+        onSecondaryFixedVariant = Color(0xFF6A3A7E),
 
-        tertiaryFixed = Color(0xFFEADDFF),
-        tertiaryFixedDim = Color(0xFFC7B3E6),
-        onTertiaryFixed = Color(0xFF24102E),
-        onTertiaryFixedVariant = Color(0xFF4A2A5C),
+        // Fixed: violet
+        tertiaryFixed = Color(0xFFEFE5FF),
+        tertiaryFixedDim = Color(0xFFCDB8F5),
+        onTertiaryFixed = Color(0xFF1F0A33),
+        onTertiaryFixedVariant = Color(0xFF4B2D78),
     )
