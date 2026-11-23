@@ -69,7 +69,6 @@ import androidx.compose.material3.MaterialTheme
 import com.example.dnd_quedamos.core.ui.skins.DndSkins
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
-import com.example.dnd_quedamos.resources.MedievalSharp_Book
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel

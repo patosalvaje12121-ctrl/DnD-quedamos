@@ -3,8 +3,12 @@ package com.example.dnd_quedamos.core.ui.theme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
-import com.example.dnd_quedamos.resources.MedievalSharp_Book
+import com.example.dnd_quedamos.resources.Indulta_SemiSerif_Bold
+import com.example.dnd_quedamos.resources.Indulta_SemiSerif_Bold_Italic
 import com.example.dnd_quedamos.resources.Res
+import com.example.dnd_quedamos.resources.VinqueAntique_Bold
+import com.example.dnd_quedamos.resources.VinqueAntique_Bold_Italic
+import com.example.dnd_quedamos.resources.Vinque_Regular
 import org.jetbrains.compose.resources.Font
 
 /**
@@ -14,14 +18,27 @@ import org.jetbrains.compose.resources.Font
  */
 @Composable
 fun dndTipografia(): Typography {
-    val medieval = FontFamily(Font(Res.font.MedievalSharp_Book))
+    val indulta = FontFamily(Font(Res.font.Indulta_SemiSerif_Bold))
+    val indultaItalic = FontFamily(Font(Res.font.Indulta_SemiSerif_Bold_Italic))
+    val vinqueBold = FontFamily(Font(Res.font.VinqueAntique_Bold))
+    val vinque = FontFamily(Font(Res.font.Vinque_Regular))
+
     val base = Typography()
     return base.copy(
-        headlineLarge = base.headlineLarge.copy(fontFamily = medieval),
-        headlineMedium = base.headlineMedium.copy(fontFamily = medieval),
-        headlineSmall = base.headlineSmall.copy(fontFamily = medieval),
-        titleLarge = base.titleLarge.copy(fontFamily = medieval),
-        titleMedium = base.titleMedium.copy(fontFamily = medieval),
-        titleSmall = base.titleSmall.copy(fontFamily = medieval),
+        displayLarge = base.displayLarge.copy(fontFamily = vinqueBold),
+        displayMedium = base.displayMedium.copy(fontFamily = vinqueBold),
+        displaySmall = base.displaySmall.copy(fontFamily = vinqueBold),
+        headlineLarge = base.headlineLarge.copy(fontFamily = vinqueBold),
+        headlineMedium = base.headlineMedium.copy(fontFamily = vinqueBold),
+        headlineSmall = base.headlineSmall.copy(fontFamily = vinqueBold),
+        titleLarge = base.titleLarge.copy(fontFamily = vinque),
+        titleMedium = base.titleMedium.copy(fontFamily = vinque),
+        titleSmall = base.titleSmall.copy(fontFamily = vinque),
+        bodyLarge = base.bodyLarge.copy(fontFamily = indulta),
+        bodyMedium = base.bodyMedium.copy(fontFamily = indulta),
+        bodySmall = base.bodySmall.copy(fontFamily = indulta),
+        labelLarge = base.labelLarge.copy(fontFamily = indultaItalic),
+        labelMedium = base.labelMedium.copy(fontFamily = indultaItalic),
+        labelSmall = base.labelSmall.copy(fontFamily = indultaItalic),
     )
 }

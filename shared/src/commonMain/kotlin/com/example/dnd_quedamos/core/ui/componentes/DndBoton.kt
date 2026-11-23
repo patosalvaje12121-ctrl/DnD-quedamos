@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
@@ -33,6 +34,7 @@ import com.example.dnd_quedamos.core.ui.fondo.fondo
 import com.example.dnd_quedamos.core.ui.fondo.paddingInterno
 import com.example.dnd_quedamos.core.ui.skins.DndSkins
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 
 /**
@@ -114,12 +116,14 @@ fun DndBotonIcono(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     tamano: Dp = 48.dp,
+    filterQuality: FilterQuality = FilterQuality.Medium,
 ) {
     val interaccion = remember { MutableInteractionSource() }
     val pulsado by interaccion.collectIsPressedAsState()
 
     Image(
-        painter = painterResource(icono),
+        bitmap = imageResource(icono),
+        filterQuality = filterQuality,
         contentDescription = descripcion,
         contentScale = ContentScale.Fit,
         colorFilter = if (pulsado) Fondo.OSCURECER else null,
