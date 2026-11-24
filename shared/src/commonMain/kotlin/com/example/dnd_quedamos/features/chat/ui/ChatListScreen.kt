@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.dnd_quedamos.core.ui.componentes.DndPanel
 import com.example.dnd_quedamos.core.ui.skins.DndSkins
 import com.example.dnd_quedamos.features.chat.domain.model.DataChat
 import com.example.dnd_quedamos.features.chat.domain.model.TipoChat
@@ -111,38 +112,11 @@ private fun ChatRow(chat: DataChat, onClick: () -> Unit = {}) {
     val painter = painterResource(DndSkins.panelFilaChat.res)
     val intrinsic = painter.intrinsicSize
 
-    Card(Modifier.fillMaxWidth().sizeIn(10.dp, 24.dp, 800.dp, 120.dp ).clickable(onClick = onClick).background(Color.Unspecified)) {
-        if (intrinsic.isSpecified && intrinsic.width > 0f && intrinsic.height > 0f) {
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val widthPx          = constraints.maxWidth.toFloat()
-                // natural height at FillWidth scale:
-                val scaledHeightPx   = intrinsic.height * (widthPx / intrinsic.width)
-                // cap at the drawable's own pixel height (no vertical up-scaling):
-                val cappedHeightPx   = min(scaledHeightPx, intrinsic.height)
-                val cappedHeightDp   = with(LocalDensity.current) { cappedHeightPx.toDp() }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(cappedHeightDp)     // ← the new constraint
-                        .paint(
-                            painter     = painter,
-                            contentScale = ContentScale.FillWidth,
-                        )
-                ) {
-                    ChatRowContent(chat)
-                }
-            }
-        } else {
-            // Fallback: painter exposes no intrinsics (e.g. vector without a size)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .paint(painter = painter, contentScale = ContentScale.FillWidth)
-            ) {
-                ChatRowContent(chat)
-            }
-        }
+    DndPanel (
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick
+    ) {
+        ChatRowContent(chat)
     }
 }
 

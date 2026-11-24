@@ -4,11 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -22,6 +18,7 @@ import com.example.dnd_quedamos.features.chat.ui.ChatDirectoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatEventoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatListScreen
 import com.example.dnd_quedamos.features.chat.ui.ChatScreen
+import com.example.dnd_quedamos.features.chat.ui.ChatScreenRoot
 import com.example.dnd_quedamos.features.chat.ui.NuevoChatScreen
 import com.example.dnd_quedamos.features.evento.ui.HomeEventViewRoot
 import com.example.dnd_quedamos.features.evento.ui.PantallaFormularioEvento
@@ -29,7 +26,6 @@ import com.example.dnd_quedamos.features.evento.ui.PantallaGestion
 import com.example.dnd_quedamos.features.evento.ui.PantallaViewEvent
 import com.example.dnd_quedamos.features.mapa.ui.VistaMainMapa
 import com.example.dnd_quedamos.features.usuario.ui.ViewUserRoot
-import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun App(
@@ -129,9 +125,9 @@ fun App(
                 }
 
                 // ---------- Chat ----------
-                composable<Route.Chats> {
-                    ChatListScreen(
-                        onAbrirChat = { chatId -> navController.navigate(Route.Chat(chatId)) },
+                composable<Route.ChatList> {
+                    ChatScreenRoot(
+                        onBack = { navController.popBackStack() },
                         onNuevoChat = { navController.navigate(Route.NuevoChat) },
                     )
                 }

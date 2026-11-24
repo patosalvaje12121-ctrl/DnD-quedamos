@@ -12,6 +12,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.collectLatest
+
 
 /** Estado de envío de un mensaje tal y como se ve en pantalla. */
 enum class EstadoEnvio { ENVIADO, ENVIANDO, ERROR }
@@ -32,7 +37,6 @@ data class ChatUiState(
 )
 
 class ChatViewModel(
-    private val chatId: Int,
     private val useCase: ManagerChatUseCase,
     private val currentUser: CurrentUserProvider,
 ) : ViewModel() {
@@ -40,13 +44,14 @@ class ChatViewModel(
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
-    /** Lo último que dijo el servidor. */
+    /** Chat que se está mostrando ahora mismo. */
+    private var chatId: Int = -1
+
+    /** Id solicitado desde la UI. */
+    private val chatIdFlow = MutableStateFlow<Int?>(null)
+
     private var delServidor: List<DataMensaje> = emptyList()
-
-    /** Mensajes ya confirmados por POST que quizá el último sondeo todavía no incluía. */
     private val confirmados = mutableListOf<DataMensaje>()
-
-    /** Mensajes enviándose o que fallaron (id temporal negativo). */
     private val pendientes = mutableListOf<MensajeUi>()
     private var siguienteIdTemporal = -1
 
@@ -54,30 +59,59 @@ class ChatViewModel(
         viewModelScope.launch {
             val user = currentUser.currentUser()
             _uiState.update { it.copy(currentUserId = user?.id) }
-            useCase.getChat(chatId)
-                .onSuccess { chat -> _uiState.update { it.copy(chat = chat) } }
-                .onFailure { _uiState.update { it.copy(error = "No se pudo cargar el chat") } }
-        }
 
-        // Polling: pide los mensajes cada 3 segundos mientras la pantalla esté abierta.
-        // El bucle termina solo: al salir del chat se cancela viewModelScope y delay() deja de esperar.
-        viewModelScope.launch {
-            while (true) {
-                useCase.getMensajes(chatId)
-                    .onSuccess { lista ->
-                        delServidor = lista
-                        val ids = lista.mapTo(HashSet()) { it.id }
-                        confirmados.removeAll { it.id in ids }
-                        publicar(cargando = false)
+            // collectLatest cancela el bloque anterior (incluido el while(true))
+            // en cuanto llega un id nuevo.
+            chatIdFlow
+                .filterNotNull()
+                .distinctUntilChanged()
+                .collectLatest { id ->
+                    reiniciarPara(id)
+                    coroutineScope {
+                        launch { cargarChat(id) }
+                        sondear(id)
                     }
-                    .onFailure {
-                        // Un fallo puntual no corta el chat: el siguiente sondeo lo reintenta
-                        if (_uiState.value.cargando) {
-                            _uiState.update { it.copy(cargando = false, error = "Sin conexión con el servidor") }
-                        }
+                }
+        }
+    }
+
+    /** Llamar desde la UI cada vez que cambia el chat seleccionado. */
+    fun loadChat(id: Int) {
+        chatIdFlow.value = id   // mismo id = no hace nada
+    }
+
+    private fun reiniciarPara(id: Int) {
+        chatId = id
+        delServidor = emptyList()
+        confirmados.clear()
+        pendientes.clear()
+        siguienteIdTemporal = -1
+        _uiState.update {
+            ChatUiState(currentUserId = it.currentUserId, cargando = true)
+        }
+    }
+
+    private suspend fun cargarChat(id: Int) {
+        useCase.getChat(id)
+            .onSuccess { chat -> _uiState.update { it.copy(chat = chat) } }
+            .onFailure { _uiState.update { it.copy(error = "No se pudo cargar el chat") } }
+    }
+
+    private suspend fun sondear(id: Int) {
+        while (true) {
+            useCase.getMensajes(id)
+                .onSuccess { lista ->
+                    delServidor = lista
+                    val ids = lista.mapTo(HashSet()) { it.id }
+                    confirmados.removeAll { it.id in ids }
+                    publicar(cargando = false)
+                }
+                .onFailure {
+                    if (_uiState.value.cargando) {
+                        _uiState.update { it.copy(cargando = false, error = "Sin conexión con el servidor") }
                     }
-                delay(3_000)
-            }
+                }
+            delay(3_000)
         }
     }
 
@@ -86,6 +120,8 @@ class ChatViewModel(
     }
 
     fun enviar() {
+        if (chatId < 0) return
+
         val texto = _uiState.value.input.trim()
         val autorId = _uiState.value.currentUserId ?: return
         if (texto.isEmpty()) return
@@ -122,14 +158,17 @@ class ChatViewModel(
     }
 
     private fun mandar(p: MensajeUi) {
+        val idAlEnviar = chatId
         viewModelScope.launch {
-            useCase.enviarMensaje(chatId, p.mensaje.autorId, p.mensaje.texto)
+            useCase.enviarMensaje(idAlEnviar, p.mensaje.autorId, p.mensaje.texto)
                 .onSuccess { real ->
+                    if (idAlEnviar != chatId) return@onSuccess   // ya cambiaste de chat
                     pendientes.removeAll { it.mensaje.id == p.mensaje.id }
                     if (delServidor.none { it.id == real.id }) confirmados += real
                     publicar()
                 }
                 .onFailure {
+                    if (idAlEnviar != chatId) return@onFailure
                     val i = pendientes.indexOfFirst { it.mensaje.id == p.mensaje.id }
                     if (i >= 0) pendientes[i] = pendientes[i].copy(estado = EstadoEnvio.ERROR)
                     _uiState.update { it.copy(error = "No se pudo enviar el mensaje") }

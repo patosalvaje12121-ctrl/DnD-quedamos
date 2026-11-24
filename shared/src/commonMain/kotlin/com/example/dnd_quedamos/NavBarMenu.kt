@@ -39,7 +39,7 @@ private data class DestinoNav(
 
 private val destinos = listOf(
     DestinoNav(DndSkins.Iconos.navCrearEvento, "Crear evento", Route.CreateEvent, Route.CreateEvent::class),
-    DestinoNav(DndSkins.Iconos.navMensajes, "Partidas", Route.Chats, Route.Chats::class),
+    DestinoNav(DndSkins.Iconos.navMensajes, "Chats", Route.ChatList, Route.ChatList::class),
     DestinoNav(DndSkins.Iconos.navInicio, "Inicio", Route.Home, Route.Home::class, esInicio = true),
     DestinoNav(DndSkins.Iconos.navMapa, "Mapa", Route.MainMap, Route.MainMap::class),
     DestinoNav(DndSkins.Iconos.navPerfil, "Perfil", Route.UserProfile(-1), Route.UserProfile::class),

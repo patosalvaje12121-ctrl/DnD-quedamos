@@ -94,7 +94,7 @@ val chatModule = module {
     viewModelOf(::ChatListViewModel)
     viewModelOf(::NuevoChatViewModel)
     // ChatViewModel necesita el chatId: se pasa con koinViewModel { parametersOf(chatId) }
-    viewModel { (chatId: Int) -> ChatViewModel(chatId, get(), get()) }
+    viewModel { ChatViewModel(get(), get()) }
 }
 
 

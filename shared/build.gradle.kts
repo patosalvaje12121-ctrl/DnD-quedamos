@@ -84,6 +84,12 @@ kotlin {
 
             // SHA-256 multiplataforma (Android, Desktop y JS) para el FakeLoginServer.
             implementation("com.squareup.okio:okio:3.18.2")
+
+            implementation("org.jetbrains.compose.material3:material3:1.9.0")
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.3.0")
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive-layout:1.3.0")
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive-navigation:1.3.0")
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

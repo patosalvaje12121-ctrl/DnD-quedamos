@@ -35,9 +35,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalDensity
@@ -69,6 +72,13 @@ fun ChatScreen(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
+
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(chatId) {
+        withFrameNanos { }
+        runCatching { focusRequester.requestFocus() }
+    }
 
     // La lista está invertida: el índice 0 es el mensaje más reciente (abajo del todo)
     val mensajes = uiState.mensajes.asReversed()
@@ -139,7 +149,7 @@ fun ChatScreen(
                     onValueChange = viewModel::onInputChange,
                     placeholder = { Text("Escribe un mensaje como olvidona...") },
                     maxLines = 4,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).focusRequester(focusRequester),
                 )
                 Spacer(Modifier.padding(4.dp))
                 FilledIconButton(

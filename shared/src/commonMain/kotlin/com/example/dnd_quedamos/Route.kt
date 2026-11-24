@@ -31,7 +31,7 @@ sealed interface Route {
     data object Gestion : Route
 
     @Serializable
-    data object Chats : Route;
+    data object ChatList : Route;
 
     @Serializable
     data class ChatWith(val userID: Int) : Route
