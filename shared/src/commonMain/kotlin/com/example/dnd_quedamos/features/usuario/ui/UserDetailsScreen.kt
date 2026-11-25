@@ -3,34 +3,26 @@ package com.example.dnd_quedamos.features.usuario.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.example.dnd_quedamos.core.ui.componentes.DndPanel
 import com.example.dnd_quedamos.core.ui.skins.DndSkins
 import com.example.dnd_quedamos.features.usuario.presentation.ViewUserUiState
 import com.example.dnd_quedamos.core.ui.componentes.AccionBoton
-import com.example.dnd_quedamos.core.ui.componentes.Separator
-import com.example.dnd_quedamos.core.ui.componentes.SeparatorDouble
+import com.example.dnd_quedamos.core.ui.componentes.DndBoton
 import com.example.dnd_quedamos.core.ui.componentes.SeparatorOr
-import org.maplibre.compose.expressions.value.TextUnitValue
 
 @Composable
 fun UserDetailsScreen(
@@ -111,7 +103,7 @@ private fun AccesoUsuario(
             texto = "Iniciar sesión",
             onClick = onIniciarSesion,
             modifier = Modifier.fillMaxWidth(),
-            skin = DndSkins.Botones.terciario,
+            skin = DndSkins.Botones.secundario,
         )
 
         SeparatorOr();
@@ -120,7 +112,7 @@ private fun AccesoUsuario(
             texto = "Registrarse",
             onClick = onRegistrarse,
             modifier = Modifier.fillMaxWidth().paddingFromBaseline(bottom = 150.dp),
-            skin = DndSkins.Botones.terciario,
+            skin = DndSkins.Botones.secundario,
         )
     }
 }
@@ -134,54 +126,67 @@ private fun CartaUsuario(
     onEditarUsuario: (() -> Unit)?,
     onCerrarSesion: (() -> Unit)?,
 ) {
-    DndPanel(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Column (
+        modifier = Modifier.padding(24.dp)
     ) {
-        if (esPerfilPropio) {
-            AccionBoton(
-                texto = "Editar usuario",
-                onClick = onEditarUsuario,
-                modifier = Modifier.align(Alignment.Start),
-                skin = DndSkins.Botones.texto,
-            )
-        }
 
-        // TODO: imagen de usuario (avatar)
+        DndPanel(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.5f),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (esPerfilPropio) {
+                AccionBoton(
+                    texto = "Editar usuario",
+                    onClick = onEditarUsuario,
+                    modifier = Modifier.align(Alignment.Start),
+                    skin = DndSkins.Botones.texto,
+                )
+            }
 
-        Text(
-            text = nombre,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-        )
+            // TODO: imagen de usuario (avatar)
 
-        if (esAdminPerfil) {
             Text(
-                text = "Administrador",
-                style = MaterialTheme.typography.labelLarge,
-            )
-        }
-
-        if (descripcion.isNotBlank()) {
-            Text(
-                text = descripcion,
-                style = MaterialTheme.typography.bodyMedium,
+                text = nombre,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
+
+            if (esAdminPerfil) {
+                Text(
+                    text = "Administrador",
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
+
+            if (descripcion.isNotBlank()) {
+                Text(
+                    text = descripcion,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
 
         if (esPerfilPropio) {
-            Spacer(Modifier.height(4.dp))
-            AccionBoton(
-                texto = "Cerrar sesión",
-                onClick = onCerrarSesion,
-                modifier = Modifier.fillMaxWidth(),
-                skin = DndSkins.Botones.secundario,
-            )
+            DndPanel(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                DndBoton(
+                    onClick = onCerrarSesion,
+                    modifier = Modifier,
+                    skin = DndSkins.Botones.principal_fino,
+                ) {
+                    Text("Cerrar sesión")
+                }
+            }
         }
     }
+
 }

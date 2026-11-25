@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.dnd_quedamos.core.ui.componentes.DndBoton
 import com.example.dnd_quedamos.core.ui.componentes.DndPanel
 import com.example.dnd_quedamos.core.ui.skins.DndSkins
 import com.example.dnd_quedamos.features.chat.domain.model.DataChat
@@ -89,7 +90,7 @@ fun ChatListScreen(
                 } else {
                     LazyColumn(
                         // abajo deja sitio para que el botón ✏️ no tape el último chat
-                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 88.dp),
+                        contentPadding = PaddingValues(start = 0.dp, top = 16.dp, end = 0.dp, bottom = 88.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         items(s.chats, key = { it.id }) { chat ->
@@ -100,7 +101,7 @@ fun ChatListScreen(
         }
 
         // Botón flotante para empezar un chat directo con alguien nuevo
-        ExtendedFloatingActionButton(
+        DndBoton(
             onClick = onNuevoChat,
             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
         ) { Text("✏️ Nuevo chat") }
@@ -109,47 +110,47 @@ fun ChatListScreen(
 
 @Composable
 private fun ChatRow(chat: DataChat, onClick: () -> Unit = {}) {
-    val painter = painterResource(DndSkins.panelFilaChat.res)
-    val intrinsic = painter.intrinsicSize
-
-    DndPanel (
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick
-    ) {
-        ChatRowContent(chat)
+    Row (modifier = Modifier.fillMaxWidth())
+    {
+        DndPanel (
+            modifier = Modifier.fillMaxWidth(),
+            skin = DndSkins.filaChat,
+            onClick = onClick,
+            trailing = {
+                chat.ultimoMensaje?.let {
+                    Text(
+                        text = formatearHora(it.timestamp),
+                        fontSize = 18.sp,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                }
+            }
+        ) {
+            ChatRowContent(chat)
+        }
     }
 }
 
 @Composable
 private fun ChatRowContent(chat: DataChat) {
     Row(
-        modifier = Modifier.padding(36.dp, 24.dp, 64.dp, 6.dp ),
+        modifier = Modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(if (chat.tipo == TipoChat.EVENTO) "🎲" else "👤", fontSize = 26.sp)
         Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
-            Text(chat.nombre, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.secondaryContainer)
+        Column(Modifier.fillMaxWidth()) {
+            Text(chat.nombre, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
             val ultimo = chat.ultimoMensaje
             Text(
                 text = when {
                     ultimo == null -> "Sin mensajes"
-                    chat.tipo == TipoChat.EVENTO -> "${ultimo.autorNombre}: ${ultimo.texto}"
-                    else -> ultimo.texto
+                    else -> "${ultimo.autorNombre}: ${ultimo.texto}"
                 },
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.primaryContainer,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-            )
-        }
-        chat.ultimoMensaje?.let {
-            Spacer(Modifier.width(8.dp))
-            Text(
-                formatearHora(it.timestamp),
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.align(Alignment.CenterVertically),
             )
         }
     }

@@ -6,6 +6,7 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.EMPTY
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
@@ -57,8 +58,8 @@ fun createHttpClient(engine: HttpClientEngine? = null): HttpClient {
 
         // Muestra peticiones/respuestas por consola mientras desarrollamos
         install(Logging) {
-            logger = Logger.SIMPLE
-            level = LogLevel.INFO
+            logger = Logger.EMPTY
+            level = LogLevel.NONE
             sanitizeHeader { header -> header == HttpHeaders.Authorization }
         }
 

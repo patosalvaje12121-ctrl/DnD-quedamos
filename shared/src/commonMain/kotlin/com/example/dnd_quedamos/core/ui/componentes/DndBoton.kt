@@ -63,7 +63,7 @@ data class SkinBoton(
  */
 @Composable
 fun DndBoton(
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
     skin: SkinBoton = DndSkins.Botones.principal,
     enabled: Boolean = true,
@@ -88,7 +88,7 @@ fun DndBoton(
                 indication = null, // el cambio de fondo al pulsar ya es la respuesta visual
                 enabled = enabled,
                 role = Role.Button,
-                onClick = onClick,
+                onClick = { onClick?.invoke() },
             )
             .padding(fondo.paddingInterno())
             .padding(skin.padding),

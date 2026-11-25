@@ -16,7 +16,6 @@ import coil3.request.crossfade
 import com.example.dnd_quedamos.core.ui.theme.DndTheme
 import com.example.dnd_quedamos.features.chat.ui.ChatDirectoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatEventoResolver
-import com.example.dnd_quedamos.features.chat.ui.ChatListScreen
 import com.example.dnd_quedamos.features.chat.ui.ChatScreen
 import com.example.dnd_quedamos.features.chat.ui.ChatScreenRoot
 import com.example.dnd_quedamos.features.chat.ui.NuevoChatScreen
@@ -127,7 +126,6 @@ fun App(
                 // ---------- Chat ----------
                 composable<Route.ChatList> {
                     ChatScreenRoot(
-                        onBack = { navController.popBackStack() },
                         onNuevoChat = { navController.navigate(Route.NuevoChat) },
                     )
                 }

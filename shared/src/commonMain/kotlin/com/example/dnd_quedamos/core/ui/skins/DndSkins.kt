@@ -3,6 +3,7 @@ package com.example.dnd_quedamos.core.ui.skins
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.example.dnd_quedamos.core.ui.componentes.SkinBoton
@@ -53,7 +54,7 @@ object DndSkins {
     /** Fila de la lista de chats; la caja oscura de la derecha (hora) no se deforma. */
     val panelFilaChat = Fondo.NineSlice(
         Res.drawable.panel_fila_chat,
-        Corte.px(izq = 50, arriba = 50, der = 490, abajo = 60, ancho = 2048, alto = 233),
+        Corte.px(izq = 50, arriba = 50, der = 400, abajo = 60, ancho = 2048, alto = 233),
         anchoDiseno = 512.dp,
     )
     // ---------- Imágenes enteras ----------
@@ -72,6 +73,18 @@ object DndSkins {
     val panel = SkinPanel(
         fondo = panelMarco,
         colorContenido = DndColores.onPrimary,
+        padding = PaddingValues(8.dp),
+    )
+
+    val panel_secondary = SkinPanel(
+        fondo = panelMarco.conTinte(ColorFilter.tint(DndColores.primary)),
+        colorContenido = DndColores.onPrimary,
+        padding = PaddingValues(8.dp),
+    )
+
+    val panel_alt = SkinPanel(
+        fondo = Fondo.Solido(DndColores.secondaryContainer, borde = Borde.Linea(DndColores.inversePrimary)),
+        colorContenido = DndColores.tertiary,
         padding = PaddingValues(8.dp),
     )
 
@@ -95,7 +108,7 @@ object DndSkins {
         )
 
         /** Acción secundaria: el mismo marco de pergamino, con el borde más fino. */
-        val secundario: SkinBoton = panelMarco.copy(anchoDiseno = 110.dp).let { marcoFino ->
+        val principal_fino: SkinBoton = panelMarco.copy(anchoDiseno = 110.dp).let { marcoFino ->
             SkinBoton(
                 normal = marcoFino,
                 pulsado = marcoFino.conTinte(Fondo.OSCURECER),
@@ -105,7 +118,7 @@ object DndSkins {
         }
 
         /** Acción terciaria: destacar. */
-        val terciario: SkinBoton = SkinBoton(
+        val secundario: SkinBoton = SkinBoton(
             normal = Fondo.Gradient(DndColores.primary, DndColores.surfaceTint, forma = forma, borde = Borde.Doble(DndColores.inverseSurface)),
             pulsado = Fondo.Solido(DndColores.inversePrimary, forma = forma, borde = Borde.Doble(DndColores.inverseSurface)),
             colorContenido = DndColores.inverseSurface,

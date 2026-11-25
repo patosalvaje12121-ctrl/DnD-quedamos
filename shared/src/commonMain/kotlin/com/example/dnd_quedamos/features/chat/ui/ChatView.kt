@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.dnd_quedamos.core.ui.componentes.Separator
 import com.example.dnd_quedamos.features.chat.domain.model.TipoChat
 import com.example.dnd_quedamos.features.chat.presentation.ChatViewModel
 import com.example.dnd_quedamos.features.chat.presentation.EstadoEnvio
@@ -54,6 +55,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun ChatView(
     chatId: Int,
+    showBack : Boolean,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ChatViewModel = koinViewModel(),
@@ -93,15 +95,19 @@ fun ChatView(
                 Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = onBack) { Text("←", fontSize = 20.sp) }
-                Text(if (uiState.chat?.tipo == TipoChat.EVENTO) "🎲" else "👤", fontSize = 20.sp)
-                Text(
-                    uiState.chat?.nombre ?: "…",
-                    Modifier.padding(start = 8.dp),
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                if(showBack) TextButton(onClick = onBack) { Text("←", fontSize = 20.sp) }
+                Column ( Modifier.padding(6.dp, 6.dp)) {
+                    Row (Modifier.padding(6.dp)) {
+                        Text(if (uiState.chat?.tipo == TipoChat.EVENTO) "🎲" else "👤", fontSize = 20.sp)
+                        Text(
+                            uiState.chat?.nombre ?: "…",
+                            Modifier.padding(start = 8.dp),
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
             }
 
             // Body

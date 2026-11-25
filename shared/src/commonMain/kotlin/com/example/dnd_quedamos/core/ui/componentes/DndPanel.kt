@@ -2,10 +2,14 @@ package com.example.dnd_quedamos.core.ui.componentes
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -13,6 +17,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.example.dnd_quedamos.core.ui.fondo.Fondo
@@ -48,21 +53,38 @@ fun DndPanel(
     onClick: (() -> Unit)? = null,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    trailing: (@Composable BoxScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val pulsable = if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier
 
-    Column(
+    val inset = skin.fondo.paddingInterno()
+    val endInset = inset.calculateEndPadding(LocalLayoutDirection.current)
+
+    Box(
         modifier = modifier
             .fondo(skin.fondo)
             .then(pulsable)
-            .padding(skin.fondo.paddingInterno())
-            .padding(padding),
-        verticalArrangement = verticalArrangement,
-        horizontalAlignment = horizontalAlignment,
     ) {
-        CompositionLocalProvider(LocalContentColor provides skin.colorContenido) {
-            content()
+        Column(
+            modifier = Modifier.padding(inset).padding(padding),
+            verticalArrangement = verticalArrangement,
+            horizontalAlignment = horizontalAlignment,
+        ) {
+            CompositionLocalProvider(LocalContentColor provides skin.colorContenido) {
+                content()
+            }
+        }
+
+        if (trailing != null) {
+            // matchParentSize: doesn't affect the panel's size, only overlays it
+            Box(Modifier.matchParentSize(), contentAlignment = Alignment.CenterEnd) {
+                Box(Modifier.width(endInset), contentAlignment = Alignment.Center) {
+                    CompositionLocalProvider(LocalContentColor provides skin.colorContenido) {
+                        trailing()
+                    }
+                }
+            }
         }
     }
 }
