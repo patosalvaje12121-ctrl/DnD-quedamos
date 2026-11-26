@@ -1,4 +1,5 @@
 *.iml
+*.png~
 .kotlin
 .gradle
 **/build/
