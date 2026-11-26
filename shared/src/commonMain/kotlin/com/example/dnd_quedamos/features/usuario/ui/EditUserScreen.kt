@@ -29,9 +29,10 @@ fun EditUserScreen(state: EditUserUiState, onAction: (EditUserAction) -> Unit, o
                 seleccionada = state.imagenId,
                 onSeleccionar = { id ->
                     onAction(EditUserAction.CambiarImagen(id))
-                    mostrarFotos = false
                 },
                 onCerrar = { mostrarFotos = false }
+
+
             )
         }
         OutlinedTextField(value = state.nombre,

@@ -40,7 +40,7 @@ fun SeleccionFotoDialog(
                                 color = if (id == seleccionada) MaterialTheme.colorScheme.primary else Color.Transparent,
                                 shape = CircleShape
                             )
-                            .clickable { onSeleccionar(id) }
+                            .clickable { onSeleccionar(id).also { onCerrar() }  }
                     )
                 }
             }
