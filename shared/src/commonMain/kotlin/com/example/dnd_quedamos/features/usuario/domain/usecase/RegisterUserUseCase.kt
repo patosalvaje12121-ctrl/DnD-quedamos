@@ -5,6 +5,7 @@ import com.example.dnd_quedamos.features.usuario.data.remote.AuthApi
 import com.example.dnd_quedamos.features.usuario.data.remote.mapper.toDomain
 import com.example.dnd_quedamos.features.usuario.domain.model.DataUsuario
 
+// TODO: obligar a elegir foto de perfil al registrarse (SeleccionFotoDialog) y enviar imagenId; ahora se crea con 0 (sin foto)
 class RegisterUserUseCase(
     private val authApi: AuthApi,
     private val session: MutableCurrentUserProvider
