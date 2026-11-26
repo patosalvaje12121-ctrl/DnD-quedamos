@@ -1,6 +1,5 @@
 package com.example.dnd_quedamos.features.usuario.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -74,6 +71,7 @@ fun UserDetailsScreen(
                 CartaUsuario(
                     nombre = viewModel.dataUsuario.nombre,
                     descripcion = viewModel.dataUsuario.descBio,
+                    imagenId = viewModel.dataUsuario.imageID,
                     esPerfilPropio = viewModel.esPerfilPropio,
                     esAdminPerfil = esAdministradorPerfil,
                     onEditarUsuario = onEditarUsuario,
@@ -146,6 +144,7 @@ private fun AccesoUsuario(
 private fun CartaUsuario(
     nombre: String,
     descripcion: String,
+    imagenId: Int,
     esPerfilPropio: Boolean,
     esAdminPerfil: Boolean,
     onEditarUsuario: (() -> Unit)?,
@@ -177,22 +176,7 @@ private fun CartaUsuario(
                 }
             }
 
-//            // TODO: implementar imágenes de usuario
-//            Box(
-//                modifier = Modifier
-//                    .size(110.dp)
-//                    .background(
-//                        color = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer,
-//                        shape = CircleShape
-//                    ),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text(
-//                    text = "TODO:\nimplementar\nimagenes",
-//                    fontSize = 11.sp,
-//                    textAlign = TextAlign.Center
-//                )
-//            }
+            AvatarUsuario(imagenId = imagenId)
 
             Text(
                 text = nombre,
