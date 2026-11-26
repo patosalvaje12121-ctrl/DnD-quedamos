@@ -1,5 +1,6 @@
 package com.example.dnd_quedamos.features.evento.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -7,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,11 +17,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.onClick
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -33,7 +31,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,15 +44,8 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -66,6 +56,8 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.isSpecified
 import com.example.dnd_quedamos.core.ui.skins.DndSkins
 import com.example.dnd_quedamos.features.evento.domain.model.DataEvento
 import com.example.dnd_quedamos.features.evento.presentation.EventoViewModel
@@ -83,7 +75,7 @@ private const val BASE_GAP           = 8f
 @Composable
 fun HomeEventViewRoot(
     modifier: Modifier = Modifier,
-    onVerMas: (eventoId: Int) -> Unit = {},
+    onAbrirDesc: (eventoId: Int) -> Unit = {},
     onAbrirChat: (eventoId: Int) -> Unit = {},
     viewModel: EventoViewModel = koinViewModel()
 ) {
@@ -158,7 +150,7 @@ fun HomeEventViewRoot(
         }
 
         LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Adaptive(minSize = 512.dp),
+            columns = StaggeredGridCells.Adaptive(minSize = 448.dp),
             state = gridState,
             modifier = Modifier
                 .fillMaxSize()
@@ -173,32 +165,39 @@ fun HomeEventViewRoot(
                     }
                 },
             contentPadding = PaddingValues(16.dp),
-            verticalItemSpacing = 12.dp,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalItemSpacing = 12.dp
         ) {
             items(
                 items = uiState.dataEventos,
                 key = { it.id },
             ) { evento ->
-                EventoCard(evento = evento, onAbrirChat = onAbrirChat)
+                EventoCard(evento = evento, onAbrirDesc = onAbrirDesc, onAbrirChat = onAbrirChat)
             }
         }
     }
 }
+private const val LINEAS_TITULO = 2
+private const val LINEAS_DESCRIPCION = 4
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun EventoCard(
     evento: DataEvento,
+    onAbrirDesc: (eventoId: Int) -> Unit = {},
     onAbrirChat: (eventoId: Int) -> Unit = {},
 ) {
     val painter = painterResource(DndSkins.panelMapa.res)
-
-    val imageRatio = painter.intrinsicSize.let { s ->
-        if (s.width > 0f && s.height > 0f) s.width / s.height else 1f
+    val ratioFondo = painter.intrinsicSize.let { s ->
+        if (s.isSpecified && s.width > 0f && s.height > 0f) s.width / s.height else 1f
     }
 
+    // Aspect ratio of the loaded photo; only used inside the card, never to size it
+    var ratioImagen by remember(evento.id) { mutableStateOf(1f) }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .onClick( onClick = { onAbrirDesc(evento.id) }),
         colors = CardColors(
             containerColor = Color.Transparent,
             contentColor = CardDefaults.cardColors().contentColor,
@@ -206,61 +205,69 @@ private fun EventoCard(
             disabledContentColor = Color.Transparent,
         ),
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(imageRatio)
-                .paint(painter = painter, contentScale = ContentScale.Crop),
+                .aspectRatio(ratioFondo)                                 // card shape = background shape
+                .paint(painter, contentScale = ContentScale.FillBounds), // same ratio, so nothing is distorted
         ) {
-            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                val scale = maxWidth.value / BASE_CARD_WIDTH_DP
+            val scale = maxWidth.value / BASE_CARD_WIDTH_DP
+            val titleSize = (BASE_TITLE_SP * scale).sp
+            val bodySize = (BASE_BODY_SP * scale).sp
+            val paddingH = (BASE_PADDING_H * scale).dp
+            val paddingV = (BASE_PADDING_V * scale).dp
+            val gap = (BASE_GAP * scale).dp
 
-                val titleSize = (BASE_TITLE_SP   * scale).sp
-                val bodySize  = (BASE_BODY_SP    * scale).sp
-                val paddingH  = (BASE_PADDING_H  * scale).dp
-                val paddingV  = (BASE_PADDING_V  * scale).dp
-                val gap       = (BASE_GAP        * scale).dp
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = paddingH, vertical = paddingV),
+            ) {
+                Text(
+                    text = evento.nombre,
+                    fontSize = titleSize,
+                    lineHeight = 1.2.em,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.background,
+                    maxLines = LINEAS_TITULO,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(gap))
+                Text(
+                    text = evento.descripcion,
+                    fontSize = bodySize,
+                    lineHeight = 1.3.em,
+                    color = MaterialTheme.colorScheme.background,
+                    maxLines = LINEAS_DESCRIPCION,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(gap))
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = paddingH, vertical = paddingV),
+                // Takes all the remaining height; the photo is fitted inside it
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        text = evento.nombre,
-                        fontSize = titleSize,
-                        lineHeight = 1.2.em,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.background,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Spacer(Modifier.height(gap))
-                    Text(
-                        text = evento.descripcion,
-                        fontSize = bodySize,
-                        lineHeight = 1.3.em,
-                        color = MaterialTheme.colorScheme.background,
-                        maxLines = 4,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Spacer(Modifier.height(gap))
                     AsyncImage(
                         model = ImageRequest.Builder(LocalPlatformContext.current)
-                            .data("https://picsum.photos/id/${evento.id_image}/1200/1200")
+                            .data("https://picsum.photos/id/1/${evento.id_image}/${evento.id_image}")
                             .crossfade(true)
                             .build(),
                         contentDescription = "Imagen de Evento",
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Fit,
+                        onSuccess = { estado ->
+                            val s = estado.painter.intrinsicSize
+                            if (s.isSpecified && s.height > 0f) ratioImagen = s.width / s.height
+                        },
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f)
+                            .aspectRatio(ratioImagen)   // largest size with the photo's own ratio that fits
                             .clip(RoundedCornerShape(2.dp)),
                     )
-                    Spacer(Modifier.height(gap * 0.5f))
-                    TextButton(onClick = { onAbrirChat(evento.id) }) {
-                        Text("💬 Chat", fontSize = bodySize)
-                    }
+                }
+
+                Spacer(Modifier.height(gap * 0.5f))
+                TextButton(onClick = { onAbrirChat(evento.id) }) {
+                    Text("💬 Chat", fontSize = bodySize)
                 }
             }
         }

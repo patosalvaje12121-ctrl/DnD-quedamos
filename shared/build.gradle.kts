@@ -89,6 +89,8 @@ kotlin {
             implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.3.0")
             implementation("org.jetbrains.compose.material3.adaptive:adaptive-layout:1.3.0")
             implementation("org.jetbrains.compose.material3.adaptive:adaptive-navigation:1.3.0")
+            implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.3.0")
+
 
         }
         commonTest.dependencies {

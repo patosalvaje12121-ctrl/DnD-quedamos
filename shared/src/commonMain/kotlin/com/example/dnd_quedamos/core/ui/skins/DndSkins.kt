@@ -20,6 +20,8 @@ import com.example.dnd_quedamos.resources.icono_nav_inicio
 import com.example.dnd_quedamos.resources.icono_nav_mapa
 import com.example.dnd_quedamos.resources.icono_nav_mensajes
 import com.example.dnd_quedamos.resources.icono_nav_perfil
+import com.example.dnd_quedamos.resources.menu_close
+import com.example.dnd_quedamos.resources.menu_open
 import com.example.dnd_quedamos.resources.panel_fila_chat
 import com.example.dnd_quedamos.resources.panel_mapa
 import com.example.dnd_quedamos.resources.panel_marco
@@ -142,5 +144,10 @@ object DndSkins {
         val navInicio: DrawableResource = Res.drawable.icono_nav_inicio
         val navMapa: DrawableResource = Res.drawable.icono_nav_mapa
         val navPerfil: DrawableResource = Res.drawable.icono_nav_perfil
+    }
+
+    object Textures {
+        val navbarOpen: DrawableResource = Res.drawable.menu_open;
+        val navbarClose: DrawableResource = Res.drawable.menu_close;
     }
 }
