@@ -17,7 +17,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.onClick
+//import androidx.compose.foundation.onClick
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -197,7 +198,7 @@ private fun EventoCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .onClick( onClick = { onAbrirDesc(evento.id) }),
+            .clickable { onAbrirDesc(evento.id) },
         colors = CardColors(
             containerColor = Color.Transparent,
             contentColor = CardDefaults.cardColors().contentColor,
