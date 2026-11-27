@@ -16,7 +16,9 @@ fun ViewUserRoot(
     viewModel: ViewUserViewModel = koinViewModel { parametersOf(iD) },
     editViewModel: EditUserViewModel = koinViewModel(),
     registerViewModel: RegisterUserViewModel = koinViewModel(),
-    loginViewModel: LoginUserViewModel = koinViewModel()
+    loginViewModel: LoginUserViewModel = koinViewModel(),
+    onOpenMessage: (() -> Unit) = { },
+    onOpenMessageList: (() -> Unit) = { },
 ) {
     val perfil by viewModel.uiState.collectAsStateWithLifecycle()
     val edicion by editViewModel.uiState.collectAsStateWithLifecycle()
@@ -64,6 +66,8 @@ fun ViewUserRoot(
                 }
             },
             onCerrarSesion = viewModel::cerrarSesion,
+            onMensage = onOpenMessage,
+            onOpenMessageList = onOpenMessageList,
             modifier = modifier
         )
     }

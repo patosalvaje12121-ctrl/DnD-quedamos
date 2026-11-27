@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -17,7 +18,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonShapes
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +29,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,20 +46,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.dnd_quedamos.core.ui.componentes.Separator
+import com.example.dnd_quedamos.core.ui.componentes.DndBoton
+import com.example.dnd_quedamos.core.ui.skins.DndSkins
+import com.example.dnd_quedamos.core.ui.theme.DndColores
 import com.example.dnd_quedamos.features.chat.domain.model.TipoChat
 import com.example.dnd_quedamos.features.chat.presentation.ChatViewModel
 import com.example.dnd_quedamos.features.chat.presentation.EstadoEnvio
 import com.example.dnd_quedamos.features.chat.presentation.MensajeUi
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Composable
 fun ChatView(
     chatId: Int,
-    showBack : Boolean,
+    showBack: Boolean,
     onBack: () -> Unit,
+    onInspectEvento: (Int) -> Unit,
+    onInspectUsuario: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ChatViewModel = koinViewModel(),
 ) {
@@ -71,7 +77,7 @@ fun ChatView(
 
     LaunchedEffect(chatId) {
         viewModel.loadChat(chatId)
-        viewModel.reintentar(chatId)
+        //viewModel.reintentar(chatId)
     }
 
 
@@ -87,31 +93,47 @@ fun ChatView(
             viewModel.errorMostrado()
         }
     }
+    val chat = uiState.chat
 
     Box(modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().imePadding()) {
             // Cabecera
             Row(
-                Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                if(showBack) TextButton(onClick = onBack) { Text("←", fontSize = 20.sp) }
-                Column ( Modifier.padding(6.dp, 6.dp)) {
-                    Row (Modifier.padding(6.dp)) {
-                        Text(if (uiState.chat?.tipo == TipoChat.EVENTO) "🎲" else "👤", fontSize = 20.sp)
-                        Text(
-                            uiState.chat?.nombre ?: "…",
-                            Modifier.padding(start = 8.dp),
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                if(showBack)
+                {
+                    DndBoton(onClick = onBack)
+                        { Text("←", fontSize = 20.sp) }
+                }
+                Column ( Modifier.padding(0.dp, 6.dp)) {
+                    DndBoton(
+                        onClick = {
+                            when {
+                                chat == null -> Unit
+                                chat.tipo == TipoChat.EVENTO -> chat.eventoId?.let(onInspectEvento)
+                                else -> uiState.otroUsuarioId?.let(onInspectUsuario)  // use your DataChat's real field
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().align(Alignment.Start),
+                    ) {
+                        Row (horizontalArrangement = Arrangement.Start, modifier = Modifier.padding(6.dp)) {
+                            Text(if (chat?.tipo == TipoChat.EVENTO) "🎲" else "👤", fontSize = 20.sp)
+                            Text(
+                                chat?.nombre ?: "…",
+                                Modifier.padding(start = 8.dp),
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
                     }
                 }
             }
 
             // Body
-            Box(Modifier.weight(1f).fillMaxWidth()) {
+            Box(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 4.dp)) {
                 when {
                     uiState.cargando && mensajes.isEmpty() ->
                         CircularProgressIndicator(Modifier.align(Alignment.Center))

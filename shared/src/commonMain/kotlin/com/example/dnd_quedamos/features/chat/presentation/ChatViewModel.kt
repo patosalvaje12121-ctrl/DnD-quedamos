@@ -34,7 +34,9 @@ data class ChatUiState(
     val currentUserId: Int? = null,
     val cargando: Boolean = true,
     val error: String? = null,                    // para el snackbar (se borra con errorMostrado())
-)
+    val otroUsuarioId: Int? = null,
+) {
+}
 
 class ChatViewModel(
     private val useCase: ManagerChatUseCase,
@@ -93,7 +95,7 @@ class ChatViewModel(
 
     private suspend fun cargarChat(id: Int) {
         useCase.getChat(id)
-            .onSuccess { chat -> _uiState.update { it.copy(chat = chat) } }
+            .onSuccess { chat -> _uiState.update { it.copy(chat = chat ) } }
             .onFailure { _uiState.update { it.copy(error = "No se pudo cargar el chat") } }
     }
 

@@ -1,12 +1,8 @@
 package com.example.dnd_quedamos
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -18,7 +14,6 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaul
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
-import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,10 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -52,8 +44,8 @@ private data class DestinoNav(
 )
 
 private val destinosPhone = listOf(
-    DestinoNav(DndSkins.Iconos.navCrearEvento, "Crear evento", Route.CreateEvent, Route.CreateEvent::class),
-    DestinoNav(DndSkins.Iconos.navMensajes, "Chats", Route.ChatList, Route.ChatList::class),
+    DestinoNav(DndSkins.Iconos.navCrearEvento, "Administrar eventos", Route.GestionEvento, Route.GestionEvento::class),
+    DestinoNav(DndSkins.Iconos.navMensajes, "Chats", Route.ChatRoot, Route.ChatRoot::class),
     DestinoNav(DndSkins.Iconos.navInicio, "Inicio", Route.Home, Route.Home::class, esInicio = true),
     DestinoNav(DndSkins.Iconos.navMapa, "Mapa", Route.MainMap, Route.MainMap::class),
     DestinoNav(DndSkins.Iconos.navPerfil, "Perfil", Route.UserProfile(-1), Route.UserProfile::class),
@@ -108,7 +100,6 @@ fun AppNavigationSuite(
             abierto = false
         }
     }
-    val mod = if(esVertical) modifier.hoverable(hoverSource) else modifier
 
     NavigationSuiteScaffold(
         modifier = modifier,
@@ -165,7 +156,7 @@ fun AppNavigationSuite(
     )
 }
 
-private fun NavController.irA(destino: DestinoNav, save: Boolean = true) {
+private fun NavController.irA(destino: DestinoNav, save: Boolean = false) {
     navigate(destino.ruta) {
         if (destino.esInicio) {
             popUpTo(Route.Home) { inclusive = true }
@@ -173,7 +164,7 @@ private fun NavController.irA(destino: DestinoNav, save: Boolean = true) {
         } else {
             popUpTo(Route.Home) { saveState = save }
             launchSingleTop = true
-            restoreState = true
+            restoreState = save
         }
     }
 }

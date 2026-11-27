@@ -2,7 +2,6 @@ package com.example.dnd_quedamos.features.chat.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
@@ -30,6 +29,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun ChatScreenRoot(
     onNuevoChat: () -> Unit,
+    onInspectEvento: (Int) -> Unit,
+    onInspectUsuario: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ChatListViewModel = koinViewModel()
 ) {
@@ -38,7 +39,7 @@ fun ChatScreenRoot(
 
 
     val value = navigator.scaffoldValue;
-    val isSmall = (value[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded) && value[ListDetailPaneScaffoldRole.Detail] != PaneAdaptedValue.Expanded
+    val isSmall = (value[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded)
 
 
     LaunchedEffect(Unit) { viewModel.cargar() }
@@ -46,15 +47,16 @@ fun ChatScreenRoot(
 
     var initialNavigationDone by rememberSaveable { mutableStateOf(false) }
 
-    if(!isSmall)
-    LaunchedEffect(uiState) {
-        if (!initialNavigationDone && uiState is ChatListUiState.Listo && (uiState as ChatListUiState.Listo).chats.isNotEmpty()) {
-            initialNavigationDone = true
-            coroutine.launch {
-                navigator.navigateTo(
-                    ListDetailPaneScaffoldRole.Detail,
-                    (uiState as ChatListUiState.Listo).chats.first().id,
-                )
+    if(!isSmall) {
+        LaunchedEffect(uiState) {
+            if (!initialNavigationDone && uiState is ChatListUiState.Listo && (uiState as ChatListUiState.Listo).chats.isNotEmpty()) {
+                initialNavigationDone = true
+                coroutine.launch {
+                    navigator.navigateTo(
+                        ListDetailPaneScaffoldRole.Detail,
+                        (uiState as ChatListUiState.Listo).chats.first().id,
+                    )
+                }
             }
         }
     }
@@ -91,16 +93,16 @@ fun ChatScreenRoot(
                         onBack = { coroutine.launch {
                             navigator.navigateBack()
                         } },
+                        onInspectEvento = onInspectEvento,
+                        onInspectUsuario = onInspectUsuario,
                     )
                 else
                 {
                     Box (
                         Modifier.fillMaxSize()
                     ) {
-
                         Text("Chat is loading ...", modifier.align(Alignment.Center))
                     }
-
                 }
             }
         }

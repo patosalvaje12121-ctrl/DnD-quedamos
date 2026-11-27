@@ -1,5 +1,6 @@
 package com.example.dnd_quedamos
 
+import com.example.dnd_quedamos.features.chat.domain.model.TipoChat
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -28,17 +29,17 @@ sealed interface Route {
 
     // Lista de eventos que puedes gestionar (los tuyos, o todos si eres administrador)
     @Serializable
-    data object Gestion : Route
+    data object GestionEvento : Route
 
     @Serializable
-    data object ChatList : Route;
+    data object ChatRoot : Route;
 
     @Serializable
     data class ChatWith(val userID: Int) : Route
 
     // Abre un chat ya existente por su id (desde la lista de chats)
     @Serializable
-    data class Chat(val chatId: Int) : Route
+    data class Chat(val chatId: Int, val sourceID: Int, val tipo: Int) : Route
 
     // Abre (o crea) el chat de grupo de un evento
     @Serializable

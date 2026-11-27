@@ -13,6 +13,7 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
+import kotlin.time.isDistantFuture
 
 // Ayudantes que usan varias pantallas de eventos (detalle, gestión y formulario)
 

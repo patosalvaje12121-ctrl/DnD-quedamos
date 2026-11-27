@@ -250,7 +250,7 @@ private fun EventoCard(
                 ) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalPlatformContext.current)
-                            .data("https://picsum.photos/id/1/${evento.id_image}/${evento.id_image}")
+                            .data("https://picsum.photos/id/${evento.id_image}/1800/1200")
                             .crossfade(true)
                             .build(),
                         contentDescription = "Imagen de Evento",

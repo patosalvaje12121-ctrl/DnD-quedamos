@@ -11,6 +11,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.coroutines.delay
 import com.example.dnd_quedamos.core.session.CurrentUserProvider
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * "Servidor falso" para desarrollar sin backend.
@@ -28,13 +29,13 @@ import com.example.dnd_quedamos.core.session.CurrentUserProvider
  */
 
 /** Simula el tiempo de respuesta de una red real (para ver estados de carga). */
-private const val RETARDO_MS = 600L
+private const val RETARDO_MS = 100L
 
 /** Prefijo de todas las rutas: es la parte de ruta de BASE_URL ("/api/"). */
 internal const val API = "/api"
 
 fun createFakeApiEngine(currentUserProvider: CurrentUserProvider): HttpClientEngine = MockEngine { request ->
-    delay(RETARDO_MS)
+    delay(RETARDO_MS.milliseconds)
 
     // Cada servidor devuelve null si la petición no es suya. El chat va primero porque
     // también contesta una ruta bajo /eventos (eventos/{id}/chat).

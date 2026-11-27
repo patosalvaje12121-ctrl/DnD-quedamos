@@ -14,9 +14,10 @@ import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import com.example.dnd_quedamos.core.ui.theme.DndTheme
+import com.example.dnd_quedamos.features.chat.domain.model.TipoChat
+import com.example.dnd_quedamos.features.chat.domain.model.asInt
 import com.example.dnd_quedamos.features.chat.ui.ChatDirectoResolver
 import com.example.dnd_quedamos.features.chat.ui.ChatEventoResolver
-import com.example.dnd_quedamos.features.chat.ui.ChatScreen
 import com.example.dnd_quedamos.features.chat.ui.ChatScreenRoot
 import com.example.dnd_quedamos.features.chat.ui.ChatView
 import com.example.dnd_quedamos.features.chat.ui.NuevoChatScreen
@@ -33,8 +34,6 @@ fun App(
 ) {
     val navController = rememberNavController();
     val destinoActual = navController.currentBackStackEntryAsState().value?.destination
-//    fun estaEn(vararg rutas: kotlin.reflect.KClass<out Route>) =
-//        rutas.any { destinoActual?.hasRoute(it) == true }
 
     setSingletonImageLoaderFactory { context ->
         ImageLoader.Builder(context)
@@ -93,22 +92,27 @@ fun App(
                         PantallaViewEvent(
                             eventoId = ruta.eventID,
                             onBack = { navController.popBackStack() },
-                            onAbrirChat = { eventoId ->
+                            onAbrirChat = {
                                 navController.navigate(
                                     Route.ChatEvento(
-                                        eventoId
+                                        ruta.eventID
                                     )
                                 )
                             },
-                            onEditar = { eventoId -> navController.navigate(Route.EditEvent(eventoId)) },
+                            onEditar = { navController.navigate(Route.EditEvent(ruta.eventID)) },
                         )
                     }
 
                     // ---------- Gestión de eventos ----------
-                    composable<Route.Gestion> {
+                    composable<Route.GestionEvento> {
                         PantallaGestion(
-                            onCrear = { navController.navigate(Route.CreateEvent) },
-                            onEditar = { eventoId -> navController.navigate(Route.EditEvent(eventoId)) },
+                            onAbrirChat = { i ->
+                                navController.navigate(
+                                    Route.ChatEvento(
+                                        i
+                                    )
+                                )
+                            }
                         )
                     }
                     composable<Route.CreateEvent> {
@@ -133,13 +137,19 @@ fun App(
                     // ---------- Usuario ----------
                     composable<Route.UserProfile> { entry ->
                         val ruta = entry.toRoute<Route.UserProfile>()
-                        ViewUserRoot(iD = ruta.userID)
+                        ViewUserRoot(
+                            iD = ruta.userID,
+                            onOpenMessageList = { navController.navigate(Route.Chat(-1, -1, TipoChat.DIRECTO.asInt())) },
+                            onOpenMessage = { navController.navigate(Route.ChatWith(ruta.userID)) }
+                        )
                     }
 
                     // ---------- Chat ----------
-                    composable<Route.ChatList> {
+                    composable<Route.ChatRoot> {
                         ChatScreenRoot(
                             onNuevoChat = { navController.navigate(Route.NuevoChat) },
+                            onInspectEvento = { navController.navigate(Route.InspectEvent(it)) },
+                            onInspectUsuario = { navController.navigate(Route.UserProfile(it)) },
                         )
                     }
                     composable<Route.NuevoChat> {
@@ -158,6 +168,8 @@ fun App(
                         ChatView(
                             chatId = ruta.chatId,
                             onBack = { navController.popBackStack() },
+                            onInspectEvento = { navController.navigate(Route.InspectEvent(it)) },
+                            onInspectUsuario = { navController.navigate(Route.UserProfile(it)) },
                             showBack = true,
                         )
                     }
@@ -168,7 +180,7 @@ fun App(
                         ChatEventoResolver(
                             eventoId = ruta.eventoId,
                             onResuelto = { chatId ->
-                                navController.navigate(Route.Chat(chatId)) {
+                                navController.navigate(Route.Chat(chatId, ruta.eventoId, TipoChat.EVENTO.asInt())) {
                                     popUpTo<Route.ChatEvento> { inclusive = true }
                                 }
                             },
@@ -180,7 +192,7 @@ fun App(
                         ChatDirectoResolver(
                             userId = ruta.userID,
                             onResuelto = { chatId ->
-                                navController.navigate(Route.Chat(chatId)) {
+                                navController.navigate(Route.Chat(chatId, ruta.userID, TipoChat.DIRECTO.asInt())) {
                                     popUpTo<Route.ChatWith> { inclusive = true }
                                 }
                             },
