@@ -89,7 +89,7 @@ class ChatViewModel(
         pendientes.clear()
         siguienteIdTemporal = -1
         _uiState.update {
-            ChatUiState(currentUserId = it.currentUserId, cargando = true)
+            ChatUiState(currentUserId = it.currentUserId, otroUsuarioId = it.otroUsuarioId,  cargando = true)
         }
     }
 

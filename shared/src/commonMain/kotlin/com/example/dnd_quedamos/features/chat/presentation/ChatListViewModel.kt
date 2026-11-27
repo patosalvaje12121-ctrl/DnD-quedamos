@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 sealed interface ChatListUiState {
     data object Cargando : ChatListUiState
-    data class Listo(val chats: List<DataChat>) : ChatListUiState
+    data class Listo(val chats: List<DataChat>, val currentUserID : Int) : ChatListUiState
     data class Error(val mensaje: String) : ChatListUiState
 }
 
@@ -43,7 +43,7 @@ class ChatListViewModel(
                 return@launch
             }
             useCase.getChats(userId)
-                .onSuccess { _uiState.value = ChatListUiState.Listo(it) }
+                .onSuccess { _uiState.value = ChatListUiState.Listo(it, userId) }
                 .onFailure {
                     // Si ya teníamos datos, mejor seguir mostrándolos que tapar la lista con un error
                     if (_uiState.value !is ChatListUiState.Listo) {

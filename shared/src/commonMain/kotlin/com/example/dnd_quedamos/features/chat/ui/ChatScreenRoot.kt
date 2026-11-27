@@ -69,7 +69,6 @@ fun ChatScreenRoot(
                 DndPanel (
                     modifier = modifier
                 ) {
-
                     ChatListScreen(
                         onAbrirChat = { newChatId ->
                             coroutine.launch {

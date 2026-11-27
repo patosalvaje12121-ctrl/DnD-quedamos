@@ -1,11 +1,5 @@
 package com.example.dnd_quedamos.features.chat.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.height
-import androidx.compose.ui.platform.LocalDensity
-import kotlin.math.min
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,30 +9,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
-import androidx.compose.ui.geometry.isSpecified
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.LayoutBoundsHolder
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.layoutBounds
-import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -51,8 +34,11 @@ import com.example.dnd_quedamos.features.chat.domain.model.DataChat
 import com.example.dnd_quedamos.features.chat.domain.model.TipoChat
 import com.example.dnd_quedamos.features.chat.presentation.ChatListUiState
 import com.example.dnd_quedamos.features.chat.presentation.ChatListViewModel
-import org.jetbrains.compose.resources.painterResource
+import com.example.dnd_quedamos.features.usuario.presentation.ViewUserViewModel
+import com.example.dnd_quedamos.features.usuario.ui.AvatarUsuario
+import kotlinx.coroutines.flow.StateFlow
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 /** Pantalla de "📜 Partidas": lista de chats directos y de eventos. */
 @Composable
@@ -66,6 +52,8 @@ fun ChatListScreen(
     LaunchedEffect(Unit) { viewModel.cargar() }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+
 
     Box(modifier.fillMaxSize()) {
         when (val s = uiState) {
@@ -93,8 +81,16 @@ fun ChatListScreen(
                         contentPadding = PaddingValues(start = 0.dp, top = 16.dp, end = 0.dp, bottom = 88.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
+
                         items(s.chats, key = { it.id }) { chat ->
-                            ChatRow(chat, onClick = { onAbrirChat(chat.id) })
+                            val otroUsuarioId = chat.participantes
+                                .firstOrNull { it != s.currentUserID }
+
+                            ChatRow(
+                                chat = chat,
+                                onClick = { onAbrirChat(chat.id) },
+                                userId = otroUsuarioId,
+                            )
                         }
                     }
                 }
@@ -109,7 +105,33 @@ fun ChatListScreen(
 }
 
 @Composable
-private fun ChatRow(chat: DataChat, onClick: () -> Unit = {}) {
+private fun ChatRow(chat: DataChat, onClick: () -> Unit = {}, userId: Int?) {
+
+    if (chat.tipo == TipoChat.EVENTO || userId == null) {
+        ChatRowLayout(chat = chat, onClick = onClick, imageID = null)
+        return
+    }
+
+    val viewUserViewModel: ViewUserViewModel = koinViewModel(
+        key = "chat_user_$userId",   // one VM per peer user
+    ) { parametersOf(userId) }       // load THAT user, not the current one
+
+    val perfil by viewUserViewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(viewUserViewModel) { viewUserViewModel.inicializar() }
+
+    ChatRowLayout(
+        chat = chat,
+        onClick = onClick,
+        imageID = perfil.dataUsuario?.imageID,
+    )
+}
+
+@Composable
+private fun ChatRowLayout(
+    chat: DataChat,
+    onClick: () -> Unit,
+    imageID: Int?,
+) {
     Row (modifier = Modifier.fillMaxWidth())
     {
         DndPanel (
@@ -127,18 +149,30 @@ private fun ChatRow(chat: DataChat, onClick: () -> Unit = {}) {
                 }
             }
         ) {
-            ChatRowContent(chat)
+            ChatRowContent(chat, imageID)
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ChatRowContent(chat: DataChat) {
+private fun ChatRowContent(chat: DataChat, imageID: Int?) {
     Row(
         modifier = Modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(if (chat.tipo == TipoChat.EVENTO) "🎲" else "👤", fontSize = 26.sp)
+
+        if (chat.tipo != TipoChat.EVENTO)
+        {
+            if (imageID != null) {
+                AvatarUsuario(imageID, size = 55.dp)
+            }
+            else
+                LoadingIndicator()
+        }
+        else
+            Text("🎲", fontSize = 26.sp)
+
         Spacer(Modifier.width(12.dp))
         Column(Modifier.fillMaxWidth()) {
             Text(chat.nombre, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)

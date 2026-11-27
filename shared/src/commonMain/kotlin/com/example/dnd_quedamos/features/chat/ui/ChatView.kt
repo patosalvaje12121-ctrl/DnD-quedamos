@@ -113,7 +113,7 @@ fun ChatView(
                             when {
                                 chat == null -> Unit
                                 chat.tipo == TipoChat.EVENTO -> chat.eventoId?.let(onInspectEvento)
-                                else -> uiState.otroUsuarioId?.let(onInspectUsuario)  // use your DataChat's real field
+                                else -> chat.participantes?.let { it -> onInspectUsuario(it.first { dat -> dat != uiState.currentUserId }) }  // use your DataChat's real field
                             }
                         },
                         modifier = Modifier.fillMaxWidth().align(Alignment.Start),

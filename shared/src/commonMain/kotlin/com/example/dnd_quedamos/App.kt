@@ -149,7 +149,7 @@ fun App(
                         ChatScreenRoot(
                             onNuevoChat = { navController.navigate(Route.NuevoChat) },
                             onInspectEvento = { navController.navigate(Route.InspectEvent(it)) },
-                            onInspectUsuario = { navController.navigate(Route.UserProfile(it)) },
+                            onInspectUsuario = { navController.navigate(Route.UserProfile(it)); println(it) },
                         )
                     }
                     composable<Route.NuevoChat> {

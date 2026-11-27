@@ -20,10 +20,10 @@ import kotlinx.serialization.Serializable
  *  - Usuario 4 (Sara): sin biografía, para probar el perfil vacío.
  */
 internal val usuariosFalsos: List<UsuarioDto> = listOf(
-    UsuarioDto(1, "Marco", biografia = "Máster de la campaña de los jueves.", eventosAsistidos = listOf(4)),
-    UsuarioDto(2, "Ana", biografia = "Me encantan los one-shots de terror.", eventosAsistidos = listOf(1)),
-    UsuarioDto(3, "Luis", biografia = "Jugador de Curse of Strahd.", eventosAsistidos = listOf(4)),
-    UsuarioDto(4, "Sara"),
+    UsuarioDto(1, "Marco",  imagenId = 7, biografia = "Máster de la campaña de los jueves.", eventosAsistidos = listOf(4)),
+    UsuarioDto(2, "Ana",  imagenId = 4, biografia = "Me encantan los one-shots de terror.", eventosAsistidos = listOf(1)),
+    UsuarioDto(3, "Luis",  imagenId = 3, biografia = "Jugador de Curse of Strahd.", eventosAsistidos = listOf(4)),
+    UsuarioDto(4, "Sara", imagenId = 6),
 )
 
 /**

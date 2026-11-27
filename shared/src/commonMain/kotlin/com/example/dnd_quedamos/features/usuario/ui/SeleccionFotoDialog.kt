@@ -3,7 +3,10 @@ package com.example.dnd_quedamos.features.usuario.ui
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -11,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -28,20 +32,26 @@ fun SeleccionFotoDialog(
                 columns = GridCells.Fixed(3),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(avataresUsuario.keys.toList()) { id ->
-                    AvatarUsuario(
-                        imagenId = id,
-                        size = 80.dp,
-                        modifier = Modifier
+                    Box(
+                        modifier = Modifier.aspectRatio(1f)
                             .border(
                                 width = 3.dp,
                                 color = if (id == seleccionada) MaterialTheme.colorScheme.primary else Color.Transparent,
                                 shape = CircleShape
-                            )
-                            .clickable { onSeleccionar(id).also { onCerrar() }  }
-                    )
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        AvatarUsuario(
+                            imagenId = id,
+                            size = 80.dp,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable { onSeleccionar(id).also { onCerrar() }  },
+                        )
+                    }
                 }
             }
         }
