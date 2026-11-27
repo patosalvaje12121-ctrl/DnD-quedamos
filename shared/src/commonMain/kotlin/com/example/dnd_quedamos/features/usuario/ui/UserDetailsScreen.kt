@@ -63,6 +63,7 @@ fun UserDetailsScreen(
             viewModel.dataUsuario != null -> CartaUsuario(
                 nombre = viewModel.dataUsuario.nombre,
                 descripcion = viewModel.dataUsuario.descBio,
+                imagenId = viewModel.dataUsuario.imageID,
                 esPerfilPropio = viewModel.esPerfilPropio,
                 esAdminPerfil = viewModel.esAdminDelPerfil(),
                 onEditarUsuario = onEditarUsuario,
@@ -135,6 +136,7 @@ private fun AccesoUsuario(
 private fun CartaUsuario(
     nombre: String,
     descripcion: String,
+    imagenId: Int,
     esPerfilPropio: Boolean,
     esAdminPerfil: Boolean,
     onEditarUsuario: (() -> Unit)?,
@@ -163,11 +165,7 @@ private fun CartaUsuario(
                 Row ( modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                     Column {
                         Row (horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "🫂",
-                                fontSize = TextUnit(128f, TextUnitType.Sp),
-                                modifier = Modifier.border(4.dp, MaterialTheme.colorScheme.primary, CircleShape).padding(16.dp)
-                            )
+                            AvatarUsuario(imagenId = imagenId)
 
                             Column (modifier = Modifier.padding(32.dp)) {
                                 Text(
@@ -216,11 +214,7 @@ private fun CartaUsuario(
                 ) {
                     Text("Cerrar sesión")
                 }
-
             }
         }
-
     }
-
-
 }

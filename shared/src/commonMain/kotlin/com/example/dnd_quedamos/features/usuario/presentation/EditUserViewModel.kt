@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 data class EditUserUiState(
     val nombre: String = "",
     val descripcion: String = "",
+    val imagenId: Int = 0,
     val guardando: Boolean = false,
     val guardado: Boolean = false,
     val error: String? = null
@@ -23,6 +24,7 @@ data class EditUserUiState(
 sealed interface EditUserAction {
     data class CambiarNombre(val valor: String): EditUserAction
     data class CambiarDescripcion(val valor: String): EditUserAction
+    data class CambiarImagen(val imagenId: Int): EditUserAction
     data object Guardar: EditUserAction
 }
 
@@ -33,12 +35,17 @@ class EditUserViewModel(private val editUserUseCase: EditUserUseCase): ViewModel
 
     fun preparar(usuario: DataUsuario) {
         usuarioOriginal = usuario
-        _uiState.value = EditUserUiState(nombre = usuario.nombre, descripcion = usuario.descBio)
+        _uiState.value = EditUserUiState(
+            nombre = usuario.nombre,
+            descripcion = usuario.descBio,
+            imagenId = usuario.imageID
+        )
     }
     fun onAction(action: EditUserAction) {
         when(action) {
             is EditUserAction.CambiarNombre -> _uiState.update { it.copy(nombre = action.valor) }
             is EditUserAction.CambiarDescripcion -> _uiState.update { it.copy(descripcion = action.valor) }
+            is EditUserAction.CambiarImagen -> _uiState.update { it.copy(imagenId = action.imagenId) }
             EditUserAction.Guardar -> guardar()
         }
     }
@@ -49,7 +56,7 @@ class EditUserViewModel(private val editUserUseCase: EditUserUseCase): ViewModel
         viewModelScope.launch {
             _uiState.update { it.copy(guardando = true, guardado = false, error = null) }
             try {
-                editUserUseCase.editar(original, estado.nombre, estado.descripcion)
+                editUserUseCase.editar(original, estado.nombre, estado.descripcion, estado.imagenId)
                 _uiState.update { it.copy(guardando = false, guardado = true) }
             } catch (e: CancellationException) { throw e }
 
